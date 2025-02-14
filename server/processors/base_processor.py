@@ -6,4 +6,5 @@ class BaseProcessor:
         """
         Base method for frame processing
         """
-        raise NotImplementedError("Subclasses must implement process_frame")
+        #raise NotImplementedError("Subclasses must implement process_frame")
+        return frame

@@ -14,8 +14,22 @@ import win32api
 class ScreenCapture:
     def __init__(self):
         # get screen size
-        self.width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
-        self.height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
+        # self.width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
+        # self.height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
+        # Get monitor info
+        monitor_index = 1  # Primary monitor
+        monitors = win32api.EnumDisplayMonitors()
+        if monitor_index >= len(monitors):
+            raise ValueError(f"Monitor index {monitor_index} out of range")
+            
+        monitor = monitors[monitor_index]
+        monitor_rect = monitor[2]  # monitor[2] contains (left, top, right, bottom)
+        
+        # Set dimensions based on selected monitor
+        self.left = monitor_rect[0]
+        self.top = monitor_rect[1]
+        self.width = monitor_rect[2] - monitor_rect[0]
+        self.height = monitor_rect[3] - monitor_rect[1]
         
     def capture(self):
         try:
@@ -62,7 +76,10 @@ class StreamingClient:
         self.server_url = server_url
         self.running = False
         self.screen_capture = ScreenCapture()
-        
+        self.websocket = None
+        self.loop = None
+        self.current_task = None
+        self.stream_thread = None  # Add explicit thread tracking
         self.max_dimension = (800, 600)  # Maximum dimensions for frames
         self.jpeg_quality = 30  # JPEG compression quality (1-100)
         self.setup_gui()
@@ -146,49 +163,110 @@ class StreamingClient:
             print(f"Error updating image: {e}")
         
     async def capture_and_stream(self):
-        async with websockets.connect(self.server_url) as websocket:
-            while self.running:
-                try:
-                    # Capture screen
-                    frame = self.screen_capture.capture()
-                    if frame is None:
-                        continue
-                    
-                    # Compress frame
-                    compressed = self.compress_frame(frame)
-                    img_str = base64.b64encode(compressed).decode('utf-8')
-                    
-                    # Send frame
-                    await websocket.send(f"data:image/jpeg;base64,{img_str}")
-                    
-                    # Receive processed frame
-                    response = await websocket.recv()
-                    
-                    # Decode and display processed frame
-                    encoded_data = response.split(',')[1]
-                    nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
-                    processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    
-                    # Update GUI in main thread
-                    self.root.after(0, self.update_image, processed_frame)
-                    
-                    await asyncio.sleep(1/30)  # Limit to 30 FPS
-                    
-                except Exception as e:
-                    print(f"Error during streaming: {e}")
-                    await asyncio.sleep(1)  # Wait before retrying
+        try:
+            async with websockets.connect(self.server_url) as websocket:
+                self.websocket = websocket
+                while self.running:
+                    try:
+                        # Capture screen
+                        frame = self.screen_capture.capture()
+                        if frame is None:
+                            continue
+                        
+                        # Compress frame
+                        compressed = self.compress_frame(frame)
+                        img_str = base64.b64encode(compressed).decode('utf-8')
+                        
+                        # Send frame
+                        await websocket.send(f"data:image/jpeg;base64,{img_str}")
+                        
+                        # Receive processed frame
+                        response = await websocket.recv()
+                        
+                        # Decode and display processed frame
+                        encoded_data = response.split(',')[1]
+                        nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
+                        processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                        
+                        # Update GUI in main thread
+                        self.root.after(0, self.update_image, processed_frame)
+                        
+                        await asyncio.sleep(1/30)  # Limit to 30 FPS
+                        
+                    except asyncio.CancelledError:
+                        raise  # Re-raise to handle cancellation
+                    except Exception as e:
+                        print(f"Error during streaming: {e}")
+                        await asyncio.sleep(1)
+        except asyncio.CancelledError:
+            print("Streaming task cancelled")
+        finally:
+            self.websocket = None
     
     def start(self):
-        if not self.running:
+        if not self.running and (self.stream_thread is None or not self.stream_thread.is_alive()):
             self.running = True
-            # Run the async loop in a separate thread
             self.stream_thread = threading.Thread(target=self._run_async_loop)
+            self.stream_thread.daemon = True
             self.stream_thread.start()
+        else:
+            print("Stream already running or thread still alive")
     
     def _run_async_loop(self):
-        asyncio.run(self.capture_and_stream())
+        try:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            
+            # Create and store the task
+            self.current_task = self.loop.create_task(self.capture_and_stream())
+            
+            # Run until task is complete or cancelled
+            self.loop.run_until_complete(self.current_task)
+        except asyncio.CancelledError:
+            print("Main task cancelled")
+        except Exception as e:
+            print(f"Error in async loop: {e}")
+        finally:
+            try:
+                # Cancel any pending tasks
+                if self.current_task and not self.current_task.done():
+                    self.current_task.cancel()
+                    try:
+                        self.loop.run_until_complete(self.current_task)
+                    except (asyncio.CancelledError, Exception) as e:
+                        print(f"Task cancellation: {e}")
+                
+                # Close the loop
+                if self.loop and not self.loop.is_closed():
+                    pending = asyncio.all_tasks(self.loop)
+                    for task in pending:
+                        task.cancel()
+                    
+                    self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    self.loop.close()
+            except Exception as e:
+                print(f"Cleanup error: {e}")
+            finally:
+                self.loop = None
+                self.current_task = None
     
     def stop(self):
-        self.running = False
-        if hasattr(self, 'stream_thread'):
-            self.stream_thread.join()
+        if self.running:
+            self.running = False
+            
+            # Cancel the current task
+            if self.current_task and not self.current_task.done():
+                if self.loop and not self.loop.is_closed():
+                    self.loop.call_soon_threadsafe(self.current_task.cancel)
+            
+            # Wait for thread to finish with timeout
+            if self.stream_thread and self.stream_thread.is_alive():
+                self.stream_thread.join(timeout=5)
+                if self.stream_thread.is_alive():
+                    print("Warning: Stream thread did not terminate properly")
+            
+            # Clean up
+            self.stream_thread = None
+            self.current_task = None
+            self.websocket = None
+            self.loop = None
