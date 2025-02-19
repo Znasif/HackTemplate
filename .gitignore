@@ -1,2 +1,2 @@
-server/models/FasterRCNN-12.onnx
+server/models/
 server/.env

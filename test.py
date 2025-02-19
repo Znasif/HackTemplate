@@ -1,187 +1,193 @@
 import asyncio
+import httpx
+from fastapi import FastAPI, WebSocket
+from starlette.websockets import WebSocketDisconnect
+from typing import List
+import uvicorn
 import cv2
-import base64
-import websockets
-import argparse
-import numpy as np
-from typing import Union
-import time
-import signal
 
-def compress_frame(frame, max_dimension=(800, 600), jpeg_quality=30):
-    """
-    Compress frame using the same settings as the GUI client
-    """
-    height, width = frame.shape[:2]
-    if width > max_dimension[0] or height > max_dimension[1]:
-        ratio = min(max_dimension[0]/width, max_dimension[1]/height)
-        new_size = (int(width * ratio), int(height * ratio))
-        frame = cv2.resize(frame, new_size)
-    
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), jpeg_quality]
-    _, buffer = cv2.imencode('.jpg', frame, encode_param)
-    return buffer
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
 
-async def stream_to_server(source: Union[str, int], output_dir: str, fps: int = 30, duration: int = 10):
-    """
-    Stream video/images to WebSocket server and save processed results
-    """
-    # Setup video capture
-    cap = cv2.VideoCapture(source)
-    if not cap.isOpened():
-        raise ValueError(f"Could not open video source: {source}")
-    
-    frame_count = 0
-    start_time = time.time()
-    frame_interval = 1.0 / fps
-    elapsed_time = 0
-    
-    # Flag for graceful shutdown
-    running = True
-    
-    def signal_handler(signum, frame):
-        nonlocal running
-        print("\nReceived signal to stop streaming...")
-        running = False
-    
-    # Register signal handlers
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-    
-    websocket = None
-    try:
-        async with websockets.connect('ws://localhost:8000/ws') as websocket:
-            print("Connected to server")
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+def print_message(message):
+    print(f"Message: {message}", end="\r")
+
+class IntegratedServer:
+    def __init__(self, model_path: str, llama_host: str = "127.0.0.1", 
+                 llama_port: int = 8080, websocket_port: int = 8081):
+        self.model_path = model_path
+        self.llama_host = llama_host
+        self.llama_port = llama_port
+        self.websocket_port = websocket_port
+        self.client = None
+        self.app = FastAPI()
+        self.manager = ConnectionManager()
+        
+        # Set up WebSocket endpoint
+        @self.app.websocket("/ws")
+        async def websocket_endpoint(websocket: WebSocket):
+            await self.manager.connect(websocket)
+            processor = None
+            print(f"WebSocket connection established on port {self.websocket_port}")
             
-            while running:
-                current_time = time.time()
-                elapsed_time = current_time - start_time
-                
-                # Check duration limit
-                if isinstance(source, str) and elapsed_time > duration:
-                    print("Duration limit reached")
-                    break
-                
-                # Read frame
-                ret, frame = cap.read()
-                if not ret:
-                    if isinstance(source, str):
-                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                        ret, frame = cap.read()
-                        if not ret:
-                            break
-                    else:
-                        break
-                
-                # Control FPS
-                if elapsed_time - (frame_count * frame_interval) < frame_interval:
-                    await asyncio.sleep(0.001)  # Small sleep to prevent CPU hogging
-                    continue
-                
-                print(f"\nProcessing frame {frame_count}")
-                print(f"Original frame shape: {frame.shape}")
-                
-                # Compress frame
-                compressed = compress_frame(frame)
-                img_base64 = base64.b64encode(compressed).decode('utf-8')
-                data = f"data:image/jpeg;base64,{img_base64}"
-                print(f"Compressed data length: {len(data)}")
-                
-                try:
-                    print("Sending frame to server...")
-                    await websocket.send(data)
-                    print(f"Sent frame {frame_count}")
-                    
-                    print("Waiting for server response...")
-                    response = await websocket.recv()
-                    print(f"Received response length: {len(response)}")
-                    
-                    # Decode response
-                    encoded_data = response.split(',')[1]
-                    nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
-                    processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    
-                    if processed_frame is not None:
-                        print(f"Processed frame shape: {processed_frame.shape}")
-                        output_path = f"{output_dir}/frame_{frame_count:04d}.jpg"
-                        cv2.imwrite(output_path, processed_frame)
-                        print(f"Saved processed frame to {output_path}")
-                    else:
-                        print("Failed to decode processed frame")
-                    
-                    frame_count += 1
-                    
-                except Exception as e:
-                    print(f"Error processing frame: {e}")
-                    print(f"Error type: {type(e)}")
-                    import traceback
-                    print(f"Traceback: {traceback.format_exc()}")
-                    break  # Break on error to ensure clean shutdown
-                
-                # Rate limiting
-                await asyncio.sleep(1/fps)
-                
-    except websockets.exceptions.ConnectionClosed:
-        print("Connection closed by server")
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        # Clean up
-        if cap:
-            cap.release()
-        
-        if websocket and not websocket.closed:
             try:
-                await websocket.close()
-                print("WebSocket connection closed gracefully")
-            except:
-                pass
-        
-        if 'elapsed_time' not in locals():
-            elapsed_time = time.time() - start_time
-        
-        print(f"\nFinal Statistics:")
-        print(f"Processed {frame_count} frames in {elapsed_time:.2f} seconds")
-        if elapsed_time > 0:
-            print(f"Average FPS: {frame_count / elapsed_time:.2f}")
+                while True:
+                    print_message("\nWaiting for frame...")
+                    data = await websocket.receive_text()
+                    print_message(f"Received data length: {len(data)}")
+                    
+                    try:
+                        # Check for processor selection in the data URL
+                        if data.startswith('data:image/jpeg;'):
+                            # Parse options from the data URL
+                            options_part = data.split('data:image/jpeg;')[1].split('base64,')[0]
+                            options = dict(opt.split('=') for opt in options_part.strip(';').split(';') if '=' in opt)
+                            
+                            # Initialize or update processor based on options
+                            if 'processor' in options and (processor is None or options['processor'] != processor.__class__.__name__):
+                                processor_type = options['processor']
+                                if processor_type == 'MediaPipeProcessor':
+                                    processor = MediaPipeProcessor()
+                                elif processor_type == 'YOLOProcessor':
+                                    processor = YOLOProcessor("./models/yolo11n-seg.pt")
+                                elif processor_type == 'RembgProcessor':
+                                    processor = RembgProcessor()
+                                print_message(f"Initialized {processor_type}")
+                            
+                            # Extract base64 data
+                            encoded_data = data.split('base64,')[1]
+                        else:
+                            encoded_data = data
+                            
+                        if processor is None:
+                            processor = MediaPipeProcessor()  # Default processor
+                            
+                        # Process the frame
+                        print_message("Decoding base64 data...")
+                        decoded_data = base64.b64decode(encoded_data)
+                        
+                        print_message("Converting to numpy array...")
+                        nparr = np.frombuffer(decoded_data, np.uint8)
+                        
+                        print_message("Decoding image...")
+                        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                        if frame is None:
+                            print_message("Error: Failed to decode input frame")
+                            continue
+                        
+                        print_message(f"Frame shape: {frame.shape}")
+                        
+                        print_message("Processing frame...")
+                        processed_frame = processor.process_frame(frame)
+                        print_message(f"Processed frame shape: {processed_frame.shape}")
+                        
+                        print_message("Encoding processed frame...")
+                        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
+                        success, buffer = cv2.imencode('.jpg', processed_frame, encode_param)
+                        if not success:
+                            print_message("Error: Failed to encode processed frame")
+                            continue
+                        
+                        print_message("Converting to base64...")
+                        processed_data = base64.b64encode(buffer).decode('utf-8')
+                        
+                        # Add data URL prefix with current processor type
+                        response_data = f"data:image/jpeg;processor={processor.__class__.__name__};base64,{processed_data}"
+                        print_message(f"Response data length: {len(response_data)}")
+                        
+                        print_message("Sending response...")
+                        await websocket.send_text(response_data)
+                        print_message("Response sent successfully")
+                        
+                    except Exception as e:
+                        print(f"Error processing frame: {str(e)}")
+                        print(f"Error type: {type(e)}")
+                        import traceback
+                        print(f"Traceback: {traceback.format_exc()}")
+                        continue
+                        
+            except WebSocketDisconnect:
+                self.manager.disconnect(websocket)
+                print("WebSocket connection closed")
 
-async def main(args):
-    try:
-        # Convert input to int if it's a camera index
+    async def _test_server_connection(self):
+        """Test connection to llama.cpp server"""
+        url = f"http://{self.llama_host}:{self.llama_port}/health"
         try:
-            source = int(args.input)
-        except ValueError:
-            source = args.input
+            response = await self.client.get(url)
+            return response.status_code == 200
+        except Exception as e:
+            print(f"Connection test failed: {e}")
+            return False
+
+    async def start_server(self):
+        """
+        Asynchronously start both llama.cpp and WebSocket servers.
+        """
+        # Construct the llama.cpp server launch command
+        server_command = [
+            '/home/znasif/llama.cpp/build/bin/llama-server',
+            '-m', self.model_path,
+            '--host', str(self.llama_host),
+            '--port', str(self.llama_port)
+        ]
         
-        # Ensure output directory exists
-        import os
-        os.makedirs(args.output, exist_ok=True)
+        # Create async HTTP client
+        self.client = httpx.AsyncClient(timeout=30.0)
         
-        await stream_to_server(
-            source=source,
-            output_dir=args.output,
-            fps=args.fps,
-            duration=args.duration
-        )
-    except KeyboardInterrupt:
-        print("\nStopped by user")
-    except Exception as e:
-        print(f"Error in main: {e}")
+        # Start both servers concurrently
+        async def start_websocket_server():
+            config = uvicorn.Config(
+                app=self.app,
+                host=self.llama_host,
+                port=self.websocket_port,
+                log_level="info"
+            )
+            server = uvicorn.Server(config)
+            await server.serve()
+
+        # Create tasks for both servers
+        websocket_task = asyncio.create_task(start_websocket_server())
+        
+        # Wait for llama.cpp server to be ready with exponential backoff
+        max_attempts = 10
+        for attempt in range(max_attempts):
+            try:
+                response = await self._test_server_connection()
+                if response:
+                    print(f"Llama.cpp server started successfully on {self.llama_host}:{self.llama_port}")
+                    break
+                await asyncio.sleep(2 ** attempt)
+            except Exception as e:
+                print(f"Connection attempt {attempt + 1} failed: {e}")
+                if attempt == max_attempts - 1:
+                    raise RuntimeError("Could not connect to the llama.cpp server after multiple attempts")
+        
+        # Wait for both servers indefinitely
+        await asyncio.gather(websocket_task)
+
+# Usage example
+async def main():
+    server = IntegratedServer(
+        model_path="/path/to/your/model",
+        llama_host="127.0.0.1",
+        llama_port=8080,
+        websocket_port=8081
+    )
+    await server.start_server()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Test WebSocket video streaming server')
-    parser.add_argument('--input', '-i', required=True,
-                      help='Path to input image/video file or camera index (0 for webcam)')
-    parser.add_argument('--output', '-o', required=True,
-                      help='Directory to save output frames')
-    parser.add_argument('--fps', type=int, default=30,
-                      help='Target frames per second')
-    parser.add_argument('--duration', type=int, default=10,
-                      help='Duration in seconds to stream (for image input)')
-    
-    args = parser.parse_args()
-    
-    try:
-        asyncio.run(main(args))
-    except KeyboardInterrupt:
-        print("\nExiting...")
+    asyncio.run(main())

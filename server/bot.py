@@ -1,12 +1,16 @@
 # This example requires the 'message_content' intent.
 
 import discord
+from discord import Button, ButtonStyle
+from discord.ui import View
 from discord.ext import commands
 import os
+import base64
 from dotenv import load_dotenv
 import subprocess
 import httpx
-import asyncio
+import asyncio, io
+from utils import render_code, encode_image
 
 class LlamaCppServerModifier:
     def __init__(self, model_path, port=8080, host='127.0.0.1'):
@@ -155,6 +159,76 @@ class LlamaCppServerModifier:
         """
         #await self._stop_server()
 
+class ContinueView(View):
+    active_threads = {}  # Class variable to store active thread views
+
+    def __init__(self, first_prompt: str, modifier):
+        super().__init__(timeout=None)
+        self.prompts = [first_prompt]
+        self.thread = None
+        self.modifier = modifier
+
+    @discord.ui.button(label="Continue", style=ButtonStyle.secondary)
+    async def continue_query(self, interaction: discord.Interaction, button: Button):
+        if not self.thread:
+            self.thread = await interaction.message.create_thread(
+                name="Continue",
+                auto_archive_duration=60
+            )
+            print(f"Created thread: {self.thread.id}")
+            # Store this view instance in the class dictionary
+            ContinueView.active_threads[self.thread.id] = self
+            await interaction.response.send_message("Created a thread to continue query", ephemeral=True)
+        
+        if not interaction.response.is_done():
+            await interaction.response.defer()
+    
+    async def handle_thread_message(self, message):
+        # Add new message to prompts context
+        self.prompts.append(message.content)
+        
+        # Create combined prompt with context
+        combined_prompt = " ".join(self.prompts)
+        print(f"Combined prompt: {combined_prompt}")
+        try:
+            # Get the code response from the LLM
+            code_response = await self.modifier.modify_text(
+                combined_prompt, 
+                instruction="Provide clear, concise, and working matplotlib code examples with absolutely no greetings and commentary. Your response should be fully executable and without needing additional parsing.",
+                max_tokens=500,
+                temperature=0.7
+            )
+
+            print(f"Code response: {code_response}")
+            
+            # Render the code to get the image
+            image = render_code(code_response)
+            
+            if image:
+                encoded_image = encode_image(image)
+                image_bytes = base64.b64decode(encoded_image)
+                image_binary = io.BytesIO(image_bytes)
+                
+                await self.thread.send(
+                    content=code_response,
+                    tts=True
+                )
+                
+                await self.thread.send(
+                    file=discord.File(fp=image_binary, filename='plot.png')
+                )
+            else:
+                await self.thread.send(
+                    content=code_response + "\n*Note: Plot generation failed*",
+                    tts=True
+                )
+                
+        except Exception as e:
+            await self.thread.send(
+                "Sorry, there was an error processing your request."
+            )
+            print(f"Error in thread message processing: {e}")
+
 class MyClient(commands.Bot):
     modifier = None
     async def on_ready(self):
@@ -169,9 +243,50 @@ class MyClient(commands.Bot):
         async def queryLlama(interaction: discord.Interaction, prompt: str):
             #try:
                 await interaction.response.defer()
-                modified_text = await self.modifier.modify_text(prompt, instruction="Provide clear, concise, and working code examples with absolutely not greetings and commentary. Your response should be fully executable and without needing additional parsing.", max_tokens=150, temperature=0.7)
-                print(f"Response to prompt: {modified_text}")
-                await interaction.followup.send(modified_text)
+                
+                # Get the code response from the LLM
+                code_response = await self.modifier.modify_text(
+                    prompt, 
+                    instruction="Provide clear, concise, and working matplotlib code examples with absolutely no greetings and commentary. Your response should be fully executable and without needing additional parsing.",
+                    max_tokens=150,
+                    temperature=0.7
+                )
+                
+                # Render the code to get the image
+                image = render_code(code_response)
+                
+                if image:
+                    # Use encode_image to convert to base64
+                    encoded_image = encode_image(image)
+                    
+                    # Convert base64 string back to bytes for Discord
+                    image_bytes = base64.b64decode(encoded_image)
+                    image_binary = io.BytesIO(image_bytes)
+                    
+                    view = ContinueView(code_response, modifier=self.modifier)
+                    
+                    # Send both code and image
+                    await interaction.followup.send(
+                        file=discord.File(fp=image_binary, filename='plot.png')
+                    )
+
+                    # Send TTS message with replay button
+                    await interaction.followup.send(
+                        content=code_response, 
+                        tts=True,
+                        view=view
+                    )
+                else:
+                    # Send just the code if image generation failed
+                    view = ContinueView(code_response, modifier=self.modifier)
+                    
+                    # Send TTS message with replay button
+                    await interaction.followup.send(
+                        content=code_response+ "\n*Note: Plot generation failed*", 
+                        tts=True,
+                        view=view
+                    )
+                    
             # except Exception as e:
             #     if not interaction.response.is_done():
             #         await interaction.response.send_message(
@@ -184,6 +299,8 @@ class MyClient(commands.Bot):
             #             ephemeral=True
             #         )
             #     print(f"Error in query command: {e}")
+
+        # Sync commands
         synced = await self.tree.sync(guild=guild)
         print(f'Synced {len(synced)} commands to guild {guild.id}')
         # except Exception as e:
@@ -193,6 +310,11 @@ class MyClient(commands.Bot):
         if message.author == self.user:
             return
         print(f"Received message: {message.content}")
+        if isinstance(message.channel, discord.Thread) and message.channel.id in ContinueView.active_threads:
+            print(f"Accessing active thread: {message.channel.id}")
+            view = ContinueView.active_threads[message.channel.id]
+            await view.handle_thread_message(message)
+    
 
 
 async def main():

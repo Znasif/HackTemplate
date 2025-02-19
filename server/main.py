@@ -9,6 +9,7 @@ from processors.base_processor import BaseProcessor
 from processors.rembg_processor import RembgProcessor
 from processors.yolo_processor import YOLOProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
+from processors.ocr_processor import OCRProcessor
 
 app = FastAPI()
 
@@ -35,7 +36,7 @@ def print_message(message):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    processor = MediaPipeProcessor()# YOLOProcessor("./models/yolo11n-seg.pt")  # Or RembgProcessor()
+    processor = YOLOProcessor("./models/yolo11n-seg.pt")#MediaPipeProcessor()#OCRProcessor()#  Or RembgProcessor()
     print("\nINFO:     connection open")
     
     try:
