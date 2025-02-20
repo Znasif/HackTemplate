@@ -54,7 +54,7 @@ async def describe_image(
         match = re.search(pattern, result.stdout, re.DOTALL)
         print(result.stdout)
         if match:
-            return match.group(1) + match.group(2)
+            return match.group(2)
         return None
         
     except subprocess.CalledProcessError as e:

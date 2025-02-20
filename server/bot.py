@@ -11,6 +11,7 @@ from llama import LlamaCppServerModifier
 from llava import describe_image
 import asyncio, io
 from utils import render_code, encode_image
+import httpx
 
 class ContinueView(View):
     active_threads = {}  # Class variable to store active thread views
@@ -87,14 +88,53 @@ class MyClient(commands.Bot):
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
         guild = discord.Object(id=int(os.getenv('DISCORD_GUILD_ID')))
+
+        @self.tree.command(name="queryimage",
+                        description="Query with an image and prompt",
+                        guild=guild)
+        async def queryimage(
+            interaction: discord.Interaction, 
+            image: discord.Attachment,
+            prompt: str
+        ):
+            try:
+                await interaction.response.defer()
+                
+                if not image.content_type.startswith('image/'):
+                    await interaction.followup.send("Please provide a valid image file.")
+                    return
+                
+                # Download the image data using httpx
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(image.url)
+                    if response.status_code == 200:
+                        image_data = response.content
+                        # Convert to base64
+                        encoded_image = base64.b64encode(image_data).decode('utf-8')
+                        
+                        # Now you can use encoded_image with describe_image
+                        description = await describe_image(encoded_image, prompt=prompt)
+                        
+                        view = ContinueView(prompt, modifier=self.modifier)
+                        
+                        await interaction.followup.send(
+                            content=description,
+                            tts=True,
+                            view=view
+                        )
+                    else:
+                        await interaction.followup.send("Failed to download the image.")
+                        
+            except Exception as e:
+                await interaction.followup.send(f"An error occurred: {str(e)}")
         #try:
         @self.tree.command(
-            name="query",
+            name="querycode",
             description="Query the Llama.cpp server",
             guild=guild
         )
         async def queryLlama(interaction: discord.Interaction, prompt: str):
-            #try:
+            try:
                 await interaction.response.defer()
                 
                 # Get the code response from the LLM
@@ -111,9 +151,6 @@ class MyClient(commands.Bot):
                 if image:
                     # Use encode_image to convert to base64
                     encoded_image = encode_image(image)
-                    description = await describe_image(encoded_image)
-                    print(f"Description: {description}")
-                    
                     # Convert base64 string back to bytes for Discord
                     image_bytes = base64.b64decode(encoded_image)
                     image_binary = io.BytesIO(image_bytes)
@@ -126,6 +163,9 @@ class MyClient(commands.Bot):
                         file=discord.File(fp=image_binary, filename='plot.png')
                     )
 
+                    description = await describe_image(encoded_image)
+                    print(f"Description: {description}")
+                    
                     # Send TTS message with replay button
                     await interaction.followup.send(
                         content=description,
@@ -143,18 +183,18 @@ class MyClient(commands.Bot):
                         view=view
                     )
                     
-            # except Exception as e:
-            #     if not interaction.response.is_done():
-            #         await interaction.response.send_message(
-            #             "Sorry, there was an error processing your request.",
-            #             ephemeral=True
-            #         )
-            #     else:
-            #         await interaction.followup.send(
-            #             "Sorry, there was an error processing your request.",
-            #             ephemeral=True
-            #         )
-            #     print(f"Error in query command: {e}")
+            except Exception as e:
+                if not interaction.response.is_done():
+                    await interaction.response.send_message(
+                        "Sorry, there was an error processing your request.",
+                        ephemeral=True
+                    )
+                else:
+                    await interaction.followup.send(
+                        "Sorry, there was an error processing your request.",
+                        ephemeral=True
+                    )
+                print(f"Error in query command: {e}")
 
         # Sync commands
         synced = await self.tree.sync(guild=guild)
