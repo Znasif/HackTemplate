@@ -8,6 +8,7 @@ import os
 import base64
 from dotenv import load_dotenv
 from llama import LlamaCppServerModifier
+from llava import describe_image
 import asyncio, io
 from utils import render_code, encode_image
 
@@ -100,7 +101,7 @@ class MyClient(commands.Bot):
                 code_response = await self.modifier.modify_text(
                     prompt, 
                     instruction="Provide clear, concise, and working matplotlib code examples with absolutely no greetings and commentary. Your response should be fully executable and without needing additional parsing.",
-                    max_tokens=150,
+                    max_tokens=500,
                     temperature=0.7
                 )
                 
@@ -110,6 +111,8 @@ class MyClient(commands.Bot):
                 if image:
                     # Use encode_image to convert to base64
                     encoded_image = encode_image(image)
+                    description = await describe_image(encoded_image)
+                    print(f"Description: {description}")
                     
                     # Convert base64 string back to bytes for Discord
                     image_bytes = base64.b64decode(encoded_image)
@@ -119,12 +122,13 @@ class MyClient(commands.Bot):
                     
                     # Send both code and image
                     await interaction.followup.send(
+                        content=code_response,
                         file=discord.File(fp=image_binary, filename='plot.png')
                     )
 
                     # Send TTS message with replay button
                     await interaction.followup.send(
-                        content=code_response, 
+                        content=description,
                         tts=True,
                         view=view
                     )

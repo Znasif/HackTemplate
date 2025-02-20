@@ -32,7 +32,7 @@ llama-server -m ./llama.cpp/models/Qwen2.5.1-Coder-7B-Instruct-Q6_K --host 127.0
 
 ## 🦙 Starting LLaVA Server
 ```bash
-./llama-qwen2vl-cli -m ../../models/Qwen2-VL-7B-Instruct-Q6_K.gguf --mmproj ../../models/qwen2-vl-2b-instruct-vision.gguf --image ../../../vidServer/james.
+./llama-qwen2vl-cli -m ../../models/Qwen2-VL-2B-Instruct-Q6_K.gguf --mmproj ../../models/qwen2-vl-2b-instruct-vision.gguf --image ../../../vidServer/james.
 jpg -p "describe"
 ```
 
