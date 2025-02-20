@@ -48,9 +48,20 @@ class ContinueView(View):
             # Get the code response from the LLM
             code_response = await self.modifier.modify_text(
                 combined_prompt, 
-                instruction="Provide clear, concise, and working matplotlib code examples with absolutely no greetings and commentary. Your response should be fully executable and without needing additional parsing.",
-                max_tokens=500,
-                temperature=0.7
+                instruction="""Provide working python code that:
+1. If plotting, use matplotlib directly
+2. If drawing complex shapes or geometry, use PIL or other image libraries, but convert the image to a matplotlib figure before displaying
+3. Always end with plt.show()
+4. Include all necessary imports
+5. Use no text output, comments, or explanations
+6. Be fully self-contained and executable
+7. Never use Image.show() or other display methods
+8. Always convert non-matplotlib images to plt format using:
+   plt.imshow(image)
+   plt.axis('off')
+   plt.show()""",
+                max_tokens=-1,
+                temperature=0.8
             )
 
             print(f"Code response: {code_response}")
@@ -140,13 +151,24 @@ class MyClient(commands.Bot):
                 # Get the code response from the LLM
                 code_response = await self.modifier.modify_text(
                     prompt, 
-                    instruction="Provide clear, concise, and working matplotlib code examples with absolutely no greetings and commentary. Your response should be fully executable and without needing additional parsing.",
-                    max_tokens=500,
-                    temperature=0.7
+                    instruction="""Provide working python code that:
+1. If plotting, use matplotlib directly
+2. If drawing complex shapes or geometry, use PIL or other image libraries, but convert the image to a matplotlib figure before displaying
+3. Always end with plt.show()
+4. Include all necessary imports
+5. Use no text output, comments, or explanations
+6. Be fully self-contained and executable
+7. Never use Image.show() or other display methods
+8. Always convert non-matplotlib images to plt format using:
+   plt.imshow(image)
+   plt.axis('off')
+   plt.show()""",
+                    max_tokens=-1,
+                    temperature=0.8
                 )
                 
                 # Render the code to get the image
-                image = render_code(code_response)
+                image = render_code(code_response, True)
                 
                 if image:
                     # Use encode_image to convert to base64

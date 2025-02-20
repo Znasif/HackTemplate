@@ -89,14 +89,33 @@ class LlamaCppServerModifier:
             "prompt": full_prompt,
             "n_predict": max_tokens,
             "temperature": temperature,
-            "stop": ["<|im_end|>"]
+            "stop": ["<|im_end|>"],
+            "top_k": 40,
+            "top_p": 0.95,
+            "min_p": 0.05,
+            "n_probs": 0,
+            "typical_p": 1.0,  # default value, adjust as needed
+            "dynatemp_range": 0.0,  # dynamic temperature range
+            "dynatemp_exponent": 1.0,  # dynamic temperature exponent
+            "xtc_threshold": 0.1, # cross-token coherence threshold
+            "xtc_probability": 0.0, # cross-token coherence probability
+            "samplers":["penalties", "dry", "top_k", "typ_p", "top_p", "min_p", "xtc", "temperature"],
+            "repeat_last_n": 64,  # number of tokens to look back for repetition
+            "repeat_penalty": 1.0,  # penalty for repetition
+            "presence_penalty": 0.0,  # penalty for token presence
+            "frequency_penalty": 0.0,  # penalty for token frequency
+            "dry_multiplier": 0.0,  # DynamicRepetition (DRY) multiplier
+            "dry_base": 1.75,  # DRY base value
+            "dry_allowed_length": 2,  # DRY allowed sequence length
+            "dry_penalty_last_n": -1  # DRY penalty for last N tokens
         }
         
         #try:
             # Send async request to the server
         response = await self.client.post(
             f'http://{self.host}:{self.port}/completion', 
-            json=payload
+            json=payload,
+            timeout=350.0
         )
         #response = await self.client.get(f'http://{self.host}:{self.port}/health')
         # Check if request was successful

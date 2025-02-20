@@ -71,7 +71,7 @@ class ScreenCapture:
             return None
 
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8080/ws"):#"ws://shaggy-cities-think.loca.lt/ws"):
+    def __init__(self, root, server_url="ws://localhost:8000/ws"):#"ws://shaggy-cities-think.loca.lt/ws"):
         self.root = root
         self.server_url = server_url
         self.running = False
