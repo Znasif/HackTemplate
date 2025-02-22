@@ -8,7 +8,7 @@ import os
 import base64
 from dotenv import load_dotenv
 from llama import LlamaCppServerModifier
-from llava import describe_image
+from llava import ImageDescriber
 import asyncio, io
 from utils import render_code, encode_image
 import httpx
@@ -96,6 +96,7 @@ class ContinueView(View):
 
 class MyClient(commands.Bot):
     modifier = None
+    describer = None
     async def on_ready(self):
         print(f'Logged on as {self.user}!')
         guild = discord.Object(id=int(os.getenv('DISCORD_GUILD_ID')))
@@ -124,7 +125,7 @@ class MyClient(commands.Bot):
                         encoded_image = base64.b64encode(image_data).decode('utf-8')
                         
                         # Now you can use encoded_image with describe_image
-                        description = await describe_image(encoded_image, prompt=prompt)
+                        description = await self.describer.describe_with_gemma(encoded_image, prompt=prompt)
                         
                         view = ContinueView(prompt, modifier=self.modifier)
                         
@@ -185,7 +186,7 @@ class MyClient(commands.Bot):
                         file=discord.File(fp=image_binary, filename='plot.png')
                     )
 
-                    description = await describe_image(encoded_image)
+                    description = await self.describer.describe_with_qwen(encoded_image)
                     print(f"Description: {description}")
                     
                     # Send TTS message with replay button
@@ -243,6 +244,7 @@ async def main():
         await modifier.start_server()
         client = MyClient(command_prefix=os.getenv('COMMAND_PREFIX'), intents=intents)
         client.modifier = modifier
+        client.describer = ImageDescriber()
         token=os.getenv('DISCORD_TOKEN')
         await client.start(token)
 
