@@ -1,5 +1,4 @@
 # This example requires the 'message_content' intent.
-
 import discord
 from discord import Button, ButtonStyle
 from discord.ui import View
@@ -125,7 +124,7 @@ class MyClient(commands.Bot):
                         encoded_image = base64.b64encode(image_data).decode('utf-8')
                         
                         # Now you can use encoded_image with describe_image
-                        description = await self.describer.describe_with_gemma(encoded_image, prompt=prompt)
+                        description = await self.describer.describe_with_gemma(encoded_image, prompt="question en "+prompt)
                         
                         view = ContinueView(prompt, modifier=self.modifier)
                         

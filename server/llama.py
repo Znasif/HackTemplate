@@ -14,7 +14,7 @@ class LlamaCppServerModifier:
         self.model_path = model_path
         self.port = port
         self.host = host
-        self.server_process = None
+        self.server_process = []
         self.client = None
     
     async def start_server(self):
@@ -29,13 +29,18 @@ class LlamaCppServerModifier:
             '--port', str(self.port)
         ]
         
-        # Launch the server as a subprocess
-        # self.server_process = subprocess.Popen(
+        #Launch the server as a subprocess
+        # self.server_process = [subprocess.Popen(
         #     server_command, 
         #     stdout=subprocess.PIPE, 
         #     stderr=subprocess.PIPE,
         #     text=True
-        # )
+        # ), subprocess.Popen(
+        #     ['uvicorn', 'stream:app', '--reload'],
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        #     text=True
+        # )]
         
         # Create async HTTP client
         self.client = httpx.AsyncClient(timeout=30.0)
@@ -143,17 +148,19 @@ class LlamaCppServerModifier:
         if self.client:
             await self.client.aclose()
         
-        if self.server_process:
+        for server_process in self.server_process:
             print("Stopping llama.cpp server...")
-            self.server_process.terminate()
+            server_process.terminate()
             try:
                 # Wait for the process to end
-                self.server_process.wait(timeout=5)
+                server_process.wait(timeout=5)
             except subprocess.TimeoutExpired:
                 # Force kill if it doesn't terminate
-                self.server_process.kill()
+                server_process.kill()
             
             print("Server stopped.")
+        
+        self.server_process = []
     
     async def __aenter__(self):
         """

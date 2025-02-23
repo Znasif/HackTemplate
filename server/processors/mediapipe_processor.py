@@ -124,7 +124,7 @@ class MediaPipeProcessor(BaseProcessor):
                     )
                 detections['hand_landmarks'] = hand_results.multi_hand_landmarks
         
-        return output
+        return output, ""
 
     def get_landmark_coordinates(self, landmarks, image_shape):
         """

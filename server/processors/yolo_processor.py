@@ -46,6 +46,7 @@ class YOLOProcessor(BaseProcessor):
         # Get the segmentation masks and boxes from results
         masks = result.masks
         boxes = result.boxes
+        texts = ""
         
         if masks is not None and len(masks) > 0:
             # Process each detection
@@ -60,6 +61,7 @@ class YOLOProcessor(BaseProcessor):
                 confidence = float(box.conf)
                 class_name = result.names[class_id]
                 
+                texts += f"{class_name}\n"
                 # Store detection info
                 detection = {
                     'bbox': bbox.tolist(),
@@ -95,7 +97,7 @@ class YOLOProcessor(BaseProcessor):
                 label = f"{class_name} {confidence:.2f}"
                 cv2.putText(output, label, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color.tolist(), 2)
         
-        return output
+        return output, texts
     
     def process_frame_with_prompt(self, frame, prompt):
         """
@@ -144,4 +146,4 @@ class YOLOProcessor(BaseProcessor):
                 mask_area = mask > 0.5
                 output[mask_area] = cv2.addWeighted(frame[mask_area], 1-alpha, colored_mask[mask_area], alpha, 0)
         
-        return output
+        return output, ""

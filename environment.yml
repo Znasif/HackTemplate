@@ -1,0 +1,45 @@
+name: discord-vision
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - cudatoolkit-dev
+  - pytorch
+  - torchvision
+  - pip
+  - tk
+
+  # Server Dependencies
+  - fastapi
+  - uvicorn
+  - websockets
+  - httpx
+
+  # Discord Bot
+  - python-dotenv
+  - "discord.py"
+
+  # Core Utils
+  - pillow
+  - numpy
+  - pywin32  # for Windows screen capture
+  - opencv
+
+  # Development Tools
+  - ipython
+
+  # Additional pip packages
+  - pip:
+    - pyttsx3
+    - pyautogui
+    - mediapipe
+    - paddleocr
+    - ultralytics
+    - transformers
+    - "accelerate>=0.26.0"
+    - paddlepaddle-gpu
+    - einops
+    - timm

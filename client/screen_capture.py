@@ -10,6 +10,45 @@ import win32gui
 import win32ui
 import win32con
 import win32api
+import json
+import pyttsx3
+
+import threading
+import pyttsx3
+import queue
+
+class TTSHandler:
+    def __init__(self):
+        self.tts_engine = pyttsx3.init()
+        self.current_text = None
+        self.stop_flag = threading.Event()
+        self.tts_thread = None
+
+    def speak_text(self, text):
+        """Stop current speech and start new text"""
+        # Stop current speech if any
+        if self.tts_thread and self.tts_thread.is_alive():
+            self.stop_flag.set()
+            self.tts_thread.join(timeout=0.1)  # Brief wait for cleanup
+            
+        # Reset stop flag and start new speech
+        self.stop_flag.clear()
+        self.current_text = text
+        self.tts_thread = threading.Thread(target=self._speak_thread)
+        self.tts_thread.daemon = True
+        self.tts_thread.start()
+
+    def _speak_thread(self):
+        try:
+            # Create a new engine instance for this thread
+            thread_engine = pyttsx3.init()
+            thread_engine.say(self.current_text)
+            thread_engine.startLoop(False)
+            while not self.stop_flag.is_set():
+                thread_engine.iterate()
+            thread_engine.endLoop()
+        except Exception as e:
+            print(f"TTS error: {e}")
 
 class ScreenCapture:
     def __init__(self):
@@ -83,6 +122,8 @@ class StreamingClient:
         self.max_dimension = (800, 600)  # Maximum dimensions for frames
         self.jpeg_quality = 30  # JPEG compression quality (1-100)
         self.setup_gui()
+        self.tts_handler = TTSHandler()
+        self.received_text = ""
         
     def setup_gui(self):
         # Create frame for image
@@ -161,7 +202,7 @@ class StreamingClient:
             
         except Exception as e:
             print(f"Error updating image: {e}")
-        
+
     async def capture_and_stream(self):
         try:
             async with websockets.connect(self.server_url) as websocket:
@@ -182,14 +223,20 @@ class StreamingClient:
                         
                         # Receive processed frame
                         response = await websocket.recv()
-                        
+                        data = json.loads(response)
                         # Decode and display processed frame
-                        encoded_data = response.split(',')[1]
-                        nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
-                        processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                        
-                        # Update GUI in main thread
-                        self.root.after(0, self.update_image, processed_frame)
+                        if "image" in data:
+                            encoded_data = data["image"].split(',')[1]
+                            nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
+                            processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                            self.root.after(0, self.update_image, processed_frame)
+                        if "text" in data:
+                            print(f"Received text: {data['text']}")
+                            print(f"Previous text: {self.received_text}")
+                            print(f"Are they different? {data['text'] != self.received_text}")
+                            if data["text"] != self.received_text:
+                                self.received_text = data["text"]
+                                self.root.after(0, self.tts_handler.speak_text, data["text"])
                         
                         await asyncio.sleep(1/30)  # Limit to 30 FPS
                         

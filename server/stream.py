@@ -2,11 +2,10 @@ from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from typing import List
 import asyncio
-import cv2
+import cv2, json
 import numpy as np
 import base64
 from processors.base_processor import BaseProcessor
-from processors.rembg_processor import RembgProcessor
 from processors.yolo_processor import YOLOProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
 from processors.ocr_processor import OCRProcessor
@@ -16,6 +15,7 @@ app = FastAPI()
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
+        self.last_sent_text = ""
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -36,7 +36,17 @@ def print_message(message):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    processor = YOLOProcessor("./models/yolo11n-seg.pt")#MediaPipeProcessor()#OCRProcessor()#  Or RembgProcessor()
+    select = 1
+    if select == 0:
+        processor = OCRProcessor('<DENSE_REGION_CAPTION>')
+    elif select == 1:
+        processor = OCRProcessor()
+    elif select == 2:
+        processor = YOLOProcessor("./models/yolo11n-seg.pt")
+    elif select == 3:
+        processor = MediaPipeProcessor()
+    else:
+        processor = BaseProcessor()
     print("\nINFO:     connection open")
     
     try:
@@ -69,11 +79,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 print_message(f"Frame shape: {frame.shape}")
                 
                 print_message("Processing frame...")
-                processed_frame = processor.process_frame(frame)
+                processed_frame, detection_text = processor.process_frame(frame)
                 print_message(f"Processed frame shape: {processed_frame.shape}")
                 
                 print_message("Encoding processed frame...")
-                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]  # Use same quality as client
+                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 100]  # Use same quality as client
                 success, buffer = cv2.imencode('.jpg', processed_frame, encode_param)
                 if not success:
                     print_message("Error: Failed to encode processed frame")
@@ -83,11 +93,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 processed_data = base64.b64encode(buffer).decode('utf-8')
                 
                 # Add data URL prefix for consistency
-                response_data = f"data:image/jpeg;base64,{processed_data}"
+                image_data = f"data:image/jpeg;base64,{processed_data}"
+                response_data = {"image": image_data, "text": ""}
+                if manager.last_sent_text != detection_text:
+                    response_data["text"] = detection_text
+                    manager.last_sent_text = detection_text
+                    #print(f"Text: {detection_text}")
                 print_message(f"Response data length: {len(response_data)}")
                 
                 print_message("Sending response...")
-                await websocket.send_text(response_data)
+                await websocket.send_text(json.dumps(response_data))
                 print_message("Response sent successfully")
                 
             except Exception as e:
