@@ -12,6 +12,7 @@ import os
 import re
 import tempfile
 import gc
+from dotenv import load_dotenv
 
 class ImageDescriber:
     _instance = None
@@ -35,8 +36,9 @@ class ImageDescriber:
                 device_map="auto"
             ).eval()
             self.processor = PaliGemmaProcessor.from_pretrained(model_id)
-            self.model_path = "/home/znasif/llama.cpp/models/Qwen2-VL-2B-Instruct-Q6_K.gguf"
-            self.mmproj_path = "/home/znasif/llama.cpp/models/qwen2-vl-2b-instruct-vision.gguf"
+            load_dotenv()
+            self.model_path = os.getenv('VLM_MODEL_PATH')
+            self.mmproj_path = os.getenv('VISION_MODEL_PATH')
             ImageDescriber._initialized = True
 
     async def describe_with_gemma(

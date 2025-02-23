@@ -1,0 +1,292 @@
+import numpy as np
+import cv2
+import asyncio
+import websockets
+import base64
+import threading
+import tkinter as tk
+from PIL import Image, ImageTk
+import json
+import pyttsx3
+import mss
+import platform
+
+class TTSHandler:
+    def __init__(self):
+        self.tts_engine = pyttsx3.init()
+        self.current_text = None
+        self.stop_flag = threading.Event()
+        self.tts_thread = None
+
+    def speak_text(self, text):
+        """Stop current speech and start new text"""
+        if self.tts_thread and self.tts_thread.is_alive():
+            self.stop_flag.set()
+            self.tts_thread.join(timeout=0.1)
+            
+        self.stop_flag.clear()
+        self.current_text = text
+        self.tts_thread = threading.Thread(target=self._speak_thread)
+        self.tts_thread.daemon = True
+        self.tts_thread.start()
+
+    def _speak_thread(self):
+        try:
+            thread_engine = pyttsx3.init()
+            thread_engine.say(self.current_text)
+            thread_engine.startLoop(False)
+            while not self.stop_flag.is_set():
+                thread_engine.iterate()
+            thread_engine.endLoop()
+        except Exception as e:
+            print(f"TTS error: {e}")
+
+class ScreenCapture:
+    def __init__(self, monitor_index=1):
+        self.sct = mss.mss()
+        self.monitor_index = monitor_index
+        self._setup_monitor()
+
+    def _setup_monitor(self):
+        monitors = self.sct.monitors[1:]  # Skip the "all monitors" monitor
+        if self.monitor_index >= len(monitors):
+            print(f"Monitor index {self.monitor_index} out of range, using primary monitor")
+            self.monitor_index = 0
+        
+        self.monitor = monitors[self.monitor_index]
+        self.width = self.monitor["width"]
+        self.height = self.monitor["height"]
+        self.top = self.monitor["top"]
+        self.left = self.monitor["left"]
+
+    def capture(self):
+        try:
+            # Define the capture region
+            monitor = {
+                "top": self.top,
+                "left": self.left,
+                "width": self.width,
+                "height": self.height
+            }
+            
+            # Capture the screen
+            screenshot = self.sct.grab(monitor)
+            
+            # Convert to numpy array
+            img = np.array(screenshot)
+            
+            # Convert from BGRA to BGR
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+            
+            return img
+            
+        except Exception as e:
+            print(f"Error capturing screen: {e}")
+            return None
+
+class StreamingClient:
+    def __init__(self, root, server_url="ws://localhost:8000/ws"):
+        self.root = root
+        self.server_url = server_url
+        self.running = False
+        self.screen_capture = ScreenCapture()
+        self.websocket = None
+        self.loop = None
+        self.current_task = None
+        self.stream_thread = None
+        self.max_dimension = (800, 600)
+        self.jpeg_quality = 30
+        self.setup_gui()
+        self.tts_handler = TTSHandler()
+        self.received_text = ""
+        
+    def setup_gui(self):
+        # Create frame for image
+        self.image_frame = tk.Frame(self.root)
+        self.image_frame.pack(expand=True, fill='both')
+        
+        # Create label for image
+        self.label = tk.Label(self.image_frame)
+        self.label.pack(expand=True, fill='both')
+        
+        # Create frame for controls
+        self.control_frame = tk.Frame(self.root)
+        self.control_frame.pack(fill='x')
+        
+        # Add FPS counter
+        self.fps_label = tk.Label(self.control_frame, text="FPS: 0")
+        self.fps_label.pack(side='left', padx=5)
+        
+        # Add quality slider
+        self.quality_label = tk.Label(self.control_frame, text="Quality:")
+        self.quality_label.pack(side='left', padx=5)
+        self.quality_slider = tk.Scale(self.control_frame, from_=1, to=100, 
+                                     orient='horizontal', command=self.update_quality)
+        self.quality_slider.set(self.jpeg_quality)
+        self.quality_slider.pack(side='left', padx=5)
+        
+        # Add monitor selector
+        self.monitor_label = tk.Label(self.control_frame, text="Monitor:")
+        self.monitor_label.pack(side='left', padx=5)
+        self.monitor_var = tk.StringVar(value="1")
+        with mss.mss() as sct:
+            monitor_count = len(sct.monitors) - 1  # Subtract 1 to exclude the "all monitors" option
+        self.monitor_menu = tk.OptionMenu(self.control_frame, self.monitor_var, 
+                                        *range(monitor_count),
+                                        command=self.change_monitor)
+        self.monitor_menu.pack(side='left', padx=5)
+        
+        self.last_frame_time = 0
+        
+    def change_monitor(self, monitor_index):
+        try:
+            monitor_index = int(monitor_index)
+            self.screen_capture = ScreenCapture(monitor_index)
+        except ValueError as e:
+            print(f"Error changing monitor: {e}")
+    
+    def update_quality(self, value):
+        self.jpeg_quality = int(value)
+        
+    def compress_frame(self, frame):
+        # Resize if larger than max_dimension
+        height, width = frame.shape[:2]
+        if width > self.max_dimension[0] or height > self.max_dimension[1]:
+            ratio = min(self.max_dimension[0]/width, self.max_dimension[1]/height)
+            new_size = (int(width * ratio), int(height * ratio))
+            frame = cv2.resize(frame, new_size)
+        
+        # Compress using JPEG encoding
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality]
+        _, buffer = cv2.imencode('.jpg', frame, encode_param)
+        return buffer
+        
+    def update_image(self, image):
+        try:
+            window_width = self.image_frame.winfo_width()
+            window_height = self.image_frame.winfo_height()
+            
+            if window_width > 0 and window_height > 0:
+                img_aspect = image.shape[1] / image.shape[0]
+                window_aspect = window_width / window_height
+                
+                if window_aspect > img_aspect:
+                    new_height = window_height
+                    new_width = int(window_height * img_aspect)
+                else:
+                    new_width = window_width
+                    new_height = int(window_width / img_aspect)
+                
+                image = cv2.resize(image, (new_width, new_height))
+            
+            image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+            photo = ImageTk.PhotoImage(image=image)
+            self.label.config(image=photo)
+            self.label.image = photo
+            
+            current_time = asyncio.get_event_loop().time()
+            if self.last_frame_time > 0:
+                fps = 1 / (current_time - self.last_frame_time)
+                self.fps_label.config(text=f"FPS: {fps:.1f}")
+            self.last_frame_time = current_time
+            
+        except Exception as e:
+            print(f"Error updating image: {e}")
+
+    async def capture_and_stream(self):
+        try:
+            async with websockets.connect(self.server_url) as websocket:
+                self.websocket = websocket
+                while self.running:
+                    try:
+                        frame = self.screen_capture.capture()
+                        if frame is None:
+                            continue
+                        
+                        compressed = self.compress_frame(frame)
+                        img_str = base64.b64encode(compressed).decode('utf-8')
+                        
+                        await websocket.send(f"data:image/jpeg;base64,{img_str}")
+                        
+                        response = await websocket.recv()
+                        data = json.loads(response)
+                        if "image" in data:
+                            encoded_data = data["image"].split(',')[1]
+                            nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
+                            processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                            self.root.after(0, self.update_image, processed_frame)
+                        if "text" in data:
+                            if data["text"] != self.received_text:
+                                self.received_text = data["text"]
+                                self.root.after(0, self.tts_handler.speak_text, data["text"])
+                        
+                        await asyncio.sleep(1/30)  # Limit to 30 FPS
+                        
+                    except asyncio.CancelledError:
+                        raise
+                    except Exception as e:
+                        print(f"Error during streaming: {e}")
+                        await asyncio.sleep(1)
+        except asyncio.CancelledError:
+            print("Streaming task cancelled")
+        finally:
+            self.websocket = None
+    
+    def start(self):
+        if not self.running and (self.stream_thread is None or not self.stream_thread.is_alive()):
+            self.running = True
+            self.stream_thread = threading.Thread(target=self._run_async_loop)
+            self.stream_thread.daemon = True
+            self.stream_thread.start()
+        else:
+            print("Stream already running or thread still alive")
+    
+    def _run_async_loop(self):
+        try:
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            self.current_task = self.loop.create_task(self.capture_and_stream())
+            self.loop.run_until_complete(self.current_task)
+        except asyncio.CancelledError:
+            print("Main task cancelled")
+        except Exception as e:
+            print(f"Error in async loop: {e}")
+        finally:
+            try:
+                if self.current_task and not self.current_task.done():
+                    self.current_task.cancel()
+                    try:
+                        self.loop.run_until_complete(self.current_task)
+                    except (asyncio.CancelledError, Exception) as e:
+                        print(f"Task cancellation: {e}")
+                
+                if self.loop and not self.loop.is_closed():
+                    pending = asyncio.all_tasks(self.loop)
+                    for task in pending:
+                        task.cancel()
+                    
+                    self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    self.loop.close()
+            except Exception as e:
+                print(f"Cleanup error: {e}")
+            finally:
+                self.loop = None
+                self.current_task = None
+    
+    def stop(self):
+        if self.running:
+            self.running = False
+            
+            if self.current_task and not self.current_task.done():
+                if self.loop and not self.loop.is_closed():
+                    self.loop.call_soon_threadsafe(self.current_task.cancel)
+            
+            if self.stream_thread and self.stream_thread.is_alive():
+                self.stream_thread.join(timeout=5)
+                if self.stream_thread.is_alive():
+                    print("Warning: Stream thread did not terminate properly")
+            
+            self.stream_thread = None
+            self.current_task = None
+            self.websocket = None
+            self.loop = None
