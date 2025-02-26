@@ -218,8 +218,12 @@ class StreamingClient:
                         compressed = self.compress_frame(frame)
                         img_str = base64.b64encode(compressed).decode('utf-8')
                         
-                        # Send frame
-                        await websocket.send(f"data:image/jpeg;base64,{img_str}")
+                        # Send frame with processor ID
+                        message = {
+                            "image": f"data:image/jpeg;base64,{img_str}",
+                            "processor": self.processor_id  # Use the instance property
+                        }
+                        await websocket.send(json.dumps(message))
                         
                         # Receive processed frame
                         response = await websocket.recv()

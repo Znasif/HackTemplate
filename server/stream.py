@@ -12,8 +12,35 @@ from processors.ocr_processor import OCRProcessor
 
 app = FastAPI()
 
+# At the module level, before your WebSocket endpoint function
+class ProcessorManager:
+    # Static processors initialized once for the entire application
+    processors = None
+    
+    @classmethod
+    def initialize(cls):
+        if cls.processors is None:
+            print("Initializing processors...")
+            cls.processors = {
+                0: OCRProcessor('<DENSE_REGION_CAPTION>'),
+                1: OCRProcessor(),
+                2: YOLOProcessor("./models/yolo11n-seg.pt"),
+                3: MediaPipeProcessor(),
+                4: BaseProcessor()
+            }
+    
+    @classmethod
+    def get_processor(cls, processor_id):
+        # Initialize if not already done
+        if cls.processors is None:
+            cls.initialize()
+        
+        # Return requested processor or default to OCR
+        return cls.processors.get(processor_id, cls.processors[1])
+
 class ConnectionManager:
     def __init__(self):
+        ProcessorManager.initialize()
         self.active_connections: List[WebSocket] = []
         self.last_sent_text = ""
 
@@ -36,17 +63,9 @@ def print_message(message):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
-    select = 1
-    if select == 0:
-        processor = OCRProcessor('<DENSE_REGION_CAPTION>')
-    elif select == 1:
-        processor = OCRProcessor()
-    elif select == 2:
-        processor = YOLOProcessor("./models/yolo11n-seg.pt")
-    elif select == 3:
-        processor = MediaPipeProcessor()
-    else:
-        processor = BaseProcessor()
+    
+    # Default to OCR processor
+    current_processor_id = 1
     print("\nINFO:     connection open")
     
     try:
@@ -56,6 +75,23 @@ async def websocket_endpoint(websocket: WebSocket):
             print_message(f"Received data length: {len(data)}")
             
             try:
+                # Check if the data is in JSON format
+                try:
+                    json_data = json.loads(data)
+                    # Extract image data and processor_id from JSON
+                    if "image" in json_data:
+                        data = json_data["image"]
+                        
+                        # Update processor based on received processor_id
+                        if "processor" in json_data:
+                            new_processor_id = json_data["processor"]
+                            if new_processor_id != current_processor_id:
+                                current_processor_id = new_processor_id
+                                print_message(f"Switching to processor ID: {current_processor_id}")
+                except json.JSONDecodeError:
+                    # Not JSON, treat as raw image data
+                    pass
+                
                 # Extract base64 data from data URL
                 if data.startswith('data:image/jpeg;base64,'):
                     encoded_data = data.split('base64,')[1]
@@ -78,7 +114,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 print_message(f"Frame shape: {frame.shape}")
                 
-                print_message("Processing frame...")
+                # Get the current processor from our dictionary
+                # Default to processor 1 (OCR) if the requested ID isn't available
+                processor = ProcessorManager.get_processor(current_processor_id)
+                
+                print_message(f"Processing frame with processor ID: {current_processor_id}...")
                 processed_frame, detection_text = processor.process_frame(frame)
                 print_message(f"Processed frame shape: {processed_frame.shape}")
                 

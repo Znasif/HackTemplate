@@ -124,7 +124,7 @@ class MyClient(commands.Bot):
                         encoded_image = base64.b64encode(image_data).decode('utf-8')
                         
                         # Now you can use encoded_image with describe_image
-                        description = await self.describer.describe_with_gemma(encoded_image, prompt="question en "+prompt)
+                        description = await self.describer.describe_with_qwen(encoded_image)
                         
                         view = ContinueView(prompt, modifier=self.modifier)
                         
