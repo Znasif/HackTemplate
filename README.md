@@ -11,6 +11,9 @@ It has the following features:
     b. Face, Hand and Body pose estimation (Mediapipe)
     c. OCR and Region based captioning (Florence 2)
 
+# Brief Demo
+[![Demo Link for Whatsapp Livestream AI processing](https://i.ytimg.com/vi/ExhlwkUW_gc/hqdefault.jpg?sqp=-oaymwExCNACELwBSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBRKEAwDw==&rs=AOn4CLDxzMwlnE3AVdbFIucWFV93J9Jg3g)](https://www.youtube.com/playlist?list=PLk3VM_Y78PILin5BQJ0cYq_OdmuT7v1VY)
+
 # 🚀 Setup Guide
 
 This guide walks you through the installation and setup of necessary dependencies, servers, and services for this discord-bot based accessibility project.
@@ -32,6 +35,8 @@ Have the following things ready:
     DISCORD_GUILD_ID="the server you want the bot to be active in"
     DISCORD_CHANNEL_ID="the channel where the bot will reply"
     PERMISSIONS="the permission integer"
+    GROQ_API_KEY="get a groq api key for llama-3.2-90b-vision-preview live query"
+    OPENAI_API_KEY="get openai api key"
 2. In server/models download: AtkinsonHyperlegible-Regular.ttf and yolo11n-seg.pt
 
 ## 📌 Installation Steps
@@ -81,7 +86,19 @@ Currently the client only works in Windows. And the shared monitor is not select
 cd path\to\client
 python main.py
 ```
-Then start the client by pressing start streaming -> This will start to share the PC screen to the server.
+Then start the client by pressing start streaming -> This will start to share the PC screen to the server. Then you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
+
+```python
+processor_options = [
+        "Dense Region Caption",
+        "OCR",
+        "YOLO Detection",
+        "MediaPipe",
+        "Base Processor",
+        "Groq",
+        "OpenAI"
+    ]
+```
 
 ### WSL Server:
 ```bash

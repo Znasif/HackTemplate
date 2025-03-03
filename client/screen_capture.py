@@ -56,7 +56,7 @@ class ScreenCapture:
         # self.width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
         # self.height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
         # Get monitor info
-        monitor_index = 1  # Primary monitor
+        monitor_index = 2  # Primary monitor
         monitors = win32api.EnumDisplayMonitors()
         if monitor_index >= len(monitors):
             raise ValueError(f"Monitor index {monitor_index} out of range")
@@ -69,6 +69,7 @@ class ScreenCapture:
         self.top = monitor_rect[1]
         self.width = monitor_rect[2] - monitor_rect[0]
         self.height = monitor_rect[3] - monitor_rect[1]
+        print(f"Screen dimensions: {self.width}x{self.height}")
         
     def capture(self):
         try:
@@ -87,7 +88,7 @@ class ScreenCapture:
             
             # copy screen into memory DC
             mem_dc.BitBlt((0, 0), (self.width, self.height), img_dc, 
-                        (0, 0), win32con.SRCCOPY)
+                        (self.left, self.top), win32con.SRCCOPY)
             
             # convert bitmap to numpy array
             signedIntsArray = screenshot.GetBitmapBits(True)
@@ -109,8 +110,11 @@ class ScreenCapture:
             print(f"Error capturing screen: {e}")
             return None
 
+def print_message(message):
+    print(f"Message: {message}", end="\r")
+
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws"):#"ws://shaggy-cities-think.loca.lt/ws"):
+    def __init__(self, root, server_url="ws://funny-garlics-stay.loca.lt/ws"):#"ws://localhost:8000/ws"):#
         self.root = root
         self.server_url = server_url
         self.running = False
@@ -119,7 +123,7 @@ class StreamingClient:
         self.loop = None
         self.current_task = None
         self.stream_thread = None  # Add explicit thread tracking
-        self.max_dimension = (800, 600)  # Maximum dimensions for frames
+        self.max_dimension = (853, 480)  # Maximum dimensions for frames
         self.jpeg_quality = 30  # JPEG compression quality (1-100)
         self.setup_gui()
         self.tts_handler = TTSHandler()
@@ -187,6 +191,7 @@ class StreamingClient:
                 
                 image = cv2.resize(image, (new_width, new_height))
             
+            #print(image.shape)
             # Convert to PhotoImage
             image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             photo = ImageTk.PhotoImage(image=image)
@@ -216,6 +221,7 @@ class StreamingClient:
                         
                         # Compress frame
                         compressed = self.compress_frame(frame)
+                        #print(compressed.shape)
                         img_str = base64.b64encode(compressed).decode('utf-8')
                         
                         # Send frame with processor ID
@@ -235,9 +241,9 @@ class StreamingClient:
                             processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                             self.root.after(0, self.update_image, processed_frame)
                         if "text" in data:
-                            print(f"Received text: {data['text']}")
-                            print(f"Previous text: {self.received_text}")
-                            print(f"Are they different? {data['text'] != self.received_text}")
+                            print_message(f"Received text: {data['text']}")
+                            print_message(f"Previous text: {self.received_text}")
+                            print_message(f"Are they different? {data['text'] != self.received_text}")
                             if data["text"] != self.received_text:
                                 self.received_text = data["text"]
                                 self.root.after(0, self.tts_handler.speak_text, data["text"])

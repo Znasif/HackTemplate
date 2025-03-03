@@ -2,13 +2,16 @@ from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from typing import List
 import asyncio
-import cv2, json
+import cv2, json, os
 import numpy as np
 import base64
+from dotenv import load_dotenv
 from processors.base_processor import BaseProcessor
 from processors.yolo_processor import YOLOProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
 from processors.ocr_processor import OCRProcessor
+from processors.groq_processor import GroqProcessor
+from processors.openai_processor import ChatGPTProcessor
 
 app = FastAPI()
 
@@ -20,13 +23,16 @@ class ProcessorManager:
     @classmethod
     def initialize(cls):
         if cls.processors is None:
+            load_dotenv()
             print("Initializing processors...")
             cls.processors = {
                 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
                 1: OCRProcessor(),
                 2: YOLOProcessor("./models/yolo11n-seg.pt"),
                 3: MediaPipeProcessor(),
-                4: BaseProcessor()
+                4: BaseProcessor(),
+                5: GroqProcessor(api_key=os.getenv('GROQ_API_KEY')),
+                6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY'))
             }
     
     @classmethod
