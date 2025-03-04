@@ -51,12 +51,11 @@ class TTSHandler:
             print(f"TTS error: {e}")
 
 class ScreenCapture:
-    def __init__(self):
+    def __init__(self, monitor_index):
         # get screen size
         # self.width = win32api.GetSystemMetrics(win32con.SM_CXVIRTUALSCREEN)
         # self.height = win32api.GetSystemMetrics(win32con.SM_CYVIRTUALSCREEN)
         # Get monitor info
-        monitor_index = 1  # Primary monitor
         monitors = win32api.EnumDisplayMonitors()
         if monitor_index >= len(monitors):
             raise ValueError(f"Monitor index {monitor_index} out of range")
@@ -114,11 +113,11 @@ def print_message(message):
     print(f"Message: {message}", end="\r")
 
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws"):#"ws://localhost:8000/ws"):#
+    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=1):#"ws://localhost:8000/ws"):#
         self.root = root
         self.server_url = server_url
         self.running = False
-        self.screen_capture = ScreenCapture()
+        self.screen_capture = ScreenCapture(monitor_index)
         self.websocket = None
         self.loop = None
         self.current_task = None

@@ -1,6 +1,6 @@
 # WhatsApp Client
 
-This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first. Also, with the current setup, you need at least two displays in the client computer. If you don't have two displays, you can change the MONITOR value in the .env file to 0.
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first. Also, with the current setup, you need at least two displays in the client computer. If you don't have two displays, you can change 'client = StreamingClient(root) -> client = StreamingClient(root, monitor_index=0)' in the client/main.py.
 
 ## Client Setup (Windows Only)
 
@@ -17,7 +17,7 @@ pip install numpy opencv-python asyncio websockets pillow pywin32 pyttsx3
 
 ## Server Setup
 
-The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding.
+The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding. Change 'client = StreamingClient(root) -> client = StreamingClient(root, server_url="ws://{localtunnel result}/ws")' in the client/main.py.
 
 #### a. Set up the server
 - Open WSL on your Windows machine and clone this repository.
