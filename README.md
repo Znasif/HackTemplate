@@ -86,6 +86,16 @@ The resulting feed is screen-shared, and the description is read aloud. The foll
 If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. There is currently no option to turn on audio streaming to Whatsapp without Business account.
 
 
+### Brief Demo
+Click on the following image which will take you to a playlist:
+
+[![Demo Link for Whatsapp Livestream AI processing](https://i.ytimg.com/vi/ExhlwkUW_gc/hqdefault.jpg?sqp=-oaymwExCNACELwBSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBRKEAwDw==&rs=AOn4CLDxzMwlnE3AVdbFIucWFV93J9Jg3g)](https://www.youtube.com/playlist?list=PLk3VM_Y78PILin5BQJ0cYq_OdmuT7v1VY)
+
+
+
+
+
+
 ---
 ---
 
@@ -101,11 +111,6 @@ It has the following features:
     a. Segmentation and Detection of objects in the scene (Yolo11)
     b. Face, Hand and Body pose estimation (Mediapipe)
     c. OCR and Region based captioning (Florence 2)
-
-# Brief Demo
-Click on the following image which will take you to a playlist:
-
-[![Demo Link for Whatsapp Livestream AI processing](https://i.ytimg.com/vi/ExhlwkUW_gc/hqdefault.jpg?sqp=-oaymwExCNACELwBSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBRKEAwDw==&rs=AOn4CLDxzMwlnE3AVdbFIucWFV93J9Jg3g)](https://www.youtube.com/playlist?list=PLk3VM_Y78PILin5BQJ0cYq_OdmuT7v1VY)
 
 # 🚀 Setup Guide
 
