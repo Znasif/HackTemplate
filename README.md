@@ -1,21 +1,23 @@
 # WhatsApp Client
 
-This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up.
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first.
 
 ## Client Setup (Windows Only)
 
 Currently, the client only works in Windows, and the shared monitor is not selectable in the GUI.
 
-#### a. Install the following dependencies in Windows after installing Python:
+#### a. Install the following dependencies in Windows after installing Python (version >= 3.10):
 
 ```powershell
 pip install numpy opencv-python asyncio websockets pillow pywin32 pyttsx3
 ```
-1. Someone with Meta Ray-Ban glasses or a smartphone video calls your WhatsApp.  
-2. You accept the video call from your computer.  
+1. Someone with Meta Ray-Ban glasses or a smartphone video calls your WhatsApp. Currently there is no way to call yourself unless you have two separate whatsapp accounts.
+2. You accept the video call from your computer. For that you need to install and log into WhatsApp desktop client: https://www.whatsapp.com/download
 3. The monitor with the focused participant's video feed is captured and sent to a local server for processing:
 
-### Server Setup
+## Server Setup
+
+The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding.
 
 #### a. Set up the server
 - Open WSL on your Windows machine and clone this repository.
@@ -47,14 +49,14 @@ cd path/to/server/
 uvicorn main:app --reload
 ```
 
-#### b. Run the client from Windows PowerShell:
+#### d. Launch the client from Windows PowerShell:
 
 ```powershell
 cd path\to\client
 python main.py
 ```
 
-#### c. Start the client
+#### e. Start the client
 
 - Press **Start Streaming** → This will start sharing the PC screen with the server.  
 - Then, you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
@@ -71,7 +73,7 @@ python main.py
   ]
   ```
 
-#### d. Processing Options
+#### f. Processing Options
 
 The resulting feed is screen-shared, and the description is read aloud. The following types of processors are already implemented:
 
@@ -81,7 +83,7 @@ The resulting feed is screen-shared, and the description is read aloud. The foll
 4. **Face, Hand, and Body Pose Estimation** (MediaPipe).
 5. **OCR and Region-based Captioning** (Florence 2).
 
-#### e. Remote Audio Sharing
+#### g. Remote Audio Sharing
 
 If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. There is currently no option to turn on audio streaming to Whatsapp without Business account.
 
