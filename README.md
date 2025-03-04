@@ -107,10 +107,7 @@ It has the following features:
 
 1. /querycode prompt : discord slash command allows the user to ask the local llama.cpp server to generate runnable python code. If the code generates an image, the code will be executed locally and sent as attachment to that thread. The generated image will then be sent to a VLM (vision language model) for consistency detection. (Qwen2-VL and Qwen2-Code)
 2. /qyeryimage image, prompt : this slash command allows user to ask any question of an image. (PaliGemma2)
-3. the voice channel's focused participant's video feed is captured and sent to a local server for processing and the resulting feed is screen shared and description is read out loud. The following types of processors are already implemented:
-    a. Segmentation and Detection of objects in the scene (Yolo11)
-    b. Face, Hand and Body pose estimation (Mediapipe)
-    c. OCR and Region based captioning (Florence 2)
+3. the voice channel's focused participant's video feed is captured and sent to a local server for processing and the resulting feed is screen shared and description is read out loud. Follow the WhatsApp instructions for this part.
 
 # 🚀 Setup Guide
 
@@ -178,44 +175,22 @@ llama-server -m ./llama.cpp/models/Qwen2.5.1-Coder-7B-Instruct-Q6_K --host 127.0
 jpg -p "describe"
 ```
 
----
-
-
-## 🎥 Starting Discord Video Server
-### Windows Client:
-
-Currently the client only works in Windows. And the shared monitor is not selectable in GUI.
-```powershell
-cd path\to\client
-python main.py
-```
-Then start the client by pressing start streaming -> This will start to share the PC screen to the server. Then you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
-
-```python
-processor_options = [
-        "Dense Region Caption",
-        "OCR",
-        "YOLO Detection",
-        "MediaPipe",
-        "Base Processor",
-        "Groq",
-        "OpenAI"
-    ]
-```
-
-### WSL Server:
-```bash
-cd path/to/server/
-uvicorn main:app --reload
-```
-
----
 
 ## 🤖 Starting Discord Bot
 ```bash
 python bot.py
 ```
 
+## 🤖 Query with /querycode
+```bash
+prompt "draw a picture of the sun setting over the horizon"
+```
+
+## 🤖 Query with /queryimage
+```bash
+image "path/to/image"
+prompt "describe the image"
+```
 ---
 
 # For Hackathon
