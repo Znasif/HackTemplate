@@ -1,6 +1,6 @@
 # WhatsApp Client
 
-This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first.
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first. Also, with the current setup, you need at least two displays in the client computer. If you don't have two displays, you can change the MONITOR value in the .env file to 0.
 
 ## Client Setup (Windows Only)
 
@@ -27,6 +27,7 @@ The server can be setup in a different system, it does not have to be WSL. For l
   PORT=8080
   GROQ_API_KEY="get a Groq API key for llama-3.2-90b-vision-preview live query"
   OPENAI_API_KEY="get OpenAI API key"
+  MONITOR=1
   ```
 
 #### b. Install CUDA Toolkit & Dependencies after installing Conda
