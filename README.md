@@ -1,3 +1,94 @@
+# WhatsApp Client
+
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up.
+
+## Client Setup (Windows Only)
+
+Currently, the client only works in Windows, and the shared monitor is not selectable in the GUI.
+
+#### a. Install the following dependencies in Windows after installing Python:
+
+```powershell
+pip install numpy opencv-python asyncio websockets pillow pywin32 pyttsx3
+```
+1. Someone with Meta Ray-Ban glasses or a smartphone video calls your WhatsApp.  
+2. You accept the video call from your computer.  
+3. The monitor with the focused participant's video feed is captured and sent to a local server for processing:
+
+### Server Setup
+
+#### a. Set up the server
+- Open WSL on your Windows machine and clone this repository.
+- Fill in the `.env` file in the project root directory:
+
+  ```bash
+  PORT=8080
+  GROQ_API_KEY="get a Groq API key for llama-3.2-90b-vision-preview live query"
+  OPENAI_API_KEY="get OpenAI API key"
+  ```
+
+#### b. Install CUDA Toolkit & Dependencies after installing Conda
+
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+sudo dpkg -i cuda-keyring_1.0-1_all.deb
+sudo apt update
+sudo apt install cuda-toolkit-12-6
+sudo apt install -y libcudnn9-cuda-12
+sudo apt install libnvinfer10 libnvinfer-plugin10
+conda env create -f environment.yml
+conda activate whatsapp-vision
+```
+
+#### c. Start the server
+
+```bash
+cd path/to/server/
+uvicorn main:app --reload
+```
+
+#### b. Run the client from Windows PowerShell:
+
+```powershell
+cd path\to\client
+python main.py
+```
+
+#### c. Start the client
+
+- Press **Start Streaming** → This will start sharing the PC screen with the server.  
+- Then, you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
+
+  ```python
+  processor_options = [
+      "Dense Region Caption",
+      "OCR",
+      "YOLO Detection",
+      "MediaPipe",
+      "Base Processor",
+      "Groq",
+      "OpenAI"
+  ]
+  ```
+
+#### d. Processing Options
+
+The resulting feed is screen-shared, and the description is read aloud. The following types of processors are already implemented:
+
+1. **Live description** with Groq and `llama-3.2-90b-vision-preview`.
+2. **Live description** with OpenAI `GPT-4o`.
+3. **Segmentation and Detection** of objects in the scene (YOLO11).
+4. **Face, Hand, and Body Pose Estimation** (MediaPipe).
+5. **OCR and Region-based Captioning** (Florence 2).
+
+#### e. Remote Audio Sharing
+
+If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. There is currently no option to turn on audio streaming to Whatsapp without Business account.
+
+
+---
+---
+
 # Discord-A11y
 
 This is a project that was created to be used by Blind and Low Vision users to have a AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet once all the components have been installed, if the user wants to work solely on their workstation (pc/laptop). If the user wants to access it from anywhere, the discord connection would need to be set up.
@@ -28,6 +119,9 @@ Have the following things ready:
 
 1. Install Llama.cpp following: https://github.com/ggml-org/llama.cpp and in llama.cpp/models folder download the following: models/Qwen2-VL-7B-Instruct-Q6_K.gguf, Qwen2-VL-2B-Instruct-Q6_K.gguf,qwen2-vl-2b-instruct-vision.gguf
 2. Add a .env file in server folder with the following filled in
+
+#### Fill in the .env file in the project root directory
+```bash
     MODEL_PATH=path/to/Qwen2-VL-7B-Instruct-Q6_K.gguf
     VLM_MODEL_PATH =path/to/Qwen2-VL-2B-Instruct-Q6_K.gguf
     VISION_MODEL_PATH =path/to/qwen2-vl-2b-instruct-vision.gguf
@@ -39,6 +133,8 @@ Have the following things ready:
     PERMISSIONS="the permission integer"
     GROQ_API_KEY="get a groq api key for llama-3.2-90b-vision-preview live query"
     OPENAI_API_KEY="get openai api key"
+```
+
 2. In server/models download: AtkinsonHyperlegible-Regular.ttf and yolo11n-seg.pt
 
 ## 📌 Installation Steps
