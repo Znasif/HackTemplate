@@ -180,17 +180,22 @@ jpg -p "describe"
 ```bash
 python bot.py
 ```
+![Available commands](resources/img3.jpg)
 
 ## 🤖 Query with /querycode
 ```bash
 prompt "draw a picture of the sun setting over the horizon"
 ```
+![Example query to the querybot](resources/img4.jpg)
+![Example response of the discord bot querybot](resources/img1.jpg)
 
 ## 🤖 Query with /queryimage
 ```bash
 image "path/to/image"
 prompt "describe the image"
 ```
+![Example query to the bot queryimage](resources/img5.jpg)
+![Example response of the discord bot queryimage](resources/img2.jpg)
 ---
 
 # For Hackathon
