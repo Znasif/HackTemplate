@@ -11,8 +11,6 @@ import win32ui
 import win32con
 import win32api
 import json
-import pyttsx3
-
 import threading
 import pyttsx3
 import queue
@@ -113,7 +111,7 @@ def print_message(message):
     print(f"Message: {message}", end="\r")
 
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=1):#"ws://localhost:8000/ws"):#
+    def __init__(self, root, server_url="ws://neat-parrots-cross.loca.lt/ws", monitor_index=0):#"ws://localhost:8000/ws"):#
         self.root = root
         self.server_url = server_url
         self.running = False
