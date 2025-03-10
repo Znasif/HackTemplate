@@ -47,7 +47,7 @@ conda activate whatsapp-vision
 
 ```bash
 cd path/to/server/
-uvicorn main:app --reload
+uvicorn stream:app --reload
 ```
 
 #### d. Launch the client from Windows PowerShell:
@@ -86,7 +86,7 @@ The resulting feed is screen-shared, and the description is read aloud. The foll
 
 #### g. Remote Audio Sharing
 
-If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. There is currently no option to turn on audio streaming to Whatsapp without Business account.
+If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. However, there is a second way where you would need to install a virtual audio driver ([VB-Audio Virtual Cable](https://vb-audio.com/Cable/)) and set VB-Audio Virtual Cable Output as default audio output in system sound settings in Windows. When calling using whatsapp, set the audio input to VB-Audio Virtual Cable Input. This should divert every audio output of the computer (and our client app) to whatsapp.
 
 
 ### Brief Demo
