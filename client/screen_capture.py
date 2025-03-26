@@ -111,7 +111,7 @@ def print_message(message):
     print(f"Message: {message}", end="\r")
 
 class StreamingClient:
-    def __init__(self, root, server_url="ws://neat-parrots-cross.loca.lt/ws", monitor_index=0):#"ws://localhost:8000/ws"):#
+    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=0):#"ws://localhost:8000/ws"):#
         self.root = root
         self.server_url = server_url
         self.running = False
@@ -122,6 +122,7 @@ class StreamingClient:
         self.stream_thread = None  # Add explicit thread tracking
         self.max_dimension = (853, 480)  # Maximum dimensions for frames
         self.jpeg_quality = 30  # JPEG compression quality (1-100)
+        self.crop = [0, 0, 0, 0]
         self.setup_gui()
         self.tts_handler = TTSHandler()
         self.received_text = ""
@@ -150,11 +151,53 @@ class StreamingClient:
                                      orient='horizontal', command=self.update_quality)
         self.quality_slider.set(self.jpeg_quality)
         self.quality_slider.pack(side='left', padx=5)
-        
+
+
+        '''gui sliders for propper cropping'''
+        self.left_pane = tk.Label(self.control_frame, text="Left Pane:")
+        self.left_pane.pack(side='left', padx=5)
+        self.left_pane = tk.Scale(self.control_frame, from_=0, to=400, 
+                                     orient='vertical', command=self.update_left)
+        self.left_pane.set(self.jpeg_quality)
+        self.left_pane.pack(side='left', padx=5)
+
+        self.right_pane = tk.Label(self.control_frame, text="Right Pane:")
+        self.right_pane.pack(side='left', padx=5)
+        self.right_pane = tk.Scale(self.control_frame, from_=0, to=400, 
+                                     orient='vertical', command=self.update_right)
+        self.right_pane.set(self.jpeg_quality)
+        self.right_pane.pack(side='left', padx=5)
+
+        self.top_pane = tk.Label(self.control_frame, text="Top Pane:")
+        self.top_pane.pack(side='left', padx=5)
+        self.top_pane = tk.Scale(self.control_frame, from_=0, to=300, 
+                                     orient='vertical', command=self.update_top)
+        self.top_pane.set(self.jpeg_quality)
+        self.top_pane.pack(side='left', padx=5)
+
+        self.bottom_pane = tk.Label(self.control_frame, text="Bottom Pane:")
+        self.bottom_pane.pack(side='left', padx=5)
+        self.bottom_pane = tk.Scale(self.control_frame, from_=0, to=300, 
+                                     orient='vertical', command=self.update_bottom)
+        self.bottom_pane.set(self.jpeg_quality)
+        self.bottom_pane.pack(side='left', padx=5)
+
         self.last_frame_time = 0
         
     def update_quality(self, value):
         self.jpeg_quality = int(value)
+    
+    def update_left(self, left_value):
+        self.crop[0]=int(left_value)
+    
+    def update_right(self, right_value):
+        self.crop[1]=int(right_value)
+    
+    def update_top(self, top_value):
+        self.crop[2]=int(top_value)
+    
+    def update_bottom(self, bottom_value):
+        self.crop[3]=int(bottom_value)
         
     def compress_frame(self, frame):
         # Resize if larger than max_dimension
@@ -164,11 +207,58 @@ class StreamingClient:
             new_size = (int(width * ratio), int(height * ratio))
             frame = cv2.resize(frame, new_size)
         
+        frame = self.crop_frame(frame)
         # Compress using JPEG encoding
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality]
         _, buffer = cv2.imencode('.jpg', frame, encode_param)
         return buffer
-        
+    
+    def crop_frame(self, frame):
+        """
+        Crops a given frame (NumPy array) based on the provided left, right, top, and bottom values.
+        Includes checks to ensure a valid crop is performed.
+
+        Args:
+            frame (np.ndarray): The input frame (e.g., from screen capture).
+            left (int): Number of pixels to remove from the left edge.
+            right (int): Number of pixels to remove from the right edge.
+            top (int): Number of pixels to remove from the top edge.
+            bottom (int): Number of pixels to remove from the bottom edge.
+
+        Returns:
+            np.ndarray or None: The cropped frame if the cropping parameters are valid,
+                                otherwise None.
+        """
+        if frame is None or not isinstance(frame, np.ndarray):
+            print("Error: Input frame is None or not a NumPy array.")
+            return None
+
+        height, width = frame.shape[:2]  # Get height and width
+        left, right, top, bottom = self.crop
+        # Check for invalid cropping values
+        if left < 0 or right < 0 or top < 0 or bottom < 0:
+            print("Error: Cropping values cannot be negative.")
+            return None
+
+        # Calculate new dimensions
+        new_left = left
+        new_top = top
+        new_right = width - right
+        new_bottom = height - bottom
+
+        # Check if the new dimensions are valid
+        if new_left >= new_right or new_top >= new_bottom:
+            print("Error: Invalid cropping parameters resulted in a non-positive width or height.")
+            return None
+
+        # Perform the cropping
+        try:
+            cropped_frame = frame[new_top:new_bottom, new_left:new_right]
+            return cropped_frame
+        except IndexError:
+            print("Error: Index out of bounds during cropping. Check your cropping values.")
+            return None
+    
     def update_image(self, image):
         try:
             # Resize image to fit window while maintaining aspect ratio
@@ -215,7 +305,6 @@ class StreamingClient:
                         frame = self.screen_capture.capture()
                         if frame is None:
                             continue
-                        
                         # Compress frame
                         compressed = self.compress_frame(frame)
                         #print(compressed.shape)
