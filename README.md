@@ -68,6 +68,13 @@ cd path\to\client
 python main.py
 ```
 
+or using the cross-platform client:
+
+```terminal
+cd path\to\client
+python main_beta.py
+```
+
 #### e. Start the client
 
 - Press **Start Streaming** → This will start sharing the PC screen with the server.  
