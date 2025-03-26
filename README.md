@@ -13,7 +13,18 @@ pip install numpy opencv-python asyncio websockets pillow pywin32 pyttsx3
 ```
 1. Someone with Meta Ray-Ban glasses or a smartphone video calls your WhatsApp. Currently there is no way to call yourself unless you have two separate whatsapp accounts.
 2. You accept the video call from your computer. For that you need to install and log into WhatsApp desktop client: https://www.whatsapp.com/download
-3. The monitor with the focused participant's video feed is captured and sent to a local server for processing:
+3. The monitor with the focused participant's video feed is captured and sent to a local server for processing.
+
+## Client Setup (Cross Platform)
+
+Currently, this beta version works cross platform but based on the OS, you would need to install different virtual audio cable solutions.
+
+#### a. Install the following dependencies after installing Python (version >= 3.10):
+
+```powershell
+pip install numpy opencv-python asyncio websockets pillow pyautogui screeninfo pyttsx3
+```
+The rest is same as the windows version.
 
 ## Server Setup
 
@@ -98,7 +109,7 @@ Click on the following image which will take you to a playlist:
 
 
 
-
+<!--
 ---
 ---
 
@@ -211,3 +222,4 @@ The main three classes that you would want to extend are the following:
 
 ### 🎯 You're all set! Happy coding! 🚀
 
+-->

@@ -6,10 +6,10 @@ import base64
 import threading
 import tkinter as tk
 from PIL import Image, ImageTk
+import pyautogui
 import json
 import pyttsx3
-import mss
-import platform
+import screeninfo  # For multi-monitor support
 
 class TTSHandler:
     def __init__(self):
@@ -20,10 +20,12 @@ class TTSHandler:
 
     def speak_text(self, text):
         """Stop current speech and start new text"""
+        # Stop current speech if any
         if self.tts_thread and self.tts_thread.is_alive():
             self.stop_flag.set()
-            self.tts_thread.join(timeout=0.1)
+            self.tts_thread.join(timeout=0.1)  # Brief wait for cleanup
             
+        # Reset stop flag and start new speech
         self.stop_flag.clear()
         self.current_text = text
         self.tts_thread = threading.Thread(target=self._speak_thread)
@@ -32,6 +34,7 @@ class TTSHandler:
 
     def _speak_thread(self):
         try:
+            # Create a new engine instance for this thread
             thread_engine = pyttsx3.init()
             thread_engine.say(self.current_text)
             thread_engine.startLoop(False)
@@ -42,41 +45,34 @@ class TTSHandler:
             print(f"TTS error: {e}")
 
 class ScreenCapture:
-    def __init__(self, monitor_index=1):
-        self.sct = mss.mss()
-        self.monitor_index = monitor_index
-        self._setup_monitor()
-
-    def _setup_monitor(self):
-        monitors = self.sct.monitors[1:]  # Skip the "all monitors" monitor
-        if self.monitor_index >= len(monitors):
-            print(f"Monitor index {self.monitor_index} out of range, using primary monitor")
-            self.monitor_index = 0
+    def __init__(self, monitor_index):
+        # Get monitor information using screeninfo
+        monitors = screeninfo.get_monitors()
         
-        self.monitor = monitors[self.monitor_index]
-        self.width = self.monitor["width"]
-        self.height = self.monitor["height"]
-        self.top = self.monitor["top"]
-        self.left = self.monitor["left"]
-
+        if monitor_index >= len(monitors):
+            raise ValueError(f"Monitor index {monitor_index} out of range")
+            
+        self.monitor = monitors[monitor_index]
+        
+        # Set dimensions based on selected monitor
+        self.left = self.monitor.x
+        self.top = self.monitor.y
+        self.width = self.monitor.width
+        self.height = self.monitor.height
+        print(f"Screen dimensions: {self.width}x{self.height}")
+        
     def capture(self):
         try:
-            # Define the capture region
-            monitor = {
-                "top": self.top,
-                "left": self.left,
-                "width": self.width,
-                "height": self.height
-            }
+            # Capture screen region using pyautogui
+            screenshot = pyautogui.screenshot(region=(
+                self.left, self.top, self.width, self.height
+            ))
             
-            # Capture the screen
-            screenshot = self.sct.grab(monitor)
-            
-            # Convert to numpy array
+            # Convert PIL Image to numpy array
             img = np.array(screenshot)
             
-            # Convert from BGRA to BGR
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+            # Convert from RGB to BGR (OpenCV format)
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             
             return img
             
@@ -84,21 +80,26 @@ class ScreenCapture:
             print(f"Error capturing screen: {e}")
             return None
 
+def print_message(message):
+    print(f"Message: {message}", end="\r")
+
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws"):
+    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=0):
         self.root = root
         self.server_url = server_url
         self.running = False
-        self.screen_capture = ScreenCapture()
+        self.screen_capture = ScreenCapture(monitor_index)
         self.websocket = None
         self.loop = None
         self.current_task = None
-        self.stream_thread = None
-        self.max_dimension = (800, 600)
-        self.jpeg_quality = 30
+        self.stream_thread = None  # Add explicit thread tracking
+        self.max_dimension = (853, 480)  # Maximum dimensions for frames
+        self.jpeg_quality = 30  # JPEG compression quality (1-100)
+        self.crop = [0, 0, 0, 0]
         self.setup_gui()
         self.tts_handler = TTSHandler()
         self.received_text = ""
+        self.processor_id = "screen_capture"  # Added processor_id property
         
     def setup_gui(self):
         # Create frame for image
@@ -124,29 +125,52 @@ class StreamingClient:
                                      orient='horizontal', command=self.update_quality)
         self.quality_slider.set(self.jpeg_quality)
         self.quality_slider.pack(side='left', padx=5)
-        
-        # Add monitor selector
-        self.monitor_label = tk.Label(self.control_frame, text="Monitor:")
-        self.monitor_label.pack(side='left', padx=5)
-        self.monitor_var = tk.StringVar(value="1")
-        with mss.mss() as sct:
-            monitor_count = len(sct.monitors) - 1  # Subtract 1 to exclude the "all monitors" option
-        self.monitor_menu = tk.OptionMenu(self.control_frame, self.monitor_var, 
-                                        *range(monitor_count),
-                                        command=self.change_monitor)
-        self.monitor_menu.pack(side='left', padx=5)
-        
+
+        # GUI sliders for proper cropping
+        self.left_pane = tk.Label(self.control_frame, text="Left Pane:")
+        self.left_pane.pack(side='left', padx=5)
+        self.left_pane = tk.Scale(self.control_frame, from_=0, to=400, 
+                                     orient='vertical', command=self.update_left)
+        self.left_pane.set(self.crop[0])
+        self.left_pane.pack(side='left', padx=5)
+
+        self.right_pane = tk.Label(self.control_frame, text="Right Pane:")
+        self.right_pane.pack(side='left', padx=5)
+        self.right_pane = tk.Scale(self.control_frame, from_=0, to=400, 
+                                     orient='vertical', command=self.update_right)
+        self.right_pane.set(self.crop[1])
+        self.right_pane.pack(side='left', padx=5)
+
+        self.top_pane = tk.Label(self.control_frame, text="Top Pane:")
+        self.top_pane.pack(side='left', padx=5)
+        self.top_pane = tk.Scale(self.control_frame, from_=0, to=300, 
+                                     orient='vertical', command=self.update_top)
+        self.top_pane.set(self.crop[2])
+        self.top_pane.pack(side='left', padx=5)
+
+        self.bottom_pane = tk.Label(self.control_frame, text="Bottom Pane:")
+        self.bottom_pane.pack(side='left', padx=5)
+        self.bottom_pane = tk.Scale(self.control_frame, from_=0, to=300, 
+                                     orient='vertical', command=self.update_bottom)
+        self.bottom_pane.set(self.crop[3])
+        self.bottom_pane.pack(side='left', padx=5)
+
         self.last_frame_time = 0
         
-    def change_monitor(self, monitor_index):
-        try:
-            monitor_index = int(monitor_index)
-            self.screen_capture = ScreenCapture(monitor_index)
-        except ValueError as e:
-            print(f"Error changing monitor: {e}")
-    
     def update_quality(self, value):
         self.jpeg_quality = int(value)
+    
+    def update_left(self, left_value):
+        self.crop[0]=int(left_value)
+    
+    def update_right(self, right_value):
+        self.crop[1]=int(right_value)
+    
+    def update_top(self, top_value):
+        self.crop[2]=int(top_value)
+    
+    def update_bottom(self, bottom_value):
+        self.crop[3]=int(bottom_value)
         
     def compress_frame(self, frame):
         # Resize if larger than max_dimension
@@ -156,13 +180,50 @@ class StreamingClient:
             new_size = (int(width * ratio), int(height * ratio))
             frame = cv2.resize(frame, new_size)
         
+        frame = self.crop_frame(frame)
         # Compress using JPEG encoding
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality]
         _, buffer = cv2.imencode('.jpg', frame, encode_param)
         return buffer
-        
+    
+    def crop_frame(self, frame):
+        """
+        Crops a given frame (NumPy array) based on the provided left, right, top, and bottom values.
+        Includes checks to ensure a valid crop is performed.
+        """
+        if frame is None or not isinstance(frame, np.ndarray):
+            print("Error: Input frame is None or not a NumPy array.")
+            return None
+
+        height, width = frame.shape[:2]  # Get height and width
+        left, right, top, bottom = self.crop
+        # Check for invalid cropping values
+        if left < 0 or right < 0 or top < 0 or bottom < 0:
+            print("Error: Cropping values cannot be negative.")
+            return None
+
+        # Calculate new dimensions
+        new_left = left
+        new_top = top
+        new_right = width - right
+        new_bottom = height - bottom
+
+        # Check if the new dimensions are valid
+        if new_left >= new_right or new_top >= new_bottom:
+            print("Error: Invalid cropping parameters resulted in a non-positive width or height.")
+            return None
+
+        # Perform the cropping
+        try:
+            cropped_frame = frame[new_top:new_bottom, new_left:new_right]
+            return cropped_frame
+        except IndexError:
+            print("Error: Index out of bounds during cropping. Check your cropping values.")
+            return None
+    
     def update_image(self, image):
         try:
+            # Resize image to fit window while maintaining aspect ratio
             window_width = self.image_frame.winfo_width()
             window_height = self.image_frame.winfo_height()
             
@@ -179,11 +240,13 @@ class StreamingClient:
                 
                 image = cv2.resize(image, (new_width, new_height))
             
+            # Convert to PhotoImage
             image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
             photo = ImageTk.PhotoImage(image=image)
             self.label.config(image=photo)
             self.label.image = photo
             
+            # Update FPS
             current_time = asyncio.get_event_loop().time()
             if self.last_frame_time > 0:
                 fps = 1 / (current_time - self.last_frame_time)
@@ -199,23 +262,34 @@ class StreamingClient:
                 self.websocket = websocket
                 while self.running:
                     try:
+                        # Capture screen
                         frame = self.screen_capture.capture()
                         if frame is None:
                             continue
-                        
+                        # Compress frame
                         compressed = self.compress_frame(frame)
                         img_str = base64.b64encode(compressed).decode('utf-8')
                         
-                        await websocket.send(f"data:image/jpeg;base64,{img_str}")
+                        # Send frame with processor ID
+                        message = {
+                            "image": f"data:image/jpeg;base64,{img_str}",
+                            "processor": self.processor_id  # Use the instance property
+                        }
+                        await websocket.send(json.dumps(message))
                         
+                        # Receive processed frame
                         response = await websocket.recv()
                         data = json.loads(response)
+                        # Decode and display processed frame
                         if "image" in data:
                             encoded_data = data["image"].split(',')[1]
                             nparr = np.frombuffer(base64.b64decode(encoded_data), np.uint8)
                             processed_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
                             self.root.after(0, self.update_image, processed_frame)
                         if "text" in data:
+                            print_message(f"Received text: {data['text']}")
+                            print_message(f"Previous text: {self.received_text}")
+                            print_message(f"Are they different? {data['text'] != self.received_text}")
                             if data["text"] != self.received_text:
                                 self.received_text = data["text"]
                                 self.root.after(0, self.tts_handler.speak_text, data["text"])
@@ -223,7 +297,7 @@ class StreamingClient:
                         await asyncio.sleep(1/30)  # Limit to 30 FPS
                         
                     except asyncio.CancelledError:
-                        raise
+                        raise  # Re-raise to handle cancellation
                     except Exception as e:
                         print(f"Error during streaming: {e}")
                         await asyncio.sleep(1)
@@ -245,7 +319,11 @@ class StreamingClient:
         try:
             self.loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.loop)
+            
+            # Create and store the task
             self.current_task = self.loop.create_task(self.capture_and_stream())
+            
+            # Run until task is complete or cancelled
             self.loop.run_until_complete(self.current_task)
         except asyncio.CancelledError:
             print("Main task cancelled")
@@ -253,6 +331,7 @@ class StreamingClient:
             print(f"Error in async loop: {e}")
         finally:
             try:
+                # Cancel any pending tasks
                 if self.current_task and not self.current_task.done():
                     self.current_task.cancel()
                     try:
@@ -260,6 +339,7 @@ class StreamingClient:
                     except (asyncio.CancelledError, Exception) as e:
                         print(f"Task cancellation: {e}")
                 
+                # Close the loop
                 if self.loop and not self.loop.is_closed():
                     pending = asyncio.all_tasks(self.loop)
                     for task in pending:
@@ -277,15 +357,17 @@ class StreamingClient:
         if self.running:
             self.running = False
             
+            # Cancel the current task
             if self.current_task and not self.current_task.done():
                 if self.loop and not self.loop.is_closed():
                     self.loop.call_soon_threadsafe(self.current_task.cancel)
-            
+                    # Wait for thread to finish with timeout
             if self.stream_thread and self.stream_thread.is_alive():
                 self.stream_thread.join(timeout=5)
                 if self.stream_thread.is_alive():
                     print("Warning: Stream thread did not terminate properly")
             
+            # Clean up
             self.stream_thread = None
             self.current_task = None
             self.websocket = None

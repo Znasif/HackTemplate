@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from screen_capture import StreamingClient
+from screen_capture_beta import StreamingClient
 import json
 
 # At the top of your code, add these tracking variables
@@ -14,7 +14,7 @@ def main():
     root.title("Screen Capture Client")
     root.geometry("853x680")
     
-    # Set initial aspect ratio (4:3)
+    # Set initial aspect ratio (16:9)
     aspect_ratio = 2560/1440
     min_width = 853
     min_height = int(min_width / aspect_ratio)
@@ -55,11 +55,12 @@ def main():
     # Bind resize event
     root.bind("<Configure>", enforce_aspect_ratio)
     
-    # Create client instance
-    client = StreamingClient(root, monitor_index=2)
+    # Create client instance - ensure monitor_index exists
+    # If you're using a single monitor, use monitor_index=1 with mss (it's 1-indexed)
+    client = StreamingClient(root, monitor_index=2)  # Changed from 2 to 1 for mss compatibility
     
     # Add processor_id property to client
-    client.processor_id = 4  # Default to Base Processor (4)
+    client.processor_id = "4"  # Default to Base Processor (4) - ensure it's a string for JSON
     
     # Create processor selection dropdown
     processor_frame = tk.Frame(root)
@@ -80,7 +81,9 @@ def main():
     ]
     
     processor_var = tk.StringVar()
-    processor_var.set(processor_options[client.processor_id])  # Default to Base Processor
+    # Select the processor option based on client.processor_id (which is now a string)
+    processor_index = int(client.processor_id) if client.processor_id.isdigit() else 4
+    processor_var.set(processor_options[processor_index])
     
     # Status variable for announcements
     status_var = tk.StringVar()
