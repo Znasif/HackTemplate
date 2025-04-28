@@ -8,7 +8,9 @@ import base64
 from dotenv import load_dotenv
 from processors.base_processor import BaseProcessor
 from processors.yolo_processor import YOLOProcessor
+from processors.aircanvas_processor import AirCanvasProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
+from processors.camio_processor import MediaPipeGestureProcessor
 from processors.ocr_processor import OCRProcessor
 from processors.groq_processor import GroqProcessor
 from processors.openai_processor import ChatGPTProcessor
@@ -29,8 +31,8 @@ class ProcessorManager:
                 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
                 1: OCRProcessor(),
                 2: YOLOProcessor("./models/yolo11n-seg.pt"),
-                3: MediaPipeProcessor(),
-                4: BaseProcessor(),
+                3: MediaPipeGestureProcessor(False),
+                4: MediaPipeGestureProcessor(),
                 5: GroqProcessor(api_key=os.getenv('GROQ_API_KEY')),
                 6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY'))
             }
@@ -64,6 +66,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 def print_message(message):
+    return
     print(f"Message: {message}", end="\r")
 
 @app.websocket("/ws")
@@ -144,7 +147,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 if manager.last_sent_text != detection_text:
                     response_data["text"] = detection_text
                     manager.last_sent_text = detection_text
-                    #print(f"Text: {detection_text}")
+                    print(f"Text: {detection_text}")
                 print_message(f"Response data length: {len(response_data)}")
                 
                 print_message("Sending response...")

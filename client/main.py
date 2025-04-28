@@ -24,7 +24,6 @@ def main():
 
     def enforce_aspect_ratio(event):
         global last_x, last_y, last_width, last_height
-        
         # Skip if minimized
         if event.width < 1 or event.height < 1:
             return
@@ -56,7 +55,7 @@ def main():
     root.bind("<Configure>", enforce_aspect_ratio)
     
     # Create client instance
-    client = StreamingClient(root, monitor_index=2)
+    client = StreamingClient(root, monitor_index=1)
     
     # Add processor_id property to client
     client.processor_id = 4  # Default to Base Processor (4)
