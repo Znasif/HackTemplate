@@ -131,7 +131,7 @@ class StreamingClient:
         # Create frame for image
         self.image_frame = tk.Frame(self.root)
         self.image_frame.pack(expand=True, fill='both')
-        
+        self.image_frame.pack_propagate(False)
         # Create label for image
         self.label = tk.Label(self.image_frame)
         self.label.pack(expand=True, fill='both')

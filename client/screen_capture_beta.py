@@ -10,6 +10,244 @@ import pyautogui
 import json
 import pyttsx3
 import screeninfo  # For multi-monitor support
+import av
+import time
+import platform
+import queue
+
+class AudioVideoCapture:
+    def __init__(self, width=None, height=None, fps=30, audio_rate=44100, monitor_index=0):
+        self.width = width
+        self.height = height
+        self.fps = fps
+        self.audio_rate = audio_rate
+        self.monitor_index = monitor_index
+        
+        # Determine platform-specific settings
+        self.system = platform.system()
+        self.configure_capture_settings()
+        
+        # Queues for frames
+        self.video_queue = queue.Queue(maxsize=10)
+        self.audio_queue = queue.Queue(maxsize=20)
+        
+        # Capture thread
+        self.capture_thread = None
+        self.running = False
+        
+    def configure_capture_settings(self):
+        """Configure capture settings based on platform"""
+        # Get screen dimensions if not specified
+        if self.width is None or self.height is None:
+            monitors = screeninfo.get_monitors()
+            if self.monitor_index >= len(monitors):
+                raise ValueError(f"Monitor index {self.monitor_index} out of range")
+                
+            monitor = monitors[self.monitor_index]
+            self.width = monitor.width
+            self.height = monitor.height
+        
+        # Platform-specific settings
+        if self.system == "Windows":
+            self.video_input = f"gdigrab"
+            self.video_options = {
+                'framerate': str(self.fps),
+                'video_size': f'{self.width}x{self.height}',
+                'offset_x': '0',
+                'offset_y': '0',
+                'draw_mouse': '1'
+            }
+            self.audio_input = "dshow"
+            self.audio_options = {
+                'audio_buffer_size': '50'
+            }
+            self.audio_device = "audio=virtual-audio-capturer"
+            
+        elif self.system == "Linux":
+            self.video_input = "x11grab"
+            self.video_options = {
+                'framerate': str(self.fps),
+                'video_size': f'{self.width}x{self.height}',
+                'grab_x': '0',
+                'grab_y': '0'
+            }
+            self.audio_input = "pulse"
+            self.audio_options = {}
+            self.audio_device = "default"
+            
+        elif self.system == "Darwin":  # macOS
+            self.video_input = "avfoundation"
+            self.video_options = {
+                'framerate': str(self.fps),
+                'video_size': f'{self.width}x{self.height}'
+            }
+            self.audio_input = "avfoundation"
+            self.audio_options = {}
+            self.audio_device = "1:0"  # Default audio device
+        else:
+            raise ValueError(f"Unsupported platform: {self.system}")
+            
+    def start_capture(self):
+        """Start the capture process"""
+        if self.running:
+            return
+            
+        self.running = True
+        self.capture_thread = threading.Thread(target=self._capture_thread)
+        self.capture_thread.daemon = True
+        self.capture_thread.start()
+        
+    def _capture_thread(self):
+        """Thread function that captures audio and video frames"""
+        try:
+            # Start video capture
+            video_container = av.open(
+                f"{self.video_input}:{self.monitor_index}",
+                options=self.video_options,
+                format=self.video_input
+            )
+            
+            # Start audio capture
+            audio_container = av.open(
+                f"{self.audio_input}:{self.audio_device}", 
+                options=self.audio_options,
+                format=self.audio_input
+            )
+            
+            # Get streams
+            video_stream = video_container.streams.video[0]
+            video_stream.thread_type = 'AUTO'
+            
+            audio_stream = audio_container.streams.audio[0]
+            audio_stream.thread_type = 'AUTO'
+            
+            # Set timebase for synchronization
+            base_time = time.time()
+            
+            # Main capture loop
+            while self.running:
+                # Capture video frame
+                for packet in video_container.demux(video_stream):
+                    if not self.running:
+                        break
+                        
+                    for frame in packet.decode():
+                        try:
+                            # Convert to numpy array (BGR format for OpenCV compatibility)
+                            img = frame.to_ndarray(format='bgr24')
+                            timestamp = time.time() - base_time
+                            
+                            if not self.video_queue.full():
+                                self.video_queue.put((timestamp, img), block=False)
+                            break
+                        except queue.Full:
+                            # Queue is full, skip frame
+                            pass
+                    break  # Process only one packet at a time
+                
+                # Capture audio frame
+                for packet in audio_container.demux(audio_stream):
+                    if not self.running:
+                        break
+                        
+                    for frame in packet.decode():
+                        try:
+                            # Get audio data
+                            audio_data = frame.to_ndarray()
+                            timestamp = time.time() - base_time
+                            
+                            if not self.audio_queue.full():
+                                self.audio_queue.put((timestamp, audio_data), block=False)
+                            break
+                        except queue.Full:
+                            # Queue is full, skip frame
+                            pass
+                    break  # Process only one packet at a time
+                
+                # Brief sleep to prevent CPU overuse
+                time.sleep(1.0 / (self.fps * 2))
+                
+        except Exception as e:
+            print(f"Error in capture thread: {e}")
+        finally:
+            self.running = False
+            try:
+                video_container.close()
+                audio_container.close()
+            except:
+                pass
+    
+    def capture(self):
+        """Get the latest video frame (compatible with existing ScreenCapture interface)"""
+        if not self.running:
+            return None
+            
+        try:
+            # Non-blocking to get the latest frame
+            timestamp, frame = self.video_queue.get(block=False)
+            return frame
+        except queue.Empty:
+            return None
+    
+    def get_audio(self):
+        """Get the latest audio sample"""
+        if not self.running:
+            return None, 0
+            
+        try:
+            # Non-blocking to get the latest audio
+            timestamp, audio_data = self.audio_queue.get(block=False)
+            return audio_data, timestamp
+        except queue.Empty:
+            return None, 0
+    
+    def get_synced_frame(self):
+        """Get synchronized video and audio"""
+        if not self.running:
+            return None, None, 0
+            
+        # First get the latest video frame
+        try:
+            video_timestamp, video_frame = self.video_queue.get(block=False)
+        except queue.Empty:
+            return None, None, 0
+            
+        # Find the closest audio frame
+        closest_audio = None
+        closest_timestamp = 0
+        closest_diff = float('inf')
+        
+        # Check all available audio frames
+        audio_frames = []
+        try:
+            while not self.audio_queue.empty():
+                audio_timestamp, audio_data = self.audio_queue.get(block=False)
+                audio_frames.append((audio_timestamp, audio_data))
+                
+                # Calculate time difference
+                diff = abs(audio_timestamp - video_timestamp)
+                if diff < closest_diff:
+                    closest_diff = diff
+                    closest_audio = audio_data
+                    closest_timestamp = audio_timestamp
+        except queue.Empty:
+            pass
+            
+        # Put back audio frames we didn't use (except the one we're using)
+        for ts, data in audio_frames:
+            if ts != closest_timestamp:
+                try:
+                    self.audio_queue.put((ts, data), block=False)
+                except queue.Full:
+                    pass
+                    
+        return video_frame, closest_audio, video_timestamp
+        
+    def stop_capture(self):
+        """Stop the capture process"""
+        self.running = False
+        if self.capture_thread and self.capture_thread.is_alive():
+            self.capture_thread.join(timeout=2)
 
 class TTSHandler:
     def __init__(self):
@@ -105,7 +343,7 @@ class StreamingClient:
         # Create frame for image
         self.image_frame = tk.Frame(self.root)
         self.image_frame.pack(expand=True, fill='both')
-        
+        self.image_frame.pack_propagate(False)
         # Create label for image
         self.label = tk.Label(self.image_frame)
         self.label.pack(expand=True, fill='both')
