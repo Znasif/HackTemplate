@@ -68,6 +68,15 @@ cd path\to\client
 python main.py
 ```
 
+or using the cross-platform client:
+
+```terminal
+cd path\to\client
+python main_beta.py
+```
+
+If doing in MacOS, you need to enable terminal.app inside settings -> privacy & security -> screen and system audio recording
+
 #### e. Start the client
 
 - Press **Start Streaming** → This will start sharing the PC screen with the server.  
