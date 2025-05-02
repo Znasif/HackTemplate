@@ -1,7 +1,8 @@
-import cv2 as cv
+import cv2
 import numpy as np
+import numba
 import mediapipe as mp
-from scipy import stats
+from scipy import stats, signal
 from collections import deque
 import time, os, json
 import torch
@@ -32,8 +33,34 @@ class MediaPipeGestureProcessor(BaseProcessor):
         else:
             print(f"No map parameters file found at {filename}")
             raise FileNotFoundError(f"Could not find model file: {filename}")
+        filename="../client/street_map_Market.json"
+        
+        if os.path.isfile(filename):
+            with open(filename, 'r') as f:
+                self.market_data = json.load(f)
+                print("Loaded map parameters from file.")
+            self.pin_matrix = np.zeros((31, 43), dtype=bool)
+            self.color_matrix = np.zeros((31, 43, 3), dtype=np.uint8)
+            
+            # Process hotspots
+            for hotspot in self.market_data.get("hotspots", []):
+                color = tuple(hotspot.get("color", [255, 0, 0]))
+                
+                # If positions are specified in the JSON
+                if "positions" in hotspot:
+                    for i, j in hotspot["positions"]:
+                        if 0 <= i < 31 and 0 <= j < 43:
+                            self.pin_matrix[i, j] = True
+                            self.color_matrix[i, j] = np.array(color)
+            
+            #____________________________________________________________________>>>>REMOVE THIS LINE TO DRAW MAP
+            #self.pin_matrix=None
+        else:
+            print(f"No map parameters file found at {filename}")
+            raise FileNotFoundError(f"Could not find model file: {filename}")
         self.enable_sift = enable_sift
         self.enable_hands = enable_hands
+        self.current_desc = ""
         # Dictionary to store pin states
         self.pin_states = [[False for i in range(43)] for j in range(31)]
         # Initialize MediaPipe components
@@ -63,21 +90,33 @@ class MediaPipeGestureProcessor(BaseProcessor):
         self.gesture_detector = self.GestureDetector()
         
         # Load zone mapping image
-        self.image_map_color = cv.imread("./models/colorMap.png", cv.IMREAD_COLOR)
+        self.image_map_color = cv2.imread("./models/colorMap.png", cv2.IMREAD_COLOR)
         
         # Homography matrix
         self.H = None
-        self.requires_homography = True
+        self.requires_homography = False
+        b=5
+        self.b=b
+        kernel_size = 2 * b + 1
+        self.kernel = np.zeros((kernel_size, kernel_size))
+        self.kernel[b, b] = 8  # Center weight
+        # Neighbor weights at offsets ±b
+        for dy in [-b, b]:
+            for dx in [-b, b]:
+                self.kernel[b + dy, b + dx] = -1
+        for dy in [-b, b]:
+            self.kernel[b + dy, b] = -1
+            self.kernel[b, b + dy] = -1
     
     def initialize_sift_detector(self):
         """Initialize SIFT detector for model recognition"""
         # Load the template image
-        self.img_object = cv.imread(
-            "./models/template.png", cv.IMREAD_GRAYSCALE
+        self.img_object = cv2.imread(
+            "./models/template.png", cv2.IMREAD_GRAYSCALE
         )
 
         # Detect SIFT keypoints
-        self.sift_detector = cv.SIFT_create()
+        self.sift_detector = cv2.SIFT_create()
         self.keypoints_obj, self.descriptors_obj = self.sift_detector.detectAndCompute(
             self.img_object, mask=None
         )
@@ -107,7 +146,7 @@ class MediaPipeGestureProcessor(BaseProcessor):
         self.superglue = self.superglue.to(self.device)
         
         # Load the template image
-        self.img_object = cv.imread("./models/template.png", cv.IMREAD_GRAYSCALE)
+        self.img_object = cv2.imread("./models/template.png", cv2.IMREAD_GRAYSCALE)
         
         # Process template image for SuperPoint
         self.template_tensor = torch.from_numpy(self.img_object).float() / 255.
@@ -143,7 +182,7 @@ class MediaPipeGestureProcessor(BaseProcessor):
         output = frame.copy()
         
         # Convert to grayscale for SIFT processing
-        frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
         # Process SIFT detection if enabled
         map_detected = False
@@ -154,7 +193,7 @@ class MediaPipeGestureProcessor(BaseProcessor):
         else:
             map_detected, self.H, _ = self.detect_model_with_HLoc(frame_gray)
             if map_detected:
-                output = self.draw_rect_in_image(output, self.image_map_color.shape, self.H)
+                output = self.render_image_to_pin_display(output)#self.draw_rect_in_image(output, self.image_map_color.shape, self.H)#
         # Initialize detection result
         detection_result = {
             "map_detected": map_detected,
@@ -227,21 +266,21 @@ class MediaPipeGestureProcessor(BaseProcessor):
         matched_frame_kp = frame_kp[matches[valid]]
         match_confidence = confidence[valid]
 
-        print(f"SuperGlue: {len(matched_template_kp)} matches")
+        #print(f"SuperGlue: {len(matched_template_kp)} matches")
 
         # Need at least 4 good matches to compute homography
         if len(matched_template_kp) < 4:
             return False, None, None
 
         # Compute homography
-        H, mask = cv.findHomography(
+        H, mask = cv2.findHomography(
             matched_frame_kp, matched_template_kp,
-            cv.RANSAC, ransacReprojThreshold=8.0, confidence=0.995
+            cv2.RANSAC, ransacReprojThreshold=8.0, confidence=0.995
         )
 
         # Count inliers
         total_inliers = np.sum(mask) if mask is not None else 0
-        print(f"SuperGlue inliers: {total_inliers}")
+        #print(f"SuperGlue inliers: {total_inliers}")
 
         # Check if we have enough inliers
         if total_inliers > self.MIN_INLIER_COUNT:
@@ -272,7 +311,7 @@ class MediaPipeGestureProcessor(BaseProcessor):
         if descriptors_scene is None or len(descriptors_scene) < 4:
             return False, None, None
             
-        matcher = cv.DescriptorMatcher_create(cv.DescriptorMatcher_FLANNBASED)
+        matcher = cv2.DescriptorMatcher_create(cv2.DescriptorMatcher_FLANNBASED)
         knn_matches = matcher.knnMatch(self.descriptors_obj, descriptors_scene, 2)
 
         # Only keep uniquely good matches
@@ -297,8 +336,8 @@ class MediaPipeGestureProcessor(BaseProcessor):
             scene[i, 1] = keypoints_scene[good_matches[i].trainIdx].pt[1]
             
         # Compute homography and find inliers
-        H, mask_out = cv.findHomography(
-            scene, obj, cv.RANSAC, ransacReprojThreshold=8.0, confidence=0.995
+        H, mask_out = cv2.findHomography(
+            scene, obj, cv2.RANSAC, ransacReprojThreshold=8.0, confidence=0.995
         )
         
         # Count inliers
@@ -325,14 +364,14 @@ class MediaPipeGestureProcessor(BaseProcessor):
         Returns:
             tuple: (index_position, movement_status, output_image)
         """
-        image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         handedness = list()
         results = self.hands.process(image_rgb)
         coors = np.zeros((4, 3), dtype=float)
         
         # Draw the hand annotations on the image
         image_rgb.flags.writeable = True
-        output_image = cv.cvtColor(output_image, cv.COLOR_RGB2BGR)
+        #output_image = cv2.cvtColor(output_image, cv2.COLOR_RGB2BGR)
         index_pos = None
         movement_status = None
         
@@ -345,42 +384,51 @@ class MediaPipeGestureProcessor(BaseProcessor):
                 # Calculate ratios for each finger
                 finger_ratios = self._calculate_finger_ratios(hand_landmarks)
                 
-                # Draw hand landmarks
-                self.mp_drawing.draw_landmarks(
-                    output_image,
-                    hand_landmarks,
-                    self.mp_hands.HAND_CONNECTIONS,
-                    self.mp_drawing_styles.get_default_hand_landmarks_style(),
-                    self.mp_drawing_styles.get_default_hand_connections_style())
-
                 # Get index finger position
                 position = np.matmul(H, np.array([
                     hand_landmarks.landmark[8].x * image.shape[1],
-                    hand_landmarks.landmark[8].y * image.shape[0], 
+                    hand_landmarks.landmark[8].y * image.shape[0],
                     1
                 ]))
-                
+
                 # Initialize index position
                 if index_pos is None:
                     index_pos = np.array([position[0] / position[2], position[1] / position[2], 0], dtype=float)
-                
+
                 # Check if index finger is pointing (extended while others are closed)
-                if (finger_ratios[1] > 0.7 and   # Index finger extended
-                    finger_ratios[2] < 0.95 and  # Middle finger closed
-                    finger_ratios[3] < 0.95 and  # Ring finger closed
-                    finger_ratios[4] < 0.95):    # Little finger closed
-                    
+                is_pointing = (finger_ratios[1] > 0.7 and  # Index finger extended
+                            finger_ratios[2] < 0.95 and  # Middle finger closed
+                            finger_ratios[3] < 0.95 and  # Ring finger closed
+                            finger_ratios[4] < 0.95)    # Little finger closed
+
+                if is_pointing:
                     # Handle multiple hands or same hand pointing
                     if movement_status != "pointing" or (len(handedness) > 1 and handedness[1] == handedness[0]):
                         index_pos = np.array([position[0] / position[2], position[1] / position[2], 0], dtype=float)
                         movement_status = "pointing"
                     else:
                         index_pos = np.append(index_pos,
-                                             np.array([position[0] / position[2], position[1] / position[2], 0],
-                                                     dtype=float))
+                                            np.array([position[0] / position[2], position[1] / position[2], 0],
+                                                    dtype=float))
                         movement_status = "too_many"
+
+                    H_inv = np.linalg.inv(H)
+                    # Directly use the de-homogenized 'position' to draw the circle
+                    index_tip_homogeneous = np.array([index_pos[-3], index_pos[-2], 1])
+                    transformed_tip = np.dot(H_inv, index_tip_homogeneous)
+                    transformed_x, transformed_y = int(transformed_tip[0] / transformed_tip[2]), int(transformed_tip[1] / transformed_tip[2])
+
+                    # Draw the white circle at the transformed position
+                    cv2.circle(output_image, (transformed_x, transformed_y), 10, (255, 255, 255), -1)
                 elif movement_status != "pointing":
                     movement_status = "moving"
+                    # Draw all hand landmarks if not pointing
+                    self.mp_drawing.draw_landmarks(
+                        output_image,
+                        hand_landmarks,
+                        self.mp_hands.HAND_CONNECTIONS,
+                        self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                        self.mp_drawing_styles.get_default_hand_connections_style())
         
         return index_pos, movement_status, output_image
     
@@ -456,10 +504,21 @@ class MediaPipeGestureProcessor(BaseProcessor):
         if isinstance(zone, np.ndarray):
             zone = zone[0]
             
-        if np.abs(position[2]) < self.Z_THRESHOLD:
-            return zone, zone_desc
-        else:
+        #if np.abs(position[2]) < self.Z_THRESHOLD:
+        #    # Find matching zone
+        if self.pin_matrix is None:
             return -1, ""
+        for zone in self.market_data.get("hotspots", []):
+            positions = zone.get("positions", [])
+            for x,y in positions:
+                if x*43+(y+1)==int(zone_id):
+                    print(x, y)
+                    zone_desc=zone.get("hotspotTitle", "")+" "+zone.get("hotspotDescription", "")
+                    print("HERE---------------->"+zone_desc)
+                    if zone_desc!=self.current_desc:
+                        self.current_desc = zone_desc
+                        return zone, zone_desc
+        return -1, ""
 
     def get_zone(self, position):
         """
@@ -519,7 +578,7 @@ class MediaPipeGestureProcessor(BaseProcessor):
         # Get the map image and ensure it has the same number of channels as the output
         map_image = self.image_map_color.copy()
         if len(map_image.shape) == 2 and len(output.shape) == 3:
-            map_image = cv.cvtColor(map_image, cv.COLOR_GRAY2BGR)
+            map_image = cv2.cvtColor(map_image, cv2.COLOR_GRAY2RGB)
         
         # Create a mask for the map area in the output image
         h, w = map_image.shape[:2]
@@ -531,15 +590,15 @@ class MediaPipeGestureProcessor(BaseProcessor):
         
         # Transform the map corners to the camera view using inverse homography
         H_inv = np.linalg.inv(H)
-        camera_corners = cv.perspectiveTransform(map_corners, H_inv)
+        camera_corners = cv2.perspectiveTransform(map_corners, H_inv)
         
         # Fill the polygon area in the mask
         camera_corners_int = np.int32(camera_corners.reshape(-1, 2))
-        cv.fillPoly(mask, [camera_corners_int], 255)
+        cv2.fillPoly(mask, [camera_corners_int], 255)
         
         # Warp the map image to fit the perspective in the camera view
         h_image, w_image = image.shape[:2]
-        warped_map = cv.warpPerspective(map_image, H_inv, (w_image, h_image))
+        warped_map = cv2.warpPerspective(map_image, H_inv, (w_image, h_image))
         
         # Create the overlay with half opacity
         # Only apply the overlay where the mask is non-zero
@@ -552,31 +611,23 @@ class MediaPipeGestureProcessor(BaseProcessor):
             )
         
         # Optional: Draw the outline to show the boundaries clearly
-        cv.polylines(output, [camera_corners_int], True, (0, 255, 0), 2)
+        cv2.polylines(output, [camera_corners_int], True, (0, 255, 0), 2)
         if(self.detect_pin_states(image, H)):
             text_repr = "\n".join([''.join(['●' if pixel else '○' for pixel in row]) for row in self.pin_states])
-            print(text_repr, end="\r")
+            #print(text_repr, end="\r")
             return self.vis_image
         return output
-    
+
     def detect_pin_states(self, image, H):
         """
         Detect whether pins are up (reflective) or down at hotspot locations
-        
-        Args:
-            image (numpy.ndarray): Input image (camera frame)
-            H (numpy.ndarray): Homography matrix
-            
-        Returns:
-            tuple: (processed_image, pin_states)
-                - processed_image: Image with pin states visualized
-                - pin_states: Dictionary mapping hotspot IDs to states (True for up, False for down)
+        using the pixel-based convolution approach adapted for ROIs
         """
         # Create a copy of the input image for visualization
         self.vis_image = image.copy()
         
         # Convert input image to grayscale for brightness analysis
-        gray_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Get hotspots from model
         hotspots = self.model.get("hotspots", [])
@@ -584,100 +635,239 @@ class MediaPipeGestureProcessor(BaseProcessor):
             return False
         
         # Constants for analysis
-        PIN_RADIUS = 7  # Radius around pin center to analyze
-        BRIGHTNESS_THRESHOLD = 150  # Threshold for considering a pin as "up" (reflective)
-        CONTRAST_THRESHOLD = 30  # Threshold for contrast between pin and background
-        flag = False
-        # For each hotspot
-        for idx, hotspot in enumerate(hotspots):
-            # Get hotspot position
-            if "position" not in hotspot:
-                continue
-            
-            pin_x, pin_y = hotspot["position"]
-            count = int(hotspot["hotspotTitle"])
-            row, col = int((count-1)/43), (count-1)%43
-            
-            # Transform hotspot position to camera view
-            pin_pos_map = np.array([[[pin_x, pin_y]]], dtype=np.float32)
-            pin_pos_camera = cv.perspectiveTransform(pin_pos_map, np.linalg.inv(H))
-            
-            # Extract x,y coordinates in camera view
-            cx, cy = int(pin_pos_camera[0][0][0]), int(pin_pos_camera[0][0][1])
-            
-            # Check if the pin position is within the image bounds
-            if 0 <= cx < image.shape[1] and 0 <= cy < image.shape[0]:
-                # Extract a small region around the pin
-                x_min = max(0, cx - PIN_RADIUS)
-                x_max = min(image.shape[1], cx + PIN_RADIUS)
-                y_min = max(0, cy - PIN_RADIUS)
-                y_max = min(image.shape[0], cy + PIN_RADIUS)
-                
-                # Get the region of interest
-                roi = gray_image[y_min:y_max, x_min:x_max]
-                
-                if roi.size > 0:
-                    # Calculate statistics for the region
-                    pin_brightness = np.mean(roi)
-                    
-                    # Get a slightly larger region to calculate background
-                    bg_radius = PIN_RADIUS * 2
-                    bg_x_min = max(0, cx - bg_radius)
-                    bg_x_max = min(image.shape[1], cx + bg_radius)
-                    bg_y_min = max(0, cy - bg_radius)
-                    bg_y_max = min(image.shape[0], cy + bg_radius)
-                    
-                    # Create a mask to exclude the pin area from background calculation
-                    bg_mask = np.ones((bg_y_max - bg_y_min, bg_x_max - bg_x_min), dtype=np.uint8)
-                    pin_mask_y_start = y_min - bg_y_min
-                    pin_mask_y_end = y_max - bg_y_min
-                    pin_mask_x_start = x_min - bg_x_min
-                    pin_mask_x_end = x_max - bg_x_min
-                    
-                    # Ensure mask indices are within bounds
-                    if (0 <= pin_mask_y_start < bg_mask.shape[0] and 
-                        0 <= pin_mask_y_end < bg_mask.shape[0] and
-                        0 <= pin_mask_x_start < bg_mask.shape[1] and
-                        0 <= pin_mask_x_end < bg_mask.shape[1]):
-                        bg_mask[pin_mask_y_start:pin_mask_y_end, 
-                                pin_mask_x_start:pin_mask_x_end] = 0
-                        
-                        # Get background region (excluding pin)
-                        bg_roi = gray_image[bg_y_min:bg_y_max, bg_x_min:bg_x_max]
-                        bg_brightness = np.mean(bg_roi[bg_mask == 1]) if np.any(bg_mask) else 0
-                        
-                        # Calculate contrast between pin and background
-                        contrast = pin_brightness - bg_brightness
-                        
-                        # Determine if pin is up (reflective) based on brightness and contrast
-                        pin_up = (pin_brightness > BRIGHTNESS_THRESHOLD and contrast > CONTRAST_THRESHOLD)
-                        if pin_up!=self.pin_states[row][col]:
-                            self.pin_states[row][col] = pin_up
-                            flag=True
-                        
-                        # Visualize the pin state
-                        if pin_up:
-                            # Pin is up (reflective) - draw green circle
-                            cv.circle(self.vis_image, (cx, cy), PIN_RADIUS, (0, 255, 0), 2)
-                        else:
-                            # Pin is down - draw red circle
-                            cv.circle(self.vis_image, (cx, cy), PIN_RADIUS, (0, 0, 255), 2)
-                        
-                        # Optionally: Draw the hotspot ID for debugging
-                        '''label = f"{hotspot_id}"
-                        cv.putText(vis_image, label, (cx + PIN_RADIUS, cy), 
-                                cv.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)'''
+        PIN_RADIUS = 5  # Radius around pin center to analyze
+        b = self.b  # Neighborhood size for convolution (from pixel-based code)
         
-        return flag
+        # Extract all positions, rows, and columns at once
+        positions = []
+        rows = []
+        cols = []
+        
+        for idx, hotspot in enumerate(hotspots):
+            if "position" in hotspot:
+                positions.append(hotspot["position"])
+                count = int(hotspot["hotspotTitle"])
+                row, col = int((count-1)/43), (count-1)%43
+                rows.append(row)
+                cols.append(col)
+        
+        # Convert to numpy arrays
+        positions = np.array(positions, dtype=np.float32)
+        rows = np.array(rows, dtype=np.int32)
+        cols = np.array(cols, dtype=np.int32)
+        
+        if positions.size == 0:
+            return False
+        
+        # Transform all positions to camera view at once
+        positions_map = np.array([positions], dtype=np.float32)
+        positions_camera = cv2.perspectiveTransform(positions_map, np.linalg.inv(H))
+        positions_camera = positions_camera[0]
+        
+        # Convert to integers and filter out points outside the image
+        cx_values = positions_camera[:, 0].astype(np.int32)
+        cy_values = positions_camera[:, 1].astype(np.int32)
+        
+        # Create masks for valid points
+        valid_mask = (cx_values >= b) & (cx_values < image.shape[1] - b) & \
+                    (cy_values >= b) & (cy_values < image.shape[0] - b)
+        
+        # Filter to keep only valid points
+        valid_indices = np.where(valid_mask)[0]
+        if valid_indices.size == 0:
+            print("False")
+            return False
+        
+        # Filter arrays to keep only valid points
+        cx_values = cx_values[valid_mask]
+        cy_values = cy_values[valid_mask]
+        rows = rows[valid_mask]
+        cols = cols[valid_mask]
+        
+        # Initialize pin state classifications
+        average_response = np.zeros(len(cx_values), dtype=np.float32)
+        
+        # Process each hotspot's ROI using the pixel-based convolution logic
+        for i, (cx, cy, row, col) in enumerate(zip(cx_values, cy_values, rows, cols)):
+            # Extract ROI (ensure it's large enough to include the neighborhood)
+            x_min = max(0, cx - PIN_RADIUS - b)
+            x_max = min(image.shape[1], cx + PIN_RADIUS + b)
+            y_min = max(0, cy - PIN_RADIUS - b)
+            y_max = min(image.shape[0], cy + PIN_RADIUS + b)
+            
+            # Get the ROI from the grayscale image
+            roi = gray_image[y_min:y_max, x_min:x_max]
+            
+            # Apply the convolution operation at the center of the ROI
+            roi_h, roi_w = roi.shape
+            center_x = cx - x_min
+            center_y = cy - y_min
+            
+            # Ensure the center is within bounds for the convolution
+            if (center_x >= b and center_x < roi_w - b and 
+                center_y >= b and center_y < roi_h - b):
+                feature_map = signal.convolve2d(roi, self.kernel, mode='valid')
+                # Extract a small region around the center for averaging
+                # Adjust for 'valid' mode (reduces size by kernel_size-1)
+                fm_y = center_y - b
+                fm_x = center_x - b
+                # Define a 3x3 region around the center (adjust size as needed)
+                region_size = PIN_RADIUS-1
+                half_size = region_size // 2
+                region_y_min = max(0, fm_y - half_size)
+                region_y_max = min(feature_map.shape[0], fm_y + half_size + 1)
+                region_x_min = max(0, fm_x - half_size)
+                region_x_max = min(feature_map.shape[1], fm_x + half_size + 1)
+                
+                # Compute the average value in the region
+                if (region_y_max > region_y_min and region_x_max > region_x_min):
+                    region = feature_map[region_y_min:region_y_max, region_x_min:region_x_max]
+                    average_response[i] = np.mean(region)
+                else:
+                    average_response[i] = 0  # Fallback if region is invalid
+        #write code to do k=2 knn based clustering on all the average_response values, it is possible that all the pins may be down in which case the all may belong to down cluster, but it 
+        #is highly unlikely to all pins be up, so cluster that way
+        classifications = np.zeros(len(cx_values), dtype=np.int32)
+        # Apply k-means clustering with k=2 to classify pins as up or down
+        if len(average_response) > 0:
+            # Reshape for sklearn
+            X = average_response.reshape(-1, 1)
+            
+            # Apply KMeans with k=2
+            from sklearn.cluster import KMeans
+            kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
+            cluster_centers = kmeans.cluster_centers_
+            
+            # Determine which cluster represents "up" pins (higher response values)
+            up_cluster = 0 if cluster_centers[0] > cluster_centers[1] else 1
+            
+            # Classify each pin based on cluster assignment
+            classifications = (kmeans.labels_ == up_cluster).astype(np.int32)
+            print(np.max(average_response))
+            # Special case: If all pins might be down, check the separation between clusters
+            # if np.max(average_response) < 1:  # Define appropriate threshold
+            #     classifications[:] = 0  # All pins are down
+        if np.any(classifications):
+            for i, (cx, cy) in enumerate(zip(cx_values, cy_values)):
+                if average_response[i]>=0:
+                    #self.pin_states[]
+                    cv2.circle(self.vis_image, (cx, cy), PIN_RADIUS, (0, 255, 0), -1)  # Green for up
+                else:
+                    cv2.circle(self.vis_image, (cx, cy), PIN_RADIUS, (0, 0, 255), -1)  # Red for down
+            return True
+        return False
     
+    def render_image_to_pin_display(self, frame):
+        """
+        Renders an image to the pin display and creates a visualization using homography.
+        
+        Args:
+            display_image (numpy.ndarray): Input image to be displayed on the pin matrix
+            frame (numpy.ndarray): Camera frame to draw the visualization on
+            
+        Returns:
+            tuple: (pin_matrix, visualization)
+                - pin_matrix (numpy.ndarray): Binary 2D array representing pin states
+                - visualization (numpy.ndarray): Visualization image with pin matrix projected onto frame
+        """
+        # Create visualization using homography
+        visualization = self.visualize_pin_matrix_with_homography(frame)
+        
+        return visualization
+
+    def visualize_pin_matrix_with_homography(self, frame):
+        """
+        Visualizes the pin matrix by using homography to project onto the image_map_color
+        and drawing circle indicators for each pin.
+        
+        Args:
+            pin_matrix (numpy.ndarray): Binary 2D array representing pin states (31x43)
+            frame (numpy.ndarray): Camera frame to draw on
+            
+        Returns:
+            numpy.ndarray: Visualization with the pin matrix projected onto the frame
+        """
+        # Create a copy of the input frame
+        output = frame.copy()
+        
+        # Check if homography matrix exists
+        if self.H is None:
+            return output
+        
+        # Create a copy of the map image
+        map_image = self.image_map_color.copy()
+        map_image[:] = (0, 0, 0)
+
+        # Create a visualization of the pin matrix on the map
+        for hotspot in self.model.get("hotspots", []):
+            if "position" in hotspot and "hotspotTitle" in hotspot:
+                # Get position from hotspot
+                x, y = int(hotspot["position"][0]), int(hotspot["position"][1])
+                
+                # Get row and column from hotspot title
+                count = int(hotspot["hotspotTitle"])
+                row, col = int((count-1)/43), (count-1) % 43
+                
+                # Check if this position is within bounds
+                if 0 <= row < self.pin_matrix.shape[0] and 0 <= col < self.pin_matrix.shape[1]:
+                    # Determine color based on pin state
+                    if self.pin_matrix[row, col]:
+                        color = (int(self.color_matrix[row, col][2]), 
+                                int(self.color_matrix[row, col][1]), 
+                                int(self.color_matrix[row, col][0]))
+                    else:
+                        color = (0, 0, 0)
+                    # Draw the circle on the map image
+                    cv2.circle(map_image, (x, y), 5, color, -1)  # Filled circle
+        
+        # Create a mask for the map area in the output image
+        h, w = map_image.shape[:2]
+        mask = np.zeros((frame.shape[0], frame.shape[1]), dtype=np.uint8)
+        
+        # Create coordinates for the four corners of the map
+        map_corners = np.array([[0, 0], [w, 0], [w, h], [0, h]], dtype=np.float32)
+        map_corners = map_corners.reshape(-1, 1, 2)
+        
+        # Transform the map corners to the camera view using inverse homography
+        H_inv = np.linalg.inv(self.H)
+        camera_corners = cv2.perspectiveTransform(map_corners, H_inv)
+        
+        # Fill the polygon area in the mask
+        camera_corners_int = np.int32(camera_corners.reshape(-1, 2))
+        cv2.fillPoly(mask, [camera_corners_int], 255)
+        
+        # Warp the map image to fit the perspective in the camera view
+        h_frame, w_frame = frame.shape[:2]
+        warped_map = cv2.warpPerspective(map_image, H_inv, (w_frame, h_frame))
+        black_pixels_mask = (warped_map[:,:,0] == 0) & (warped_map[:,:,1] == 0) & (warped_map[:,:,2] == 0)
+        # Alpha blend the warped map with the output using different alpha values
+        # Use alpha = 0.5 for normal pixels, and alpha = 0.5 for black pixels too
+        for c in range(3):  # For each color channel
+            # Apply different alpha blending based on pixel color
+            output[:, :, c] = np.where(
+                (mask > 0) & ~black_pixels_mask,  # Non-black pixels within mask
+                output[:, :, c] * 0.5 + warped_map[:, :, c] * 0.5,  # Regular 0.5 alpha
+                np.where(
+                    (mask > 0) & black_pixels_mask,  # Black pixels within mask
+                    output[:, :, c] * 0.5 + warped_map[:, :, c] * 0.5,  # Also 0.5 alpha for black pixels
+                    output[:, :, c]  # Outside mask, keep original
+                )
+            )
+        
+        # Optional: Draw the outline to show the boundaries clearly
+        cv2.polylines(output, [camera_corners_int], True, (0, 255, 0), 2)
+        
+        return output
+
     def reset_homography(self):
         """Reset homography to force recalculation"""
         self.requires_homography = True
     
     def __del__(self):
         """Clean up MediaPipe resources"""
-        if self.enable_hands:
-            self.hands.close()
+        #if self.enable_hands:
+        #    self.hands.close()
+        pass
     
     class MovementMedianFilter:
         """Filter for smoothing movement using median filtering"""
