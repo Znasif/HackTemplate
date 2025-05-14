@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from screen_capture import StreamingClient
 import json
+import argparse
 
 # At the top of your code, add these tracking variables
 last_x = 0
@@ -55,7 +56,7 @@ def main():
     root.bind("<Configure>", enforce_aspect_ratio)
     
     # Create client instance
-    client = StreamingClient(root, monitor_index=1)
+    client = StreamingClient(root, monitor_index=1, audio_device_index=5)
     
     # Add processor_id property to client
     client.processor_id = 4  # Default to Base Processor (4)
@@ -75,7 +76,8 @@ def main():
         "MediaPipe",
         "Base Processor",
         "Groq",
-        "OpenAI"
+        "OpenAI",
+        "Audio Speech-to-Text"
     ]
     
     processor_var = tk.StringVar()
@@ -107,6 +109,7 @@ def main():
             4: 4,  # Base
             5: 5,  # Groq
             6: 6,  # OpenAI
+            7: 7,  # Audio Speech-to-Text
         }
         client.processor_id = processor_ids.get(selection, 4)
         selected_processor = processor_options[selection]
@@ -115,6 +118,16 @@ def main():
         # Update status for screen readers
         status_text = f"Selected processor: {selected_processor}"
         status_var.set(status_text)
+        
+        # Handle special case for audio processor
+        if client.processor_id == 7:  # Audio Speech-to-Text
+            # Start audio streaming
+            client.audio_streamer.start_audio_stream()
+            status_text = f"Selected Audio Speech-to-Text - Listening..."
+            status_var.set(status_text)
+        else:
+            # Stop audio streaming if it was running
+            client.audio_streamer.stop_audio_stream()
         
         # Set focus to the status label briefly to announce change
         status_label.focus_set()
@@ -151,6 +164,8 @@ def main():
         client.stop()
         # Also stop any ongoing TTS
         client.tts_handler.stop_flag.set()
+        # Make sure audio streaming is stopped
+        client.audio_streamer.stop_audio_stream()
         stop_button.config(state='normal')
         
         # Update status for screen readers
@@ -169,7 +184,15 @@ def main():
         status_text = "Streaming started"
         status_var.set(status_text)
         
-        client.start()
+        # Start the appropriate type of streaming based on processor
+        if client.processor_id == 7:  # Audio Speech-to-Text
+            # For audio processing, we only need to start the audio streamer
+            client.audio_streamer.start_audio_stream()
+            status_text = "Audio streaming started - Listening..."
+            status_var.set(status_text)
+        else:
+            # For video processing, start the regular streaming
+            client.start()
         
         # Set focus to status label briefly to announce change
         status_label.focus_set()
@@ -249,6 +272,7 @@ def main():
     original_stop = client.stop
     def accessible_stop():
         original_stop()
+        client.audio_streamer.stop_audio_stream()  # Always ensure audio stream is stopped
         status_text = "Streaming stopped"
         status_var.set(status_text)
     client.stop = accessible_stop
