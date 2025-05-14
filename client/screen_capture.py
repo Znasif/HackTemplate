@@ -14,6 +14,11 @@ import json
 import threading
 import pyttsx3
 import queue
+import pyaudio
+import wave
+import struct
+import time
+import audioop
 
 class TTSHandler:
     def __init__(self):
@@ -110,8 +115,239 @@ class ScreenCapture:
 def print_message(message):
     print(f"Message: {message}", end="\r")
 
+class AudioStreamer:
+    def __init__(self, server_url="ws://localhost:8000/audio", audio_device_index=None):
+        self.server_url = server_url
+        self.running = False
+        self.websocket = None
+        self.loop = None
+        self.current_task = None
+        self.stream_thread = None
+        self.device_index = audio_device_index  # The audio device index to use
+        
+        # Audio settings
+        self.format = pyaudio.paInt16
+        self.channels = 1
+        self.rate = 16000  # 16kHz required by Whisper
+        self.chunk = 1024
+        self.audio = pyaudio.PyAudio()
+        self.stream = None
+        self.audio_buffer = queue.Queue()
+        self.transcription_callback = None
+        
+        # Print available audio devices
+        self.print_audio_devices()
+        
+    def print_audio_devices(self):
+        """Print all available audio input devices"""
+        print("\nAvailable audio input devices:")
+        info = self.audio.get_host_api_info_by_index(0)
+        num_devices = info.get('deviceCount')
+        
+        input_devices = []
+        for i in range(num_devices):
+            device_info = self.audio.get_device_info_by_index(i)
+            if device_info.get('maxInputChannels') > 0:  # Input device
+                input_devices.append((i, device_info.get('name')))
+                print(f"  [{i}] {device_info.get('name')}")
+        
+        if self.device_index is None and input_devices:
+            # Use first available input device if none specified
+            self.device_index = input_devices[0][0]
+            print(f"\nUsing default input device: [{self.device_index}] {input_devices[0][1]}")
+        elif self.device_index is not None:
+            device_name = "Unknown"
+            try:
+                device_info = self.audio.get_device_info_by_index(self.device_index)
+                device_name = device_info.get('name')
+            except:
+                pass
+            print(f"\nUsing specified input device: [{self.device_index}] {device_name}")
+        
+    def set_transcription_callback(self, callback):
+        """Set a callback function to handle received transcriptions"""
+        self.transcription_callback = callback
+    
+    def start_audio_stream(self):
+        """Start audio streaming in a separate thread"""
+        if not self.running and (self.stream_thread is None or not self.stream_thread.is_alive()):
+            self.running = True
+            self.stream_thread = threading.Thread(target=self._run_audio_loop)
+            self.stream_thread.daemon = True
+            self.stream_thread.start()
+            print("Audio streaming started")
+    
+    def stop_audio_stream(self):
+        """Stop audio streaming"""
+        if self.running:
+            self.running = False
+            
+            # Cancel the current task
+            if self.current_task and not self.current_task.done():
+                if self.loop and not self.loop.is_closed():
+                    self.loop.call_soon_threadsafe(self.current_task.cancel)
+            
+            # Wait for thread to finish with timeout
+            if self.stream_thread and self.stream_thread.is_alive():
+                self.stream_thread.join(timeout=5)
+                if self.stream_thread.is_alive():
+                    print("Warning: Audio stream thread did not terminate properly")
+            
+            # Close audio stream if open
+            if self.stream:
+                try:
+                    self.stream.stop_stream()
+                    self.stream.close()
+                except:
+                    pass
+                self.stream = None
+            
+            # Clean up
+            self.stream_thread = None
+            self.current_task = None
+            self.websocket = None
+            print("Audio streaming stopped")
+    
+    def _audio_callback(self, in_data, frame_count, time_info, status):
+        """Callback for audio stream"""
+        if self.running:
+            self.audio_buffer.put(in_data)
+        return (None, pyaudio.paContinue)
+    
+    def _run_audio_loop(self):
+        """Run the audio streaming loop in a separate thread"""
+        try:
+            # Open audio stream
+            try:
+                self.stream = self.audio.open(
+                    format=self.format,
+                    channels=self.channels,
+                    rate=self.rate,
+                    input=True,
+                    input_device_index=self.device_index,
+                    frames_per_buffer=self.chunk,
+                    stream_callback=self._audio_callback
+                )
+                
+                # Start the stream
+                self.stream.start_stream()
+                print("Audio stream started successfully")
+            except Exception as e:
+                print(f"Error opening audio stream: {str(e)}")
+                print("Make sure a microphone is connected and accessible")
+                self.running = False
+                return
+            
+            # Create and run async loop
+            self.loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.loop)
+            
+            # Create and store the task
+            self.current_task = self.loop.create_task(self._process_audio())
+            
+            # Run until task is complete or cancelled
+            self.loop.run_until_complete(self.current_task)
+        except Exception as e:
+            print(f"Error in audio loop: {e}")
+        finally:
+            # Close the audio stream
+            if self.stream:
+                try:
+                    self.stream.stop_stream()
+                    self.stream.close()
+                except:
+                    pass
+                self.stream = None
+            
+            # Close the loop
+            if self.loop and not self.loop.is_closed():
+                try:
+                    pending = asyncio.all_tasks(self.loop)
+                    for task in pending:
+                        task.cancel()
+                    
+                    self.loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    self.loop.close()
+                except Exception as e:
+                    print(f"Error closing audio loop: {e}")
+            
+            self.loop = None
+            self.current_task = None
+    
+    async def _process_audio(self):
+        """Process audio data and send to server"""
+        try:
+            # Connect to WebSocket
+            async with websockets.connect(self.server_url) as websocket:
+                self.websocket = websocket
+                print(f"Connected to audio server at {self.server_url}")
+                
+                # Process audio chunks
+                audio_data = bytearray()
+                last_send_time = time.time()
+                send_interval = 3.0  # Send every 3 seconds
+                
+                while self.running:
+                    # Get audio chunk from buffer (with timeout)
+                    try:
+                        chunk = self.audio_buffer.get(timeout=0.1)
+                        audio_data.extend(chunk)
+                    except queue.Empty:
+                        # No new audio data, check if it's time to send what we have
+                        pass
+                    
+                    current_time = time.time()
+                    # Send data if we have enough or enough time has passed
+                    if len(audio_data) > 0 and (current_time - last_send_time) >= send_interval:
+                        try:
+                            # Convert audio to float32 for Whisper
+                            pcm_data = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                            
+                            # Prepare the audio data - send as a simple list of floats (no base64 encoding)
+                            message = {
+                                "audio": pcm_data.tolist()  # Convert NumPy array to list for JSON
+                            }
+                            
+                            # Send to server
+                            await websocket.send(json.dumps(message))
+                            print(f"Sent {len(pcm_data)} audio samples")
+                            
+                            # Get transcription result
+                            response = await websocket.recv()
+                            response_data = json.loads(response)
+                            
+                            if "text" in response_data and response_data["text"]:
+                                transcription = response_data["text"]
+                                print(f"Received transcription: {transcription}")
+                                
+                                # Call the callback function if set
+                                if self.transcription_callback:
+                                    self.transcription_callback(transcription)
+                        except Exception as e:
+                            print(f"Error sending/receiving audio data: {e}")
+                        finally:
+                            # Always reset for next interval
+                            audio_data = bytearray()
+                            last_send_time = current_time
+                    
+                    # Sleep briefly to prevent high CPU usage
+                    await asyncio.sleep(0.01)
+        
+        except asyncio.CancelledError:
+            print("Audio processing task cancelled")
+        except Exception as e:
+            print(f"Error in audio processing: {e}")
+        finally:
+            self.websocket = None
+    
+    def __del__(self):
+        """Clean up resources"""
+        self.stop_audio_stream()
+        if self.audio:
+            self.audio.terminate()
+
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=0):#"ws://localhost:8000/ws"):#
+    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=0, audio_device_index=None):
         self.root = root
         self.server_url = server_url
         self.running = False
@@ -126,6 +362,17 @@ class StreamingClient:
         self.setup_gui()
         self.tts_handler = TTSHandler()
         self.received_text = ""
+        
+        # Create audio streamer for speech recognition
+        self.audio_streamer = AudioStreamer(audio_device_index=audio_device_index)
+        self.audio_streamer.set_transcription_callback(self.handle_transcription)
+        
+    def handle_transcription(self, text):
+        """Handle received transcription from audio stream"""
+        if text != self.received_text:
+            self.received_text = text
+            self.tts_handler.speak_text(text)  # Optionally speak the transcription
+            # Update the UI if needed
         
     def setup_gui(self):
         # Create frame for image
@@ -407,6 +654,10 @@ class StreamingClient:
                 self.stream_thread.join(timeout=5)
                 if self.stream_thread.is_alive():
                     print("Warning: Stream thread did not terminate properly")
+            
+            # Stop audio streaming if it's running
+            if hasattr(self, 'audio_streamer'):
+                self.audio_streamer.stop_audio_stream()
             
             # Clean up
             self.stream_thread = None

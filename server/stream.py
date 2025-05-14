@@ -2,9 +2,8 @@ from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
 from typing import List
 import asyncio
-import cv2, json, os
+import cv2, json, os, base64
 import numpy as np
-import base64
 from dotenv import load_dotenv
 from processors.base_processor import BaseProcessor
 from processors.yolo_processor import YOLOProcessor
@@ -14,6 +13,7 @@ from processors.camio_processor import MediaPipeGestureProcessor
 from processors.ocr_processor import OCRProcessor
 from processors.groq_processor import GroqProcessor
 from processors.openai_processor import ChatGPTProcessor
+from processors.whisper_processor import WhisperProcessor
 
 app = FastAPI()
 
@@ -34,7 +34,8 @@ class ProcessorManager:
                 3: MediaPipeGestureProcessor(False),
                 4: MediaPipeGestureProcessor(),
                 5: GroqProcessor(api_key=os.getenv('GROQ_API_KEY')),
-                6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY'))
+                6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY')),
+                7: WhisperProcessor(model_path="/home/znasif/whisper.cpp/models/ggml-large-v3-turbo-q8_0.bin")
             }
     
     @classmethod
@@ -75,7 +76,7 @@ async def websocket_endpoint(websocket: WebSocket):
     
     # Default to OCR processor
     current_processor_id = 1
-    print("\nINFO:     connection open")
+    print("\nINFO:     video connection open")
     
     try:
         while True:
@@ -163,7 +164,85 @@ async def websocket_endpoint(websocket: WebSocket):
             
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        print("INFO:     connection closed")
+        print("INFO:     video connection closed")
     except Exception as e:
         print(f"Error in websocket connection: {str(e)}")
+        manager.disconnect(websocket)
+
+@app.websocket("/audio")
+async def audio_websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    
+    # Always use Whisper processor for audio
+    current_processor_id = 7  # Whisper processor ID
+    print("\nINFO:     audio connection open")
+    
+    try:
+        while True:
+            print_message("\nWaiting for audio data...")
+            data = await websocket.receive_text()
+            print_message(f"Received audio data length: {len(data)}")
+            
+            try:
+                # Parse JSON data
+                try:
+                    json_data = json.loads(data)
+                    
+                    # Extract audio data from JSON
+                    if "audio" in json_data:
+                        audio_data = json_data["audio"]
+                        
+                        # If audio data is a list, convert it to numpy array
+                        if isinstance(audio_data, list):
+                            # Convert list to numpy array of float32 
+                            audio_np = np.array(audio_data, dtype=np.float32)
+                            print_message(f"Converted audio list to numpy array: {audio_np.shape}")
+                        else:
+                            # Cannot process the audio data
+                            print_message("Error: Audio data format not supported")
+                            continue
+                        
+                        # Get the Whisper processor
+                        processor = ProcessorManager.get_processor(current_processor_id)
+                        
+                        if hasattr(processor, 'process_audio_chunk'):
+                            # Use dedicated audio processing method if available
+                            print_message("Processing audio chunk...")
+                            transcription = processor.process_audio_chunk(audio_np)
+                        else:
+                            # Create a dummy frame to pass to process_frame
+                            dummy_frame = {"image": np.zeros((10, 10, 3), dtype=np.uint8), "audio": audio_np}
+                            print_message("Processing audio with standard process_frame...")
+                            _, transcription = processor.process_frame(dummy_frame)
+                        
+                        # Send back the transcription
+                        if transcription:
+                            response_data = {"text": transcription}
+                            print(f"Transcription: {transcription}")
+                            await websocket.send_text(json.dumps(response_data))
+                            print_message("Transcription sent successfully")
+                        else:
+                            # Send an empty response to maintain connection
+                            await websocket.send_text(json.dumps({"text": ""}))
+                            print_message("No transcription returned, sent empty response")
+                    else:
+                        print_message("Error: No audio data in message")
+                        continue
+                        
+                except json.JSONDecodeError as e:
+                    print(f"Error: Invalid JSON data received: {e}")
+                    continue
+                        
+            except Exception as e:
+                print(f"Error processing audio: {str(e)}")
+                print(f"Error type: {type(e)}")
+                import traceback
+                print(f"Traceback: {traceback.format_exc()}")
+                continue
+            
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        print("INFO:     audio connection closed")
+    except Exception as e:
+        print(f"Error in audio websocket connection: {str(e)}")
         manager.disconnect(websocket)
