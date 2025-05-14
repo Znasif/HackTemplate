@@ -223,6 +223,14 @@ def main():
         - Alt+X: Stop streaming
         - Alt+P: Focus processor dropdown
         - Alt+H: Show this help dialog
+        - Alt+Q: Focus quality slider
+        - Alt+L: Focus left cropping control
+        - Alt+R: Focus right cropping control
+        - Alt+T: Focus top cropping control
+        - Alt+B: Focus bottom cropping control
+        - Alt+C: Reset cropping to default
+        - Alt+F or F11: Toggle fullscreen
+        - Arrow keys: Adjust values when a control is focused
         - Escape: Close this dialog
         
         When focused on the processor dropdown:
@@ -257,6 +265,35 @@ def main():
     
     # Add keyboard shortcut for help
     root.bind("<Alt-h>", show_help)
+
+        # Focus quality slider
+    def focus_quality(event=None):
+        client.quality_slider.focus_set()
+        return "break"
+        
+    root.bind("<Alt-q>", focus_quality)
+
+    # Focus cropping controls
+    def focus_left_pane(event=None):
+        client.left_pane.focus_set()
+        return "break"
+        
+    def focus_right_pane(event=None):
+        client.right_pane.focus_set()
+        return "break"
+        
+    def focus_top_pane(event=None):
+        client.top_pane.focus_set()
+        return "break"
+        
+    def focus_bottom_pane(event=None):
+        client.bottom_pane.focus_set()
+        return "break"
+        
+    root.bind("<Alt-l>", focus_left_pane)
+    root.bind("<Alt-r>", focus_right_pane)
+    root.bind("<Alt-t>", focus_top_pane)
+    root.bind("<Alt-b>", focus_bottom_pane)
     
     # Set initial focus
     start_button.focus_set()
