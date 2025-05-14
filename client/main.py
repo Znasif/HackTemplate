@@ -228,8 +228,6 @@ def main():
         - Alt+R: Focus right cropping control
         - Alt+T: Focus top cropping control
         - Alt+B: Focus bottom cropping control
-        - Alt+C: Reset cropping to default
-        - Alt+F or F11: Toggle fullscreen
         - Arrow keys: Adjust values when a control is focused
         - Escape: Close this dialog
         
