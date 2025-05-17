@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Capture Client</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .controls, .settings-panel {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 800px;
+        }
+        .settings-panel {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .setting-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .setting-label {
+            width: 150px;
+            font-weight: bold;
+        }
+        #videoFeed {
+            width: 853px;
+            height: 480px;
+            border: 2px solid #333;
+            background-color: #000;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: white;
+        }
+        .start {
+            background-color: #28a745; /* Green */
+        }
+        .stop {
+            background-color: #dc3545; /* Red */
+        }
+        .select-screen {
+            background-color: #007bff; /* Blue */
+        }
+        .crop-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .crop-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        select, input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-left: 5px;
+        }
+        .response-area {
+            width: 90%;
+            max-width: 800px;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #fff;
+        }
+        .hidden {
+            display: none;
+        }
+        #statusBar {
+            width: 90%;
+            max-width: 800px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        #screenStatus {
+            margin-left: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Screen Capture Client</h1>
+    
+    <div id="statusBar">Status: Ready</div>
+
+    <canvas id="videoFeed"></canvas>
+
+    <div class="settings-panel">
+        <div class="setting-row">
+            <div class="setting-label">Server URL:</div>
+            <input id="serverUrl" type="text" value="ws://localhost:8000/ws" style="flex-grow: 1;">
+        </div>
+        
+        <div class="setting-row">
+            <div class="setting-label">Processor Mode (Alt+P):</div>
+            <select id="processorSelect">
+                <option value=0>Dense Region Caption</option>
+                <option value=1>OCR</option>
+                <option value=2>YOLO Detection</option>
+                <option value=3>MediaPipe</option>
+                <option value=4 selected>Base Processor</option>
+                <option value=5>Groq</option>
+                <option value=6>OpenAI</option>
+            </select>
+        </div>
+        
+        <div class="setting-row">
+            <div class="setting-label">Quality (Alt+Q):</div>
+            <input type="range" id="qualitySlider" min="1" max="100" value="30">
+            <span id="qualityValue">30</span>
+        </div>
+        
+        <div class="setting-row">
+            <div class="setting-label">Screen Selection:</div>
+            <button id="selectScreenButton" class="select-screen">Select Screen to Share</button>
+            <span id="screenStatus">No screen selected</span>
+        </div>
+        
+        <div class="setting-row">
+            <div class="setting-label">Cropping:</div>
+            <div class="crop-controls">
+                <div class="crop-group">
+                    <label for="leftCrop">Left (Alt+L)</label>
+                    <input type="range" id="leftCrop" min="0" max="400" value="0" orient="vertical">
+                    <span id="leftValue">0</span>
+                </div>
+                <div class="crop-group">
+                    <label for="rightCrop">Right (Alt+R)</label>
+                    <input type="range" id="rightCrop" min="0" max="400" value="0" orient="vertical">
+                    <span id="rightValue">0</span>
+                </div>
+                <div class="crop-group">
+                    <label for="topCrop">Top (Alt+T)</label>
+                    <input type="range" id="topCrop" min="0" max="300" value="0" orient="vertical">
+                    <span id="topValue">0</span>
+                </div>
+                <div class="crop-group">
+                    <label for="bottomCrop">Bottom (Alt+B)</label>
+                    <input type="range" id="bottomCrop" min="0" max="300" value="0" orient="vertical">
+                    <span id="bottomValue">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="startButton" class="start">Start Streaming (Alt+S)</button>
+        <button id="stopButton" class="stop">Stop Streaming (Alt+X)</button>
+        <button id="helpButton">Help (Alt+H)</button>
+    </div>
+
+    <div class="response-area" id="responseText">Server response will appear here...</div>
+
+    <script>
+        // DOM Elements
+        const videoFeed = document.getElementById('videoFeed');
+        const ctx = videoFeed.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const helpButton = document.getElementById('helpButton');
+        const serverUrl = document.getElementById('serverUrl');
+        const processorSelect = document.getElementById('processorSelect');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const selectScreenButton = document.getElementById('selectScreenButton');
+        const screenStatus = document.getElementById('screenStatus');
+        const responseText = document.getElementById('responseText');
+        const statusBar = document.getElementById('statusBar');
+        
+        // Cropping controls
+        const leftCrop = document.getElementById('leftCrop');
+        const rightCrop = document.getElementById('rightCrop');
+        const topCrop = document.getElementById('topCrop');
+        const bottomCrop = document.getElementById('bottomCrop');
+        const leftValue = document.getElementById('leftValue');
+        const rightValue = document.getElementById('rightValue');
+        const topValue = document.getElementById('topValue');
+        const bottomValue = document.getElementById('bottomValue');
+        
+        // State variables
+        let isStreaming = false;
+        let websocket = null;
+        let currentProcessor = 4;
+        let quality = 30;
+        let cropSettings = [0, 0, 0, 0]; // left, right, top, bottom
+        let currentStreamType = 'video'; // Only video now
+        
+        // Screen capture variables
+        let mediaStream = null;
+        let videoElement = null;
+        
+        // Configure canvas size
+        videoFeed.width = 853;
+        videoFeed.height = 480;
+
+        // Speech synthesis for TTS
+        const speechSynthesis = window.speechSynthesis;
+        
+        // Setup event listeners
+        startButton.addEventListener('click', startStreaming);
+        stopButton.addEventListener('click', stopStreaming);
+        helpButton.addEventListener('click', showHelp);
+        selectScreenButton.addEventListener('click', async () => {
+            try {
+                const success = await setupScreenCapture();
+                if (success) {
+                    screenStatus.textContent = "Screen selected";
+                    selectScreenButton.disabled = true;
+                } else {
+                    screenStatus.textContent = "Screen selection failed";
+                }
+            } catch (error) {
+                console.error("Error selecting screen:", error);
+                screenStatus.textContent = "Error selecting screen";
+            }
+        });
+        
+        // Setup quality slider
+        qualitySlider.addEventListener('input', () => {
+            quality = parseInt(qualitySlider.value);
+            qualityValue.textContent = quality;
+        });
+        
+        // Setup processor select
+        processorSelect.addEventListener('change', () => {
+            currentProcessor = processorSelect.value;
+            updateStatus(`Processor changed to: ${processorSelect.options[processorSelect.selectedIndex].text}`);
+        });
+        
+        // Setup cropping controls
+        leftCrop.addEventListener('input', () => {
+            cropSettings[0] = parseInt(leftCrop.value);
+            leftValue.textContent = cropSettings[0];
+        });
+        
+        rightCrop.addEventListener('input', () => {
+            cropSettings[1] = parseInt(rightCrop.value);
+            rightValue.textContent = cropSettings[1];
+        });
+        
+        topCrop.addEventListener('input', () => {
+            cropSettings[2] = parseInt(topCrop.value);
+            topValue.textContent = cropSettings[2];
+        });
+        
+        bottomCrop.addEventListener('input', () => {
+            cropSettings[3] = parseInt(bottomCrop.value);
+            bottomValue.textContent = cropSettings[3];
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 's': startStreaming(); break;
+                    case 'x': stopStreaming(); break;
+                    case 'p': processorSelect.focus(); break;
+                    case 'h': showHelp(); break;
+                    case 'q': qualitySlider.focus(); break;
+                    case 'l': leftCrop.focus(); break;
+                    case 'r': rightCrop.focus(); break;
+                    case 't': topCrop.focus(); break;
+                    case 'b': bottomCrop.focus(); break;
+                }
+            }
+        });
+        
+        // Screen capture function - separated from the WebSocket flow
+        async function setupScreenCapture() {
+            // Only request screen capture once
+            if (mediaStream !== null) {
+                return true; // Screen capture already set up
+            }
+            
+            try {
+                console.log("Requesting screen capture permission...");
+                mediaStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        displaySurface: "monitor",
+                        cursor: "always"
+                    }
+                });
+                
+                // Add event listener for when the user stops sharing
+                mediaStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    console.log("User stopped sharing screen");
+                    cleanupScreenCapture();
+                    stopStreaming();
+                });
+                
+                // Create video element for the stream
+                videoElement = document.createElement('video');
+                videoElement.srcObject = mediaStream;
+                
+                // Wait for the video to be loaded
+                return new Promise((resolve) => {
+                    videoElement.onloadedmetadata = () => {
+                        videoElement.play().then(() => {
+                            resolve(true);
+                        }).catch(err => {
+                            console.error("Error playing video:", err);
+                            resolve(false);
+                        });
+                    };
+                });
+            } catch (error) {
+                console.error("Error setting up screen capture:", error);
+                if (error.name === 'NotAllowedError') {
+                    updateStatus("Screen capture permission denied", true);
+                }
+                return false;
+            }
+        }
+        
+        function cleanupScreenCapture() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            videoElement = null;
+        }
+        
+        // Main streaming functions
+        function startStreaming() {
+            if (isStreaming) return;
+            
+            try {
+                // Clear canvas
+                ctx.clearRect(0, 0, videoFeed.width, videoFeed.height);
+                
+                // Check if screen capture is already set up
+                if (mediaStream === null || videoElement === null) {
+                    updateStatus("Please select a screen to share first", true);
+                    return;
+                }
+                
+                // Start video streaming
+                startVideoStream().then(() => {
+                    isStreaming = true;
+                    updateStatus("Video streaming started");
+                }).catch(error => {
+                    updateStatus(`Error starting video stream: ${error.message}`, true);
+                });
+                
+            } catch (error) {
+                console.error("Error starting stream:", error);
+                updateStatus(`Error: ${error.message}`, true);
+            }
+        }
+        
+        async function startVideoStream() {
+            return new Promise((resolve, reject) => {
+                // Create WebSocket connection
+                if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                    websocket = new WebSocket(serverUrl.value);
+                    
+                    websocket.onopen = () => {
+                        console.log("WebSocket connection established");
+                        
+                        // Start sending frames immediately
+                        isWaitingForResponse = false; // Add this variable to track if we're waiting for server response
+                        captureAndSendFrame(); // Send first frame immediately
+                        resolve();
+                    };
+                    
+                    websocket.onmessage = (event) => {
+                        // Handle the response
+                        handleServerResponse(event.data);
+                        
+                        // After receiving a response, we can send the next frame
+                        isWaitingForResponse = false;
+                        
+                        // Only send next frame if we're still streaming
+                        if (isStreaming) {
+                            captureAndSendFrame();
+                        }
+                    };
+                    
+                    websocket.onerror = (error) => {
+                        console.error("WebSocket error:", error);
+                        updateStatus("WebSocket error. Check console for details.", true);
+                        stopStreaming();
+                        reject(error);
+                    };
+                    
+                    websocket.onclose = () => {
+                        console.log("WebSocket connection closed");
+                        if (isStreaming) {
+                            isStreaming = false;
+                            updateStatus("WebSocket connection closed unexpectedly", true);
+                        }
+                    };
+                } else {
+                    // If connection already exists, just start capturing
+                    isWaitingForResponse = false;
+                    captureAndSendFrame(); // Send first frame immediately
+                    resolve();
+                }
+            });
+        }
+
+        // Add at the top with other state variables:
+        let isWaitingForResponse = false;
+        
+        function stopVideoStream() {
+            if (websocket) {
+                // Force close and nullify the websocket
+                if (websocket.readyState === WebSocket.OPEN || 
+                    websocket.readyState === WebSocket.CONNECTING) {
+                    websocket.close();
+                }
+                websocket = null;
+            }
+        }
+        
+        function stopStreaming() {
+            if (!isStreaming) return;
+            
+            console.log("Stopping all streaming activity");
+            isStreaming = false;
+            
+            // Stop video stream
+            stopVideoStream();
+            
+            // Clean up screen capture
+            //cleanupScreenCapture();
+            
+            // Stop any TTS
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            // Reset button state
+            //selectScreenButton.disabled = false;
+            //screenStatus.textContent = "No screen selected";
+            
+            updateStatus("Streaming stopped");
+        }
+        
+        function captureAndSendFrame() {
+            // if (!isStreaming || !websocket || websocket.readyState !== WebSocket.OPEN) {
+            //     console.log("gave up");
+            //     return;
+            // }
+            console.log("attempting to send");
+            try {
+                // Ensure video element is ready
+                if (!videoElement || videoElement.readyState < 2) {
+                    console.warn("Video element not ready yet");
+                    // Try again in a moment
+                    setTimeout(captureAndSendFrame, 100);
+                    return;
+                }
+                
+                // Create a temporary canvas for the original frame
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = videoFeed.width;
+                tempCanvas.height = videoFeed.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Draw the video frame to temporary canvas
+                tempCtx.drawImage(
+                    videoElement, 
+                    0, 0, 
+                    tempCanvas.width, 
+                    tempCanvas.height
+                );
+                
+                // Apply cropping if needed
+                let finalCanvas = tempCanvas;
+                if (cropSettings.some(val => val > 0)) {
+                    const [left, right, top, bottom] = cropSettings;
+                    const croppedWidth = tempCanvas.width - left - right;
+                    const croppedHeight = tempCanvas.height - top - bottom;
+                    
+                    if (croppedWidth > 0 && croppedHeight > 0) {
+                        // Create another canvas for the cropped image
+                        const croppedCanvas = document.createElement('canvas');
+                        croppedCanvas.width = croppedWidth;
+                        croppedCanvas.height = croppedHeight;
+                        const croppedCtx = croppedCanvas.getContext('2d');
+                        
+                        // Draw the cropped portion to the new canvas
+                        croppedCtx.drawImage(
+                            tempCanvas, 
+                            left, top, croppedWidth, croppedHeight,
+                            0, 0, croppedWidth, croppedHeight
+                        );
+                        
+                        finalCanvas = croppedCanvas;
+                    }
+                }
+                
+                // Convert canvas to jpeg with specified quality
+                const dataUrl = finalCanvas.toDataURL('image/jpeg', quality / 100);
+
+                // Lock the current processor value at this exact moment
+                const processorToSend = parseInt(currentProcessor); 
+
+                // Update status with the exact value we're sending
+                updateStatus(`Sending with processor: ${processorToSend}`);
+
+                // Send frame to server with the locked processor ID
+                websocket.send(JSON.stringify({
+                    image: dataUrl,
+                    processor: processorToSend
+                }));
+                
+                // Mark that we're waiting for a response
+                isWaitingForResponse = false;
+                
+            } catch (error) {
+                console.error("Error capturing or sending frame:", error);
+                isWaitingForResponse = false;
+                // Try again after a short delay
+                setTimeout(captureAndSendFrame, 1000);
+            }
+        }
+
+        
+        function handleServerResponse(responseData) {
+            try {
+                const data = JSON.parse(responseData);
+                
+                // Process image if available
+                if (data.image) {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Clear canvas first
+                        ctx.clearRect(0, 0, videoFeed.width, videoFeed.height);
+                        
+                        // Draw the processed image
+                        ctx.drawImage(img, 0, 0, videoFeed.width, videoFeed.height);
+                    };
+                    img.src = data.image;
+                }
+                
+                // Process text if available
+                if (data.text && data.text.trim() !== "") {
+                    responseText.textContent = data.text;
+                    
+                    // Speak text using TTS
+                    if (speechSynthesis.speaking) {
+                        speechSynthesis.cancel();
+                    }
+                    
+                    const utterance = new SpeechSynthesisUtterance(data.text);
+                    speechSynthesis.speak(utterance);
+                }
+            } catch (error) {
+                console.error("Error handling server response:", error);
+            }
+        }
+        
+        function updateStatus(message, isError = false) {
+            statusBar.textContent = `Status: ${message}`;
+            if (isError) {
+                statusBar.style.backgroundColor = "#f8d7da";
+                statusBar.style.borderColor = "#f5c6cb";
+            } else {
+                statusBar.style.backgroundColor = "#f8f9fa";
+                statusBar.style.borderColor = "#ddd";
+            }
+        }
+        
+        function showHelp() {
+            const helpText = `
+Keyboard Controls:
+- Tab: Navigate between controls
+- Alt+S: Start streaming
+- Alt+X: Stop streaming
+- Alt+P: Focus processor dropdown
+- Alt+H: Show this help dialog
+- Alt+Q: Focus quality slider
+- Alt+L: Focus left cropping control
+- Alt+R: Focus right cropping control
+- Alt+T: Focus top cropping control
+- Alt+B: Focus bottom cropping control
+- Arrow keys: Adjust values when a control is focused
+- Escape: Close this dialog
+
+Processor Modes:
+- Dense Region Caption: Gets dense captions for regions in the image
+- OCR: Optical Character Recognition for text in images
+- YOLO Detection: Object detection with YOLO model
+- MediaPipe: Hand, face and pose detection
+- Base Processor: General purpose processor
+- Groq: Groq AI model for image analysis
+- OpenAI: GPT-4 Vision model for image analysis
+            `;
+            
+            alert(helpText);
+        }
+        
+        // Initialize values
+        qualityValue.textContent = quality;
+        leftValue.textContent = cropSettings[0];
+        rightValue.textContent = cropSettings[1];
+        topValue.textContent = cropSettings[2];
+        bottomValue.textContent = cropSettings[3];
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopStreaming();
+        });
+    </script>
+</body>
+</html>

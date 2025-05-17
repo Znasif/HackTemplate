@@ -2,6 +2,47 @@
 
 This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first. Also, with the current setup, you need at least two displays in the client computer. If you don't have two displays, you can change 'client = StreamingClient(root) -> client = StreamingClient(root, monitor_index=0)' in the client/main.py.
 
+## AWS Deployment
+
+The project has CI/CD pipelines set up to automatically deploy the server and client components to AWS. The server is deployed to AWS ECS with GPU support, and the client is deployed to AWS S3 and CloudFront.
+
+### Deployment Architecture
+
+- **Server**: Runs on AWS ECS with GPU-enabled instances (g4dn or g5)
+- **Client**: Hosted on S3 with CloudFront for global distribution
+- **CI/CD**: GitHub Actions workflows for automated deployment
+
+### Setup AWS Infrastructure
+
+1. Deploy the CloudFormation stack:
+   ```bash
+   cd scripts
+   chmod +x make-executable.sh
+   ./make-executable.sh
+   ./deploy-infra.sh
+   ```
+
+2. Set up GitHub repository secrets for CI/CD:
+   ```bash
+   ./setup-github-secrets.sh
+   ```
+
+3. Manual deployment commands (if needed):
+   ```bash
+   # Build and push server Docker image
+   ./build-push-server.sh
+   
+   # Deploy client to S3
+   ./deploy-client.sh
+   ```
+
+### CI/CD Workflows
+
+The project includes GitHub Actions workflows for automated deployment:
+
+- `.github/workflows/deploy-server.yml`: Deploys the server component to AWS ECS
+- `.github/workflows/deploy-client.yml`: Deploys the client component to AWS S3 and CloudFront
+
 ## Client Setup (Windows Only)
 
 Currently, the client only works in Windows, and the shared monitor is not selectable in the GUI.
