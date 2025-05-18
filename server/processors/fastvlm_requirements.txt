@@ -1,0 +1,7 @@
+# Additional requirements for FastVLM processor
+transformers>=4.48.0
+opencv-python>=4.7.0
+sentencepiece>=0.1.99
+tokenizers>=0.21.0
+accelerate>=1.6.0
+einops>=0.6.1

@@ -9,6 +9,7 @@ from processors.base_processor import BaseProcessor
 from processors.yolo_processor import YOLOProcessor
 from processors.aircanvas_processor import AirCanvasProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
+from processors.fastvlm_processor import FastVLMProcessor
 from processors.camio_processor import MediaPipeGestureProcessor
 from processors.ocr_processor import OCRProcessor
 from processors.groq_processor import GroqProcessor
@@ -29,7 +30,7 @@ class ProcessorManager:
             print("Initializing processors...")
             cls.processors = {
                 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
-                1: OCRProcessor(),
+                1: FastVLMProcessor(),
                 2: YOLOProcessor("./models/yolo11n-seg.pt"),
                 3: MediaPipeGestureProcessor(False),
                 4: MediaPipeGestureProcessor(),
