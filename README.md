@@ -2,7 +2,7 @@
 
 This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client web applications running for it to work. Make sure to start the server first. You can access the client at this website: https://znasif.netlify.app/screencapture.html
 
-# Remote Server Access
+## Remote Server Access
 
 If you want to use already up and running servers, just obtain the api URL and paste it into the text field of Server URL in the WhatsAI Web Client. Then click "Select Screen to Share" button and select the desired screen. 
 - Click **Start Streaming** → This will start sharing the PC screen with the server.  
