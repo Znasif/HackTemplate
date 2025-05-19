@@ -1,4 +1,5 @@
 from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 from typing import List
 import asyncio
@@ -10,6 +11,7 @@ from processors.yolo_processor import YOLOProcessor
 from processors.aircanvas_processor import AirCanvasProcessor
 from processors.mediapipe_processor import MediaPipeProcessor
 from processors.fastvlm_processor import FastVLMProcessor
+from processors.scenescript_processor import SceneScriptProcessor
 from processors.camio_processor import MediaPipeGestureProcessor
 from processors.ocr_processor import OCRProcessor
 from processors.groq_processor import GroqProcessor
@@ -17,6 +19,23 @@ from processors.openai_processor import ChatGPTProcessor
 from processors.whisper_processor import WhisperProcessor
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",          # Example: local development
+    "http://localhost:3000",     # Example: if your frontend runs on port 3000
+    "http://localhost:8080",     # Example: another common frontend port
+    "https://your-localtunnel-subdomain.loca.lt", # If using localtunnel
+    # Add the origin of your actual client application
+    "*"                         # TEMPORARY: For debugging, allow all. REMOVE FOR PRODUCTION.
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,  # Allow cookies if your WebSockets use them
+    allow_methods=["*"],     # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],     # Allow all headers
+)
 
 # At the module level, before your WebSocket endpoint function
 class ProcessorManager:
@@ -30,7 +49,7 @@ class ProcessorManager:
             print("Initializing processors...")
             cls.processors = {
                 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
-                1: FastVLMProcessor(),
+                1: SceneScriptProcessor(),
                 2: YOLOProcessor("./models/yolo11n-seg.pt"),
                 3: MediaPipeGestureProcessor(False),
                 4: MediaPipeGestureProcessor(),

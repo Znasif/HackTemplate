@@ -347,7 +347,8 @@ class AudioStreamer:
             self.audio.terminate()
 
 class StreamingClient:
-    def __init__(self, root, server_url="ws://localhost:8000/ws", monitor_index=0, audio_device_index=None):
+    def __init__(self, root, server_url="wss://mighty-dogs-hunt.loca.lt", monitor_index=0, audio_device_index=None):
+        #https://better-tigers-dance.loca.lt ws://localhost:8000/ws
         self.root = root
         self.server_url = server_url
         self.running = False
