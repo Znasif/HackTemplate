@@ -10,7 +10,7 @@ import sys
 # Add server directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from processors.scenescript_processor import SceneScriptProcessor
+from server.processors.scenescript_processor1 import SceneScriptProcessor
 
 def main():
     parser = argparse.ArgumentParser(description='Test SceneScript processor')
