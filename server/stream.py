@@ -6,17 +6,17 @@ import asyncio
 import cv2, json, os, base64
 import numpy as np
 from dotenv import load_dotenv
-from processors.base_processor import BaseProcessor
-from processors.yolo_processor import YOLOProcessor
-from processors.aircanvas_processor import AirCanvasProcessor
-from processors.mediapipe_processor import MediaPipeProcessor
-from processors.fastvlm_processor import FastVLMProcessor
-from processors.scenescript_processor import SceneScriptProcessor
-from processors.camio_processor import MediaPipeGestureProcessor
-from processors.ocr_processor import OCRProcessor
-from processors.groq_processor import GroqProcessor
-from processors.openai_processor import ChatGPTProcessor
-from processors.whisper_processor import WhisperProcessor
+#from processors.base_processor import BaseProcessor
+# from processors.yolo_processor import YOLOProcessor
+# from processors.aircanvas_processor import AirCanvasProcessor
+# from processors.mediapipe_processor import MediaPipeProcessor
+# from processors.fastvlm_processor import FastVLMProcessor
+from processors.scenescript_processor1 import SceneScriptProcessor
+# from processors.camio_processor import MediaPipeGestureProcessor
+# from processors.ocr_processor import OCRProcessor
+# from processors.groq_processor import GroqProcessor
+# from processors.openai_processor import ChatGPTProcessor
+# from processors.whisper_processor import WhisperProcessor
 
 app = FastAPI()
 
@@ -48,14 +48,14 @@ class ProcessorManager:
             load_dotenv()
             print("Initializing processors...")
             cls.processors = {
-                0: OCRProcessor('<DENSE_REGION_CAPTION>'),
+                #0: OCRProcessor('<DENSE_REGION_CAPTION>'),
                 1: SceneScriptProcessor(),
-                2: YOLOProcessor("./models/yolo11n-seg.pt"),
-                3: MediaPipeGestureProcessor(False),
-                4: MediaPipeGestureProcessor(),
-                5: GroqProcessor(api_key=os.getenv('GROQ_API_KEY')),
-                6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY')),
-                7: WhisperProcessor(model_path="/home/znasif/whisper.cpp/models/ggml-large-v3-turbo-q8_0.bin")
+                # 2: YOLOProcessor("./models/yolo11n-seg.pt"),
+                # 3: MediaPipeGestureProcessor(False),
+                # 4: MediaPipeGestureProcessor(),
+                # 5: GroqProcessor(api_key=os.getenv('GROQ_API_KEY')),
+                # 6: ChatGPTProcessor(api_key=os.getenv('OPENAI_API_KEY')),
+                # 7: WhisperProcessor(model_path="/home/znasif/whisper.cpp/models/ggml-large-v3-turbo-q8_0.bin")
             }
     
     @classmethod
