@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # from processors.aircanvas_processor import AirCanvasProcessor
 # from processors.mediapipe_processor import MediaPipeProcessor
 # from processors.fastvlm_processor import FastVLMProcessor
-from processors.scenescript_processor import SceneScriptProcessor
+from processors.scenescript_processor1 import SceneScriptProcessor
 # from processors.camio_processor import MediaPipeGestureProcessor
 # from processors.ocr_processor import OCRProcessor
 # from processors.groq_processor import GroqProcessor
