@@ -1,530 +1,202 @@
-from .base_processor import BaseProcessor
-import cv2
+import json, sys
 import numpy as np
-import os
-import torch
-import sys
-import random
+import cv2
 from PIL import Image
-import time
-import subprocess
+import torch
+from pathlib import Path
+import open3d as o3d
+from typing import Tuple, Dict
+from .base_processor import BaseProcessor
+
+# Path to the directory containing the 'llava' package
+llava_parent_dir = r'/home/znasif/vision-depth-pro'  # Use raw string for paths
+
+# Add this directory to sys.path if it's not already there
+if llava_parent_dir not in sys.path:
+    sys.path.insert(0, llava_parent_dir)
+
+from depth_pro import create_model_and_transforms, load_rgb
 
 class SceneScriptProcessor(BaseProcessor):
     def __init__(self, 
-                 model_path='/home/znasif/vidServer/server/models/scenescript_model_non_manhattan_class_agnostic_model.ckpt',
-                 class_names_path=None,
-                 confidence_threshold=0.5,
-                 use_gpu=True):
+                 checkpoint_uri="/home/znasif/vision-depth-pro/checkpoints/depth_pro.pt",
+                 use_gpu=True,
+                 voxel_size: float = 0.01,
+                 estimate_normals: bool = True):
         """
-        Initialize SceneScript processor for object detection in scenes
+        Initialize DepthPro processor
         
         Args:
-            model_path (str): Path to the SceneScript model checkpoint
-            class_names_path (str): Path to class names file (optional)
-            confidence_threshold (float): Minimum confidence for detection
-            use_gpu (bool): Whether to use GPU for inference
+            checkpoint_uri (str): Path to the DepthPro model checkpoint
+            use_gpu (bool): Whether to use GPU acceleration
+            voxel_size (float): Voxel size for point cloud downsampling
+            estimate_normals (bool): Whether to estimate surface normals
         """
         super().__init__()
-        self.model_path = model_path
-        self.confidence_threshold = confidence_threshold
+        self.checkpoint_uri = checkpoint_uri
+        self.voxel_size = voxel_size
+        self.estimate_normals = estimate_normals
         self.device = 'cuda' if use_gpu and torch.cuda.is_available() else 'cpu'
         
-        # Load class names if path is provided
-        self.class_names = []
-        if class_names_path and os.path.exists(class_names_path):
-            with open(class_names_path, 'r') as f:
-                self.class_names = [line.strip() for line in f.readlines()]
+        # Load the model and transforms
+        self._load_model()
+        
+    def _load_model(self):
+        """
+        Load the DepthPro model and transforms
+        """
+        self.model, self.transform = create_model_and_transforms(
+            device=self.device,
+            precision=torch.half
+        )
+        self.model.eval()
+        print(f"DepthPro model loaded successfully on {self.device}")
+    
+    def preprocess_image(self, frame: np.ndarray) -> Tuple[Image.Image, np.ndarray]:
+        """
+        Preprocess the image for DepthPro
+        
+        Args:
+            frame (np.ndarray): Input OpenCV frame (BGR)
+            
+        Returns:
+            Tuple[PIL.Image, np.ndarray]: Processed PIL image and RGB numpy array
+        """
+        # Convert from BGR to RGB
+        if len(frame.shape) == 2:
+            # Grayscale to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_GRAY2RGB)
+        elif frame.shape[2] == 4:
+            # BGRA to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGRA2RGB)
         else:
-            # Default class names from common indoor objects
-            self.class_names = [
-                'wall', 'door', 'window', 'chair', 'sofa', 'table', 'bed', 
-                'cabinet', 'shelf', 'lamp', 'plant', 'monitor', 'picture', 
-                'book', 'person', 'object'
-            ]
+            # BGR to RGB
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Initialize color map for each class
-        self.colors = self._generate_colors(len(self.class_names))
-        
-        # Check dependencies - torchsparse is required for SceneScript
-        try:
-            self._check_dependencies()
-            self.dependencies_installed = True
-        except Exception as e:
-            self.dependencies_installed = False
-            print(f"Error checking dependencies: {e}")
-            self.model_loaded = False
-            self.model_info = {
-                "error": f"Dependencies not installed: {str(e)}. "
-                         f"Please run 'mamba install conda-forge::torchsparse' and restart the server.",
-                "name": os.path.basename(model_path),
-                "type": "SceneScript Object Detector"
-            }
-            return
-            
-        # Add SceneScript to sys.path
-        scenescript_path = '/home/znasif/scenescript'
-        if scenescript_path not in sys.path:
-            sys.path.append(scenescript_path)
-        # Now try to import SceneScript modules
-        try:
-            # Import SceneScript modules
-            from src.networks.scenescript_model import SceneScriptWrapper
-            from src.data.point_cloud import PointCloud
-            from scipy.spatial.transform import Rotation
-            
-            # Store the module references
-            self.SceneScriptWrapper = SceneScriptWrapper
-            self.PointCloud = PointCloud
-            self.Rotation = Rotation
-            
-            # Load SceneScript model
-            print(f"Loading SceneScript model from {model_path}")
-            self.model = self.SceneScriptWrapper.load_from_checkpoint(model_path)
-            if self.device == 'cuda':
-                self.model = self.model.cuda()
-            
-            # Set model info
-            self.model_loaded = True
-            self.model_info = {
-                "name": os.path.basename(model_path),
-                "type": "SceneScript Object Detector",
-                "num_classes": len(self.class_names)
-            }
-            print(f"SceneScript model loaded successfully: {self.model_info}")
-        except Exception as e:
-            self.model_loaded = False
-            self.model_info = {
-                "error": f"Failed to load model: {str(e)}",
-                "name": os.path.basename(model_path),
-                "type": "SceneScript Object Detector"
-            }
-            print(f"Error loading SceneScript model: {e}")
+        # Convert to PIL Image
+        pil_image = Image.fromarray(frame_rgb)
+        return pil_image, frame_rgb
     
-    def _check_dependencies(self):
-        """Check if all required dependencies are installed"""
-        # First check if torchsparse is installed
-        try:
-            import torchsparse
-            print("torchsparse is already installed")
-        except ImportError:
-            error_msg = "torchsparse is not installed. Please run 'mamba install conda-forge::torchsparse' and restart the server."
-            print(error_msg)
-            raise ImportError(error_msg)
-            
-    def _generate_colors(self, num_classes):
+    def pointcloud_to_json(self, pcd: o3d.geometry.PointCloud) -> Dict:
         """
-        Generate distinct colors for each class
+        Convert Open3D point cloud to JSON format
         
         Args:
-            num_classes (int): Number of classes
+            pcd (o3d.geometry.PointCloud): Input point cloud
             
         Returns:
-            list: List of BGR color tuples
+            Dict: JSON-serializable dictionary containing point cloud data
         """
-        colors = []
-        for i in range(num_classes):
-            # Generate vibrant colors with good separation
-            hue = i * 179 // num_classes
-            # Convert HSV to BGR
-            color = cv2.cvtColor(np.array([[[hue, 255, 255]]], dtype=np.uint8), cv2.COLOR_HSV2BGR)
-            colors.append((int(color[0][0][0]), int(color[0][0][1]), int(color[0][0][2])))
-        return colors
+        points = np.asarray(pcd.points)
+        colors = np.asarray(pcd.colors) if pcd.has_colors() else None
+        normals = np.asarray(pcd.normals) if pcd.has_normals() else None
+        
+        json_data = {
+            'points': points.tolist(),
+            'colors': colors.tolist() if colors is not None else [],
+            'normals': normals.tolist() if normals is not None else []
+        }
+        return json_data
     
-    def _create_point_cloud_from_image(self, frame):
+    def create_point_cloud(self, depth: np.ndarray, rgb_image: np.ndarray, focallength_px: torch.Tensor) -> o3d.geometry.PointCloud:
         """
-        Create a pseudo point cloud from an image for SceneScript
+        Create a point cloud from depth map, RGB image, and focal length
         
         Args:
-            frame (numpy.ndarray): Input frame
+            depth (np.ndarray): Depth map
+            rgb_image (np.ndarray): RGB image
+            focallength_px (torch.Tensor): Focal length in pixels
             
         Returns:
-            numpy.ndarray: Point cloud array (N, 3)
+            o3d.geometry.PointCloud: Generated point cloud
         """
-        # This is a simplified approach - in a real scenario, 
-        # you would use depth information or other 3D reconstruction methods
+        height, width = depth.shape
+        # Create intrinsic matrix (assuming principal point at image center)
+        cx, cy = width / 2, height / 2
+        intrinsic = o3d.camera.PinholeCameraIntrinsic(
+            width=width,
+            height=height,
+            fx=focallength_px,
+            fy=focallength_px,
+            cx=cx,
+            cy=cy
+        )
         
-        # Convert BGR to RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # Convert focal length to NumPy scalar
+        focallength_px = focallength_px.detach().cpu().numpy().item()
         
-        # Resize to reasonable dimensions to reduce computation
-        h, w = frame.shape[:2]
-        target_size = (320, int(h * 320 / w))
-        resized = cv2.resize(rgb_frame, target_size)
+        # Create coordinate grid
+        y, x = np.indices((height, width))
+        z = depth
+        # Avoid division by zero
+        z[z == 0] = 1e-6
         
-        # Create a simple point cloud from image
-        # We'll use pixel positions as x,y and add some random depth values
-        h, w = resized.shape[:2]
-        points = []
+        # Convert to 3D coordinates
+        X = (x - cx) * z / focallength_px
+        Y = (y - cy) * z / focallength_px
+        Z = z
         
-        # Sample a subset of pixels to keep point cloud manageable
-        stride = 4  # Sample every 4th pixel
-        for y in range(0, h, stride):
-            for x in range(0, w, stride):
-                # Use pixel RGB as features, and add some random depth
-                r, g, b = resized[y, x]
-                # Normalize coordinates
-                nx = x / w - 0.5  # Center the point cloud around origin
-                ny = y / h - 0.5
-                # Add some random depth based on pixel intensity
-                depth = (r + g + b) / (3 * 255) * 2 + 1  # Range 1-3
-                
-                # Add the point to our point cloud
-                points.append([nx, ny, depth])
+        # Stack into point cloud
+        points = np.stack((X, Y, Z), axis=-1).reshape(-1, 3)
         
-        return np.array(points, dtype=np.float32)
+        # Normalize RGB colors to [0, 1]
+        colors = rgb_image.reshape(-1, 3) / 255.0
         
-    def process_frame(self, frame):
+        # Create Open3D point cloud
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(points)
+        pcd.colors = o3d.utility.Vector3dVector(colors)
+        
+        # Downsample point cloud
+        if self.voxel_size > 0:
+            pcd = pcd.voxel_down_sample(voxel_size=self.voxel_size)
+        
+        # Estimate normals if requested
+        if self.estimate_normals:
+            pcd.estimate_normals(
+                search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30)
+            )
+        
+        return pcd
+    
+    def process_frame(self, frame: np.ndarray) -> Tuple[np.ndarray, Dict]:
         """
-        Process frame by detecting objects and drawing bounding boxes
+        Process frame using DepthPro and return original frame and point cloud JSON
         
         Args:
-            frame (numpy.ndarray): Input frame to process
+            frame (np.ndarray): Input frame to process (BGR)
             
         Returns:
-            tuple: (processed_frame, detection_text)
+            Tuple[np.ndarray, Dict]: Original frame and point cloud JSON data
         """
         # Create output frame as copy of input
         output = frame.copy()
         
-        # Create point cloud from image
-        point_cloud = self._create_point_cloud_from_image(frame)
-        print("ATTEMPTING")
-        # Run SceneScript inference
+        # Preprocess frame
+        pil_image, rgb_image = self.preprocess_image(frame)
+        
         try:
-            language_sequence = self.model.run_inference(
-                point_cloud,
-                nucleus_sampling_thresh=0.05,  # 0.0 is argmax, 1.0 is random sampling
-                verbose=False,
-            )
+            # Transform image for model
+            image_tensor = self.transform(pil_image)
             
-            # Process detected entities (walls, doors, windows, bounding boxes)
-            detections = self._process_entities(language_sequence.entities, frame.shape[:2])
+            # Run inference
+            with torch.no_grad():
+                prediction = self.model.infer(image_tensor)
             
-            # Draw detections on the frame
-            output, detection_text = self._draw_detections(output, detections)
-            print("FAILING")
+            depth = prediction["depth"]
+            focallength_px = prediction["focallength_px"]
             
-            return output, detection_text
+            # Convert depth to numpy
+            depth_np = depth.detach().cpu().numpy().squeeze()
+            
+            # Generate point cloud
+            pcd = self.create_point_cloud(depth_np, rgb_image, focallength_px)
+            
+            # Convert point cloud to JSON
+            pointcloud_json = self.pointcloud_to_json(pcd)
+            
+            return output, pointcloud_json
             
         except Exception as e:
-            # Draw error message on frame
-            error_msg = f"SceneScript inference error: {str(e)}"
-            cv2.putText(
-                output,
-                error_msg,
-                (30, 60),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 0, 255),
-                2
-            )
-            print(error_msg)
-            return output, error_msg
-    
-    def _process_entities(self, entities, image_shape):
-        """
-        Process SceneScript entities into detection boxes
-        
-        Args:
-            entities (list): List of SceneScript entities
-            image_shape (tuple): (height, width) of the input image
-            
-        Returns:
-            list: List of detection dictionaries
-        """
-        height, width = image_shape
-        detections = []
-        
-        for entity in entities:
-            entity_type = entity.COMMAND_STRING
-            
-            if entity_type == "make_bbox":
-                # Extract bbox parameters
-                try:
-                    # Get position (center of bbox)
-                    cx = entity.params["position_x"]
-                    cy = entity.params["position_y"]
-                    cz = entity.params["position_z"]
-                    
-                    # Get dimensions
-                    sx = entity.params["scale_x"]
-                    sy = entity.params["scale_y"]
-                    sz = entity.params["scale_z"]
-                    
-                    # Get rotation
-                    angle_z = entity.params["angle_z"]
-                    
-                    # Get class if available (default to "object" if not)
-                    class_name = entity.params.get("class", "object")
-                    
-                    # Normalize coordinates to image space
-                    # Scale the 3D coordinates to fit the 2D image
-                    # This is a simplification - in a real scenario, you would use proper 3D-to-2D projection
-                    center_x = int((cx + 0.5) * width)
-                    center_y = int((cy + 0.5) * height)
-                    
-                    # Scale the box dimensions to image space
-                    box_width = int(sx * width * 0.5)
-                    box_height = int(sy * height * 0.5)
-                    
-                    # Calculate corners based on rotated box
-                    # Top-left, top-right, bottom-right, bottom-left order
-                    corners = []
-                    
-                    # Create rotation matrix
-                    rot = self.Rotation.from_rotvec([0, 0, angle_z]).as_matrix()
-                    
-                    # Calculate the 4 corners of the bounding box
-                    for dx, dy in [(-1, -1), (1, -1), (1, 1), (-1, 1)]:
-                        # Apply rotation to the corner point
-                        dx_rot, dy_rot, _ = rot @ np.array([dx * sx/2, dy * sy/2, 0])
-                        
-                        # Convert to image coordinates
-                        x = int(center_x + dx_rot * width * 0.5)
-                        y = int(center_y + dy_rot * height * 0.5)
-                        
-                        corners.append((x, y))
-                    
-                    # Add the detection to the list
-                    detections.append({
-                        'type': 'bbox',
-                        'class_name': class_name,
-                        'corners': corners,
-                        'center': (center_x, center_y),
-                        'confidence': 1.0,  # SceneScript doesn't provide confidence
-                        'dimensions': (box_width, box_height, sz)
-                    })
-                    
-                except Exception as e:
-                    print(f"Error processing bbox entity: {e}")
-                    continue
-                    
-            elif entity_type in ["make_wall", "make_door", "make_window"]:
-                # Process architectural elements
-                try:
-                    class_name = entity_type[5:]  # Remove "make_" prefix
-                    
-                    if entity_type == "make_wall":
-                        # Extract wall corners
-                        a_x = entity.params["a_x"]
-                        a_y = entity.params["a_y"]
-                        a_z = entity.params["a_z"]
-                        b_x = entity.params["b_x"]
-                        b_y = entity.params["b_y"]
-                        b_z = entity.params["b_z"]
-                        height = entity.params["height"]
-                        
-                        # Convert to image coordinates
-                        x1 = int((a_x + 0.5) * width)
-                        y1 = int((a_y + 0.5) * height)
-                        x2 = int((b_x + 0.5) * width)
-                        y2 = int((b_y + 0.5) * height)
-                        
-                        # Add to detections
-                        detections.append({
-                            'type': 'architectural',
-                            'element_type': 'wall',
-                            'class_name': class_name,
-                            'points': [(x1, y1), (x2, y2)],
-                            'height': height,
-                            'confidence': 1.0
-                        })
-                        
-                    elif entity_type in ["make_door", "make_window"]:
-                        # Extract position and dimensions
-                        pos_x = entity.params["position_x"]
-                        pos_y = entity.params["position_y"]
-                        pos_z = entity.params["position_z"]
-                        width_param = entity.params["width"]
-                        height_param = entity.params["height"]
-                        
-                        # Convert to image coordinates
-                        center_x = int((pos_x + 0.5) * width)
-                        center_y = int((pos_y + 0.5) * height)
-                        rect_width = int(width_param * width * 0.5)
-                        rect_height = int(height_param * height * 0.5)
-                        
-                        # Add to detections
-                        detections.append({
-                            'type': 'architectural',
-                            'element_type': class_name,
-                            'class_name': class_name,
-                            'center': (center_x, center_y),
-                            'dimensions': (rect_width, rect_height),
-                            'confidence': 1.0
-                        })
-                        
-                except Exception as e:
-                    print(f"Error processing {entity_type} entity: {e}")
-                    continue
-        
-        return detections
-    
-    def _draw_detections(self, image, detections):
-        """
-        Draw detections on the image
-        
-        Args:
-            image (numpy.ndarray): Image to draw on
-            detections (list): List of detection dictionaries
-            
-        Returns:
-            tuple: (drawn_image, detection_text)
-        """
-        # Create output frame as copy of input
-        output = image.copy()
-        h, w = output.shape[:2]
-        
-        # Draw info overlay
-        self._draw_info_overlay(output, len(detections))
-        
-        # Initialize detection text
-        detection_text = "Detected Objects:\n"
-        
-        # Draw each detection
-        for i, detection in enumerate(detections):
-            detection_type = detection['type']
-            class_name = detection['class_name']
-            
-            # Get color for this class
-            if class_name in self.class_names:
-                color_idx = self.class_names.index(class_name)
-            else:
-                # Default to last color if class not found
-                color_idx = len(self.class_names) - 1
-            color = self.colors[color_idx]
-            
-            if detection_type == 'bbox':
-                # Draw bounding box from corners
-                corners = np.array(detection['corners'], dtype=np.int32)
-                cv2.polylines(output, [corners], True, color, 2)
-                
-                # Draw fill with transparency
-                overlay = output.copy()
-                cv2.fillPoly(overlay, [corners], color)
-                cv2.addWeighted(overlay, 0.2, output, 0.8, 0, output)
-                
-                # Draw center point
-                center_x, center_y = detection['center']
-                cv2.circle(output, (center_x, center_y), 3, color, -1)
-                
-                # Draw label
-                label = f"{class_name}"
-                
-                # Create background for text
-                text_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-                text_x = center_x - text_size[0] // 2
-                text_y = center_y - text_size[1] - 5
-                
-                # Draw text background
-                cv2.rectangle(
-                    output,
-                    (text_x - 2, text_y - text_size[1] - 2),
-                    (text_x + text_size[0] + 2, text_y + 2),
-                    color,
-                    -1
-                )
-                
-                # Draw text
-                cv2.putText(
-                    output,
-                    label,
-                    (text_x, text_y),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 255),
-                    1
-                )
-                
-                # Add to detection text
-                box_width, box_height, _ = detection['dimensions']
-                detection_text += f"{class_name} at ({center_x}, {center_y})\n"
-                
-            elif detection_type == 'architectural':
-                element_type = detection['element_type']
-                
-                if element_type == 'wall':
-                    # Draw wall as a line
-                    points = detection['points']
-                    cv2.line(output, points[0], points[1], color, 2)
-                    
-                    # Draw label
-                    mid_x = (points[0][0] + points[1][0]) // 2
-                    mid_y = (points[0][1] + points[1][1]) // 2
-                    cv2.putText(
-                        output,
-                        "Wall",
-                        (mid_x, mid_y - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,
-                        color,
-                        1
-                    )
-                    
-                    detection_text += f"Wall at ({mid_x}, {mid_y})\n"
-                    
-                else:  # door or window
-                    # Draw as a rectangle
-                    center = detection['center']
-                    dimensions = detection['dimensions']
-                    
-                    half_width = dimensions[0] // 2
-                    half_height = dimensions[1] // 2
-                    
-                    top_left = (center[0] - half_width, center[1] - half_height)
-                    bottom_right = (center[0] + half_width, center[1] + half_height)
-                    
-                    cv2.rectangle(output, top_left, bottom_right, color, 2)
-                    
-                    # Draw label
-                    cv2.putText(
-                        output,
-                        element_type.capitalize(),
-                        (center[0] - half_width, center[1] - half_height - 5),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5,
-                        color,
-                        1
-                    )
-                    
-                    detection_text += f"{element_type.capitalize()} at ({center[0]}, {center[1]})\n"
-        
-        return output, detection_text
-    
-    def _draw_info_overlay(self, image, num_detections):
-        """
-        Draw information overlay on the top of the frame
-        
-        Args:
-            image (numpy.ndarray): Image to draw on
-            num_detections (int): Number of detected objects
-        """
-        # Get image dimensions
-        h, w = image.shape[:2]
-        
-        # Create semi-transparent overlay for the top bar
-        overlay = image.copy()
-        cv2.rectangle(overlay, (0, 0), (w, 80), (0, 0, 0), -1)
-        cv2.addWeighted(overlay, 0.7, image, 0.3, 0, image)
-        
-        # Draw title
-        cv2.putText(
-            image,
-            "SceneScript Object Detection",
-            (20, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.8,
-            (255, 255, 255),
-            2
-        )
-        
-        # Draw model info and detection count
-        cv2.putText(
-            image,
-            f"Model: {self.model_info.get('name', 'Unknown')} | Objects: {num_detections}",
-            (20, 60),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.6,
-            (200, 200, 200),
-            1
-        )
+            print(f"Processing error: {e}")
+            return output, {'error': str(e), 'points': [], 'colors': [], 'normals': []}
