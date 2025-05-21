@@ -6,12 +6,12 @@ import asyncio
 import cv2, json, os, base64
 import numpy as np
 from dotenv import load_dotenv
-#from processors.base_processor import BaseProcessor
+# from processors.base_processor import BaseProcessor
 # from processors.yolo_processor import YOLOProcessor
 # from processors.aircanvas_processor import AirCanvasProcessor
 # from processors.mediapipe_processor import MediaPipeProcessor
 # from processors.fastvlm_processor import FastVLMProcessor
-from processors.scenescript_processor1 import SceneScriptProcessor
+from processors.scenescript_processor import SceneScriptProcessor
 # from processors.camio_processor import MediaPipeGestureProcessor
 # from processors.ocr_processor import OCRProcessor
 # from processors.groq_processor import GroqProcessor
@@ -48,7 +48,7 @@ class ProcessorManager:
             load_dotenv()
             print("Initializing processors...")
             cls.processors = {
-                #0: OCRProcessor('<DENSE_REGION_CAPTION>'),
+                # 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
                 1: SceneScriptProcessor(),
                 # 2: YOLOProcessor("./models/yolo11n-seg.pt"),
                 # 3: MediaPipeGestureProcessor(False),
