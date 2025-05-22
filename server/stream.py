@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 # from processors.aircanvas_processor import AirCanvasProcessor
 # from processors.mediapipe_processor import MediaPipeProcessor
 # from processors.fastvlm_processor import FastVLMProcessor
-from processors.scenescript_processor import SceneScriptProcessor
+from processors.depth_processor import DepthProcessor
 # from processors.camio_processor import MediaPipeGestureProcessor
 # from processors.ocr_processor import OCRProcessor
 # from processors.groq_processor import GroqProcessor
@@ -49,7 +49,7 @@ class ProcessorManager:
             print("Initializing processors...")
             cls.processors = {
                 # 0: OCRProcessor('<DENSE_REGION_CAPTION>'),
-                1: SceneScriptProcessor(),
+                1: DepthProcessor(),
                 # 2: YOLOProcessor("./models/yolo11n-seg.pt"),
                 # 3: MediaPipeGestureProcessor(False),
                 # 4: MediaPipeGestureProcessor(),

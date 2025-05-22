@@ -17,7 +17,7 @@ if llava_parent_dir not in sys.path:
 
 from depth_pro import create_model_and_transforms, load_rgb
 
-class SceneScriptProcessor(BaseProcessor):
+class DepthProcessor(BaseProcessor):
     def __init__(self, 
                  checkpoint_uri="/home/znasif/vision-depth-pro/checkpoints/depth_pro.pt",
                  use_gpu=True,
