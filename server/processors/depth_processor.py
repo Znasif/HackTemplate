@@ -200,3 +200,6 @@ class DepthProcessor(BaseProcessor):
         except Exception as e:
             print(f"Processing error: {e}")
             return output, {'error': str(e), 'points': [], 'colors': [], 'normals': []}
+
+processor = DepthProcessor()
+app = processor.app

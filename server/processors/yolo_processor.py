@@ -147,3 +147,7 @@ class YOLOProcessor(BaseProcessor):
                 output[mask_area] = cv2.addWeighted(frame[mask_area], 1-alpha, colored_mask[mask_area], alpha, 0)
         
         return output, ""
+    
+
+processor = YOLOProcessor("./models/yolo11n-seg.pt")
+app = processor.app

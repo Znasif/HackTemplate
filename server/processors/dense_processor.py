@@ -5,9 +5,9 @@ import cv2
 from PIL import Image
 import torch
 
-class OCRProcessor(BaseProcessor):
+class SceneProcessor(BaseProcessor):
     def __init__(self,
-                 task_prompt='<OCR_WITH_REGION>',
+                 task_prompt='<DENSE_REGION_CAPTION>',
                  model_id='microsoft/Florence-2-large',
                  use_gpu=True,
                  min_confidence=0.5,
@@ -346,3 +346,6 @@ class OCRProcessor(BaseProcessor):
     #     width = np.linalg.norm(box[1] - box[0])
     #     height = np.linalg.norm(box[3] - box[0])
     #     return width < 200 and height < 100  # Adjust thresholds as needed
+
+processor = SceneProcessor()
+app = processor.app

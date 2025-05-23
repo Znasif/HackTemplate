@@ -1,0 +1,59 @@
+/home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/timm/models/layers/__init__.py:48: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+INFO:     Started server process [41380]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8002 (Press CTRL+C to quit)
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35106 - "POST /process HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [41380]

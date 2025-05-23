@@ -11,7 +11,7 @@ from hloc.matchers.superglue import SuperGlue
 from google.protobuf.json_format import MessageToDict
 from .base_processor import BaseProcessor
 
-class MediaPipeGestureProcessor(BaseProcessor):
+class MapIOProcessor(BaseProcessor):
     def __init__(self, enable_sift=True, enable_hands=True,
                  min_detection_confidence=0.5, min_tracking_confidence=0.5):
         """
@@ -926,3 +926,6 @@ class MediaPipeGestureProcessor(BaseProcessor):
                     return np.array([sum(Xs)/float(len(Xs)), sum(Ys)/float(len(Ys)), sum(Zs)/float(len(Zs))]), 'still'
             
             return position, 'moving'
+
+processor = MapIOProcessor()
+app = processor.app

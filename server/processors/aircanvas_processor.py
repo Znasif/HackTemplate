@@ -12,7 +12,7 @@ import numpy as np
 import time
 from typing import Dict, Any, Tuple, List, Optional
 import base64
-from processors.base_processor import BaseProcessor
+from .base_processor import BaseProcessor
 
 class AirCanvasProcessor(BaseProcessor):
     """
@@ -299,3 +299,6 @@ class AirCanvasProcessor(BaseProcessor):
         return ((landmark1.x - landmark2.x) ** 2 + 
                 (landmark1.y - landmark2.y) ** 2 + 
                 (landmark1.z - landmark2.z) ** 2) ** 0.5
+
+processor = AirCanvasProcessor()
+app = processor.app
