@@ -3,156 +3,47 @@ libEGL warning: Activate DRI3 at Xorg or build mesa with DRI2
 libEGL warning: DRI3 error: Could not get DRI3 device
 libEGL warning: Activate DRI3 at Xorg or build mesa with DRI2
 WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-I0000 00:00:1748029513.515246   41415 gl_context_egl.cc:85] Successfully initialized EGL. Major : 1 Minor: 5
-I0000 00:00:1748029513.544411   41576 gl_context.cc:369] GL version: 3.2 (OpenGL ES 3.2 Mesa 25.1.1), renderer: llvmpipe (LLVM 19.1.7, 256 bits)
+I0000 00:00:1748031232.522291   48984 gl_context_egl.cc:85] Successfully initialized EGL. Major : 1 Minor: 5
+I0000 00:00:1748031232.615659   49149 gl_context.cc:369] GL version: 3.2 (OpenGL ES 3.2 Mesa 25.1.1), renderer: llvmpipe (LLVM 19.1.7, 256 bits)
 INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
-W0000 00:00:1748029513.576854   41523 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-W0000 00:00:1748029513.592771   41532 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
-INFO:     Started server process [41415]
+W0000 00:00:1748031232.644247   49103 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1748031232.654401   49098 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+INFO:     Started server process [48984]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8003 (Press CTRL+C to quit)
-Loaded map parameters from file.
-Loaded map parameters from file.
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-5
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-5
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-5
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-0
-INFO:     127.0.0.1:36376 - "POST /process HTTP/1.1" 200 OK
-*** Aborted at 1748029634 (unix time) try "date -d @1748029634" if you are using GNU date ***
-PC: @     0x7f9ec9316ee0 epoll_pwait
-*** SIGTERM (@0x3e80000a153) received by PID 41415 (TID 0x7f9ec91e8740) from PID 41299; stack trace: ***
-    @     0x7f9ec928eed3 (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa1ed2)
-    @     0x7f9dbd97b138 (/home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/pycolmap/_core.cpython-310-x86_64-linux-gnu.so+0x69b137)
-    @     0x7f9ec9232330 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x4532f)
-    @     0x7f9ec9316ee0 epoll_pwait
-    @     0x7f9ec7c4ed7c uv__io_poll
-    @     0x7f9ec7c3d40a uv_run
-    @     0x7f9ec7d27c11 __pyx_f_6uvloop_4loop_4Loop__Loop__run
-    @     0x7f9ec7d59eaf __pyx_f_6uvloop_4loop_4Loop__run
-    @     0x7f9ec7d51ea9 __pyx_pw_6uvloop_4loop_4Loop_25run_forever
-    @     0x7f9ec7d53f36 __pyx_pw_6uvloop_4loop_4Loop_45run_until_complete
-    @     0x55992115e19d _PyEval_EvalFrameDefault
-    @     0x55992116db7c _PyFunction_Vectorcall
-    @     0x559921162457 _PyEval_EvalFrameDefault
-    @     0x55992116db7c _PyFunction_Vectorcall
-    @     0x55992115e19d _PyEval_EvalFrameDefault
-    @     0x55992116db7c _PyFunction_Vectorcall
-    @     0x55992117994c PyObject_Call
-    @     0x5599211606de _PyEval_EvalFrameDefault
-    @     0x55992116db7c _PyFunction_Vectorcall
-    @     0x55992117994c PyObject_Call
-    @     0x5599211606de _PyEval_EvalFrameDefault
-    @     0x559921178fb2 method_vectorcall
-    @     0x55992117994c PyObject_Call
-    @     0x5599211606de _PyEval_EvalFrameDefault
-    @     0x55992116db7c _PyFunction_Vectorcall
-    @     0x55992115e19d _PyEval_EvalFrameDefault
-    @     0x559921179234 method_vectorcall
-    @     0x5599211606de _PyEval_EvalFrameDefault
-    @     0x559921165e90 _PyObject_FastCallDictTstate.localalias
-    @     0x5599211775b9 _PyObject_Call_Prepend
-    @     0x559921237f29 slot_tp_call
-    @     0x559921166a03 _PyObject_MakeTpCall.localalias
+*** Aborted at 1748031368 (unix time) try "date -d @1748031368" if you are using GNU date ***
+PC: @     0x7f2e87a31ee0 epoll_pwait
+*** SIGTERM (@0x3e80000becb) received by PID 48984 (TID 0x7f2e87903740) from PID 48843; stack trace: ***
+    @     0x7f2e879a9ed3 (/usr/lib/x86_64-linux-gnu/libc.so.6+0xa1ed2)
+    @     0x7f2d7c07b138 (/home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/pycolmap/_core.cpython-310-x86_64-linux-gnu.so+0x69b137)
+    @     0x7f2e8794d330 (/usr/lib/x86_64-linux-gnu/libc.so.6+0x4532f)
+    @     0x7f2e87a31ee0 epoll_pwait
+    @     0x7f2e86369d7c uv__io_poll
+    @     0x7f2e8635840a uv_run
+    @     0x7f2e86442c11 __pyx_f_6uvloop_4loop_4Loop__Loop__run
+    @     0x7f2e86474eaf __pyx_f_6uvloop_4loop_4Loop__run
+    @     0x7f2e8646cea9 __pyx_pw_6uvloop_4loop_4Loop_25run_forever
+    @     0x7f2e8646ef36 __pyx_pw_6uvloop_4loop_4Loop_45run_until_complete
+    @     0x558bbde5319d _PyEval_EvalFrameDefault
+    @     0x558bbde62b7c _PyFunction_Vectorcall
+    @     0x558bbde57457 _PyEval_EvalFrameDefault
+    @     0x558bbde62b7c _PyFunction_Vectorcall
+    @     0x558bbde5319d _PyEval_EvalFrameDefault
+    @     0x558bbde62b7c _PyFunction_Vectorcall
+    @     0x558bbde6e94c PyObject_Call
+    @     0x558bbde556de _PyEval_EvalFrameDefault
+    @     0x558bbde62b7c _PyFunction_Vectorcall
+    @     0x558bbde6e94c PyObject_Call
+    @     0x558bbde556de _PyEval_EvalFrameDefault
+    @     0x558bbde6dfb2 method_vectorcall
+    @     0x558bbde6e94c PyObject_Call
+    @     0x558bbde556de _PyEval_EvalFrameDefault
+    @     0x558bbde62b7c _PyFunction_Vectorcall
+    @     0x558bbde5319d _PyEval_EvalFrameDefault
+    @     0x558bbde6e234 method_vectorcall
+    @     0x558bbde556de _PyEval_EvalFrameDefault
+    @     0x558bbde5ae90 _PyObject_FastCallDictTstate.localalias
+    @     0x558bbde6c5b9 _PyObject_Call_Prepend
+    @     0x558bbdf2cf29 slot_tp_call
+    @     0x558bbde5ba03 _PyObject_MakeTpCall.localalias

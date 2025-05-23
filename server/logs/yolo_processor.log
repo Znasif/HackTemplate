@@ -1,928 +1,188 @@
-INFO:     Started server process [41631]
+INFO:     Started server process [49202]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8005 (Press CTRL+C to quit)
 
-0: 384x640 1 tv, 69.8ms
-Speed: 8.0ms preprocess, 69.8ms inference, 178.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 1.4ms preprocess, 11.6ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.5ms preprocess, 10.2ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 2.3ms preprocess, 9.9ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.4ms preprocess, 10.6ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.7ms preprocess, 11.0ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.5ms preprocess, 10.2ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.5ms preprocess, 9.5ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 2.0ms preprocess, 10.5ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.1ms
-Speed: 1.5ms preprocess, 9.1ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.6ms preprocess, 10.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.5ms preprocess, 10.0ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.9ms preprocess, 10.0ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.5ms preprocess, 10.6ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.8ms preprocess, 10.3ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.5ms preprocess, 10.6ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 1.6ms preprocess, 11.6ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.3ms
-Speed: 1.6ms preprocess, 11.3ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 28.6ms
-Speed: 2.2ms preprocess, 28.6ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.6ms preprocess, 10.6ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.6ms preprocess, 10.5ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.3ms
-Speed: 1.7ms preprocess, 9.3ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.1ms
-Speed: 1.6ms preprocess, 11.1ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 2.1ms preprocess, 10.4ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.1ms
-Speed: 1.6ms preprocess, 9.1ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.9ms preprocess, 9.5ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.7ms preprocess, 10.3ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.4ms preprocess, 10.2ms inference, 3.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 8.8ms
-Speed: 1.4ms preprocess, 8.8ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.5ms preprocess, 9.9ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.6ms preprocess, 9.4ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.3ms
-Speed: 1.6ms preprocess, 9.3ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.7ms preprocess, 10.0ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.8ms
-Speed: 1.6ms preprocess, 10.8ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.4ms preprocess, 10.2ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.9ms preprocess, 9.5ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 15.2ms
-Speed: 2.2ms preprocess, 15.2ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.7ms
-Speed: 1.6ms preprocess, 11.7ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 1.6ms preprocess, 11.5ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.5ms preprocess, 10.4ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 26.5ms
-Speed: 1.8ms preprocess, 26.5ms inference, 4.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.7ms
-Speed: 1.8ms preprocess, 10.7ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.6ms preprocess, 10.0ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.7ms
-Speed: 1.4ms preprocess, 10.7ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.5ms preprocess, 9.4ms inference, 5.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.7ms
-Speed: 1.5ms preprocess, 11.7ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.5ms preprocess, 9.6ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.7ms preprocess, 10.0ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.5ms preprocess, 10.0ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.5ms preprocess, 10.2ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.6ms preprocess, 10.2ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.5ms preprocess, 9.6ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.5ms preprocess, 10.3ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.5ms preprocess, 9.5ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.4ms preprocess, 9.8ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.4ms preprocess, 10.0ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 1.5ms preprocess, 11.6ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.5ms preprocess, 10.0ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.7ms
-Speed: 1.7ms preprocess, 9.7ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.5ms preprocess, 10.3ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.5ms preprocess, 9.8ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.9ms preprocess, 10.3ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.4ms preprocess, 10.4ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.7ms preprocess, 10.5ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.4ms preprocess, 9.4ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.5ms preprocess, 9.8ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.7ms preprocess, 9.6ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.7ms preprocess, 9.8ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.5ms preprocess, 9.6ms inference, 3.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.7ms
-Speed: 2.5ms preprocess, 11.7ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.5ms preprocess, 9.8ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.7ms
-Speed: 1.4ms preprocess, 10.7ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.5ms preprocess, 10.5ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.9ms preprocess, 9.8ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.5ms preprocess, 9.6ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.2ms
-Speed: 1.5ms preprocess, 12.2ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.5ms preprocess, 10.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.5ms
-Speed: 1.5ms preprocess, 12.5ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.4ms preprocess, 9.9ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.7ms preprocess, 11.0ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.6ms preprocess, 10.0ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 1.9ms preprocess, 11.5ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 14.7ms
-Speed: 1.5ms preprocess, 14.7ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.6ms preprocess, 9.9ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.6ms preprocess, 9.9ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 14.6ms
-Speed: 2.2ms preprocess, 14.6ms inference, 3.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 1.6ms preprocess, 11.6ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.7ms preprocess, 10.5ms inference, 4.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.6ms preprocess, 9.6ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 2.4ms preprocess, 11.6ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.1ms
-Speed: 1.6ms preprocess, 10.1ms inference, 4.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.6ms preprocess, 10.0ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.5ms
-Speed: 1.6ms preprocess, 12.5ms inference, 10.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 21.5ms
-Speed: 1.9ms preprocess, 21.5ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 18.2ms
-Speed: 1.9ms preprocess, 18.2ms inference, 4.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 19.1ms
-Speed: 1.8ms preprocess, 19.1ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 21.4ms
-Speed: 1.9ms preprocess, 21.4ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 22.6ms
-Speed: 2.2ms preprocess, 22.6ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 23.4ms
-Speed: 3.2ms preprocess, 23.4ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 20.9ms
-Speed: 2.2ms preprocess, 20.9ms inference, 3.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 30.7ms
-Speed: 3.3ms preprocess, 30.7ms inference, 5.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.7ms preprocess, 11.0ms inference, 4.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.8ms preprocess, 9.8ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.7ms
-Speed: 1.5ms preprocess, 9.7ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.6ms preprocess, 10.6ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 2.0ms preprocess, 11.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.5ms preprocess, 9.5ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 1.7ms preprocess, 11.5ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 2.4ms preprocess, 9.8ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.5ms
-Speed: 2.1ms preprocess, 12.5ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.7ms preprocess, 10.3ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.6ms preprocess, 9.9ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.1ms
-Speed: 2.2ms preprocess, 11.1ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.3ms
-Speed: 1.6ms preprocess, 13.3ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.1ms
-Speed: 1.6ms preprocess, 10.1ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.8ms preprocess, 9.4ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.8ms
-Speed: 1.8ms preprocess, 10.8ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.7ms
-Speed: 1.6ms preprocess, 10.7ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 16.5ms
-Speed: 2.0ms preprocess, 16.5ms inference, 3.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
-Speed: 1.8ms preprocess, 10.0ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.4ms
-Speed: 1.8ms preprocess, 11.4ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 14.6ms
-Speed: 2.8ms preprocess, 14.6ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 1.9ms preprocess, 11.2ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.6ms preprocess, 9.9ms inference, 3.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.7ms
-Speed: 1.6ms preprocess, 11.7ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 2.0ms preprocess, 9.6ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.6ms preprocess, 10.6ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.7ms preprocess, 10.3ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 2.3ms preprocess, 11.5ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.2ms
-Speed: 1.5ms preprocess, 9.2ms inference, 4.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.6ms preprocess, 11.0ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.8ms
-Speed: 2.2ms preprocess, 13.8ms inference, 9.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 38.7ms
-Speed: 2.1ms preprocess, 38.7ms inference, 10.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 24.1ms
-Speed: 2.2ms preprocess, 24.1ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 2.0ms preprocess, 10.6ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.9ms
-Speed: 1.5ms preprocess, 10.9ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.8ms
-Speed: 1.6ms preprocess, 11.8ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.2ms
-Speed: 2.3ms preprocess, 13.2ms inference, 4.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.6ms preprocess, 9.4ms inference, 4.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.4ms
-Speed: 1.4ms preprocess, 9.4ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.7ms
-Speed: 2.3ms preprocess, 11.7ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.5ms preprocess, 10.6ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.5ms preprocess, 10.5ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.7ms preprocess, 10.6ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.0ms
+0: 384x640 2 persons, 2 tvs, 75.1ms
+Speed: 7.8ms preprocess, 75.1ms inference, 189.0ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 14.2ms
+Speed: 2.3ms preprocess, 14.2ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 22.7ms
+Speed: 2.0ms preprocess, 22.7ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 20.9ms
+Speed: 2.2ms preprocess, 20.9ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.5ms
+Speed: 1.5ms preprocess, 9.5ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.9ms
+Speed: 1.7ms preprocess, 9.9ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.3ms
+Speed: 1.5ms preprocess, 10.3ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 15.0ms
+Speed: 1.9ms preprocess, 15.0ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.8ms
+Speed: 1.5ms preprocess, 10.8ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.9ms
+Speed: 1.8ms preprocess, 10.9ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 16.4ms
+Speed: 1.8ms preprocess, 16.4ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 12.1ms
+Speed: 1.9ms preprocess, 12.1ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 12.3ms
+Speed: 2.5ms preprocess, 12.3ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.7ms
+Speed: 1.6ms preprocess, 9.7ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.0ms
+Speed: 2.0ms preprocess, 10.0ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.8ms
+Speed: 1.6ms preprocess, 9.8ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 18.3ms
+Speed: 2.4ms preprocess, 18.3ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.7ms
+Speed: 1.5ms preprocess, 9.7ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.6ms
+Speed: 1.5ms preprocess, 11.6ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.7ms
+Speed: 1.7ms preprocess, 9.7ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.6ms
+Speed: 1.7ms preprocess, 11.6ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 12.2ms
+Speed: 1.8ms preprocess, 12.2ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 15.7ms
+Speed: 1.9ms preprocess, 15.7ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 12.8ms
+Speed: 2.2ms preprocess, 12.8ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 12.0ms
+Speed: 1.4ms preprocess, 12.0ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.1ms
+Speed: 1.5ms preprocess, 11.1ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.1ms
+Speed: 1.5ms preprocess, 10.1ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.2ms
+Speed: 1.6ms preprocess, 10.2ms inference, 4.0ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.8ms
+Speed: 1.7ms preprocess, 9.8ms inference, 1.9ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 13.9ms
+Speed: 2.1ms preprocess, 13.9ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.0ms
+Speed: 1.6ms preprocess, 11.0ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.5ms
+Speed: 1.5ms preprocess, 10.5ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 24.9ms
+Speed: 2.4ms preprocess, 24.9ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.1ms
+Speed: 1.8ms preprocess, 10.1ms inference, 5.3ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.4ms
+Speed: 1.5ms preprocess, 10.4ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.4ms
+Speed: 1.7ms preprocess, 11.4ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.0ms
+Speed: 1.9ms preprocess, 10.0ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.6ms
+Speed: 1.6ms preprocess, 11.6ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 10.0ms
 Speed: 1.5ms preprocess, 10.0ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 19.5ms
-Speed: 2.4ms preprocess, 19.5ms inference, 4.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.6ms preprocess, 10.3ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 1.6ms preprocess, 11.2ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 2.1ms preprocess, 10.3ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.0ms
-Speed: 1.5ms preprocess, 12.0ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.1ms
-Speed: 1.6ms preprocess, 10.1ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 2.1ms preprocess, 10.5ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.6ms preprocess, 11.0ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.4ms
-Speed: 2.5ms preprocess, 11.4ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.3ms
-Speed: 1.5ms preprocess, 11.3ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.5ms preprocess, 9.6ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.1ms
-Speed: 1.8ms preprocess, 11.1ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.1ms
-Speed: 1.6ms preprocess, 12.1ms inference, 3.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 2.2ms preprocess, 11.2ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.1ms
-Speed: 1.6ms preprocess, 11.1ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 1.7ms preprocess, 11.5ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 2.1ms preprocess, 11.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.3ms
-Speed: 1.7ms preprocess, 11.3ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.5ms
-Speed: 1.8ms preprocess, 11.5ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.7ms
-Speed: 1.7ms preprocess, 13.7ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 15.0ms
-Speed: 2.0ms preprocess, 15.0ms inference, 4.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.1ms
-Speed: 1.6ms preprocess, 13.1ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 17.2ms
-Speed: 1.6ms preprocess, 17.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 17.6ms
-Speed: 1.7ms preprocess, 17.6ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.6ms preprocess, 10.6ms inference, 6.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.5ms preprocess, 10.5ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.7ms preprocess, 10.3ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.4ms
-Speed: 2.0ms preprocess, 12.4ms inference, 2.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.3ms
-Speed: 1.7ms preprocess, 11.3ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.4ms
-Speed: 2.0ms preprocess, 11.4ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.5ms preprocess, 10.6ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.7ms
-Speed: 1.6ms preprocess, 9.7ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 1.6ms preprocess, 11.2ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 2.3ms preprocess, 11.6ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.4ms
-Speed: 1.5ms preprocess, 13.4ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.9ms
-Speed: 1.7ms preprocess, 10.9ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 14.8ms
-Speed: 1.7ms preprocess, 14.8ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.7ms
-Speed: 1.5ms preprocess, 9.7ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.9ms
-Speed: 1.5ms preprocess, 11.9ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.6ms
-Speed: 2.4ms preprocess, 12.6ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.0ms
-Speed: 1.6ms preprocess, 12.0ms inference, 4.8ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.3ms
-Speed: 1.5ms preprocess, 10.3ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.5ms preprocess, 10.4ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.8ms
-Speed: 1.5ms preprocess, 9.8ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 1.5ms preprocess, 10.6ms inference, 3.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.6ms
-Speed: 2.3ms preprocess, 10.6ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 20.8ms
-Speed: 1.5ms preprocess, 20.8ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 21.6ms
-Speed: 1.8ms preprocess, 21.6ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 28.6ms
-Speed: 4.4ms preprocess, 28.6ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.7ms preprocess, 10.5ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.7ms
-Speed: 2.6ms preprocess, 12.7ms inference, 3.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.4ms
-Speed: 1.6ms preprocess, 11.4ms inference, 2.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.6ms
-Speed: 1.8ms preprocess, 9.6ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.6ms preprocess, 10.4ms inference, 3.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.0ms
-Speed: 1.5ms preprocess, 11.0ms inference, 4.3ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.3ms
-Speed: 1.6ms preprocess, 11.3ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.3ms
-Speed: 1.6ms preprocess, 12.3ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.7ms preprocess, 9.9ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.8ms preprocess, 10.4ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.9ms
-Speed: 1.5ms preprocess, 9.9ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.2ms
-Speed: 1.5ms preprocess, 12.2ms inference, 2.9ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 21.7ms
-Speed: 3.0ms preprocess, 21.7ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.1ms
-Speed: 1.6ms preprocess, 10.1ms inference, 3.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.6ms preprocess, 10.4ms inference, 2.1ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.2ms
-Speed: 1.7ms preprocess, 10.2ms inference, 3.0ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.3ms
-Speed: 2.5ms preprocess, 13.3ms inference, 4.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.9ms
-Speed: 2.3ms preprocess, 11.9ms inference, 3.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.8ms
-Speed: 1.8ms preprocess, 13.8ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.9ms
-Speed: 2.0ms preprocess, 11.9ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 1.6ms preprocess, 11.2ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.4ms
-Speed: 1.9ms preprocess, 10.4ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.6ms
-Speed: 1.7ms preprocess, 11.6ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.8ms
-Speed: 2.0ms preprocess, 10.8ms inference, 3.6ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 13.6ms
-Speed: 2.0ms preprocess, 13.6ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 9.5ms
-Speed: 1.6ms preprocess, 9.5ms inference, 3.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.2ms
-Speed: 1.9ms preprocess, 11.2ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 11.4ms
-Speed: 2.9ms preprocess, 11.4ms inference, 2.7ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 10.5ms
-Speed: 1.8ms preprocess, 10.5ms inference, 2.4ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 12.8ms
-Speed: 1.9ms preprocess, 12.8ms inference, 4.2ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
-
-0: 384x640 1 tv, 18.9ms
-Speed: 1.9ms preprocess, 18.9ms inference, 2.5ms postprocess per image at shape (1, 3, 384, 640)
-INFO:     127.0.0.1:51200 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.7ms
+Speed: 1.5ms preprocess, 9.7ms inference, 2.2ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 21.9ms
+Speed: 2.1ms preprocess, 21.9ms inference, 3.5ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 26.9ms
+Speed: 1.8ms preprocess, 26.9ms inference, 4.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 9.5ms
+Speed: 1.5ms preprocess, 9.5ms inference, 2.0ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 13.3ms
+Speed: 1.7ms preprocess, 13.3ms inference, 3.1ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
+
+0: 384x640 2 persons, 2 tvs, 11.5ms
+Speed: 2.0ms preprocess, 11.5ms inference, 2.6ms postprocess per image at shape (1, 3, 384, 640)
+INFO:     127.0.0.1:44428 - "POST /process HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [41631]
+INFO:     Finished server process [49202]

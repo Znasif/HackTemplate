@@ -70,6 +70,12 @@ PROCESSOR_CONFIG = {
         "name": "aircanvas_processor",
         "conda_env": "whatsai2"
     },
+    6: {
+        "host": "127.0.0.1",
+        "port": 8007,
+        "name": "spatial_processor",
+        "conda_env": "spatiallm"
+    },
 }
 
 class ConnectionManager:
@@ -113,6 +119,15 @@ manager = ConnectionManager()
 
 def print_message(message):
     print(f"Message: {message}", end="\r")
+
+@app.get("/processors")
+async def get_processors():
+    """Return the list of available processors with their IDs and names."""
+    processors = [
+        {"id": pid, "name": config["name"]}
+        for pid, config in PROCESSOR_CONFIG.items()
+    ]
+    return {"processors": processors}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -241,9 +256,3 @@ async def shutdown_event():
         if os.path.exists(script_path):
             os.remove(script_path)
             print(f"Removed {script_path}")
-
-# Note: To address the FutureWarning from torch.load in depth_pro.py (used by depth_processor),
-# edit /home/znasif/vision-depth-pro/src/depth_pro/depth_pro.py at line 136:
-# Change: state_dict = torch.load(config.checkpoint_uri, map_location="cpu")
-# To: state_dict = torch.load(config.checkpoint_uri, map_location="cpu", weights_only=True)
-# Then test: conda run -n depth-pro python -c "from new_processors.depth_processor import app"
