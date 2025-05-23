@@ -1,0 +1,14 @@
+/home/znasif/vision-depth-pro/src/depth_pro/depth_pro.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(config.checkpoint_uri, map_location="cpu")
+INFO:     Started server process [23687]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+DepthPro model loaded successfully on cuda
+INFO:     127.0.0.1:59476 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59476 - "POST /process HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52356 - "POST /process HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [23687]
