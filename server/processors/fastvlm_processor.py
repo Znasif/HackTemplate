@@ -231,3 +231,6 @@ class FastVLMProcessor(BaseProcessor):
                 bottomLeftOrigin=False
             )
             return output, "Model not loaded"
+
+processor = FastVLMProcessor()
+app = processor.app

@@ -155,3 +155,6 @@ class MediaPipeProcessor(BaseProcessor):
             self.pose.close()
         if self.enable_hands:
             self.hands.close()
+
+processor = MediaPipeProcessor()
+app = processor.app
