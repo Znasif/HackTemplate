@@ -33,7 +33,14 @@ app.add_middleware(
 )
 
 # Configuration for processor servers
-PROCESSOR_CONFIG = {
+PROCESSOR_CONFIG = {0: {
+        "host": "127.0.0.1",
+        "port": 8001,
+        "name": "flame_processor",
+        "conda_env": "whatsai2"
+    }}
+
+PROCESSOR_CONFIG1 = {
     0: {
         "host": "127.0.0.1",
         "port": 8001,
@@ -118,7 +125,8 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 def print_message(message):
-    print(f"Message: {message}", end="\r")
+    #print(f"Message: {message}", end="\r")
+    return
 
 @app.get("/processors")
 async def get_processors():
