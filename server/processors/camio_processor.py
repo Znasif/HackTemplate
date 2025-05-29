@@ -9,6 +9,7 @@ import torch
 from hloc.extractors.superpoint import SuperPoint
 from hloc.matchers.superglue import SuperGlue
 from google.protobuf.json_format import MessageToDict
+from typing import Dict, Union, Tuple, List, Optional
 from .base_processor import BaseProcessor
 
 class MapIOProcessor(BaseProcessor):
@@ -166,6 +167,13 @@ class MapIOProcessor(BaseProcessor):
         self.zone_filter = -1 * np.ones(self.ZONE_FILTER_SIZE, dtype=int)
         self.zone_filter_cnt = 0
     
+    def process_pointcloud(self, point_cloud_data: Dict) -> Tuple[Optional[Dict], Union[str, Dict]]:
+        # This processor generates point clouds, doesn't typically process existing ones.
+        # Return the input point cloud and an informative message, or raise error.
+        # raise NotImplementedError("DepthProcessor does not process existing point clouds.")
+        return point_cloud_data, {"message": "DepthProcessor received point cloud data but does not process it further."}
+
+
     def process_frame(self, frame):
         """
         Process frame using MediaPipe and SIFT to detect models and hand gestures

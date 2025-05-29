@@ -38,31 +38,56 @@ app.add_middleware(
 
 PROCESSOR_CONFIG = {
     0: {
-        "host": "127.0.0.1", "port": 8004,
-        "name": "depth_processor", "conda_env": "depth-pro", "dependencies": [],
+        "host": "127.0.0.1", "port": 8001,
+        "name": "base_processor", "conda_env": "whatsai2", "dependencies": [],
         "expects_input": "image",  # DepthProcessor takes an image
     },
     1: {
-        "host": "127.0.0.1", "port": 8007,
-        "name": "spatial_processor", "conda_env": "spatiallm", "dependencies": [0],
-        "expects_input": "point_cloud", # SpatialProcessor takes a point cloud
+        "host": "127.0.0.1", "port": 8002,
+        "name": "depth_processor", "conda_env": "depth-pro", "dependencies": [],
+        "expects_input": "image",  # DepthProcessor takes an image
     },
-    # Example for YOLO (ID 4, port 8005, if added):
+    2: {
+        "host": "127.0.0.1", "port": 8003,
+        "name": "dense_processor", "conda_env": "whatsai2", "dependencies": [],
+        "expects_input": "image",
+    },
+    3: {
+        "host": "127.0.0.1", "port": 8004,
+        "name": "aircanvas_processor", "conda_env": "whatsai2", "dependencies": [],
+        "expects_input": "image",  # DepthProcessor takes an image
+    },
     4: {
         "host": "127.0.0.1", "port": 8005,
-        "name": "dense_processor", "conda_env": "whatsai2", "dependencies": [],
+        "name": "camio_processor", "conda_env": "whatsai2", "dependencies": [],
         "expects_input": "image",
     },
     5: {
         "host": "127.0.0.1", "port": 8006,
-        "name": "camio_processor", "conda_env": "whatsai2", "dependencies": [],
-        "expects_input": "image",
-    }
+        "name": "yolo_processor", "conda_env": "whatsai2", "dependencies": [],
+        "expects_input": "image",  # DepthProcessor takes an image
+    },
+    # 6: {
+    #     "host": "127.0.0.1", "port": 8007,
+    #     "name": "spatial_processor", "conda_env": "spatiallm", "dependencies": [1],
+    #     "expects_input": "point_cloud", # SpatialProcessor takes a point cloud
+    # },
+    7: {
+        "host": "127.0.0.1", "port": 8008,
+        "name": "mediapipe_processor", "conda_env": "whatsai2", "dependencies": [0],
+        "expects_input": "image", # SpatialProcessor takes a point cloud
+    },
+    # 8: {
+    #     "host": "127.0.0.1", "port": 8009,
+    #     "name": "parts_processor", "conda_env": "partsfield", "dependencies": [1],
+    #     "expects_input": "point_cloud", # SpatialProcessor takes a point cloud
+    # }
 }
 
 
 def log_message(message: str, level: str = "INFO"):
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] {message}")
+    return
+    #print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] {message}")
 
 # ... (FastAPI app, CORS, other imports, log_message function) ...
 # ... (PROCESSOR_CONFIG defined above) ...
@@ -428,4 +453,14 @@ async def shutdown_event():
             except Exception as e:
                  log_message(f"Error terminating PID {process.pid} (PGID/PID {pgid}): {e}", level="ERROR")
     processor_processes = [] # type: ignore
+    # Clean up shell scripts
+    for processor_id, config in PROCESSOR_CONFIG.items():
+        script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts', f"run_{config['name']}.sh")
+        log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', f"{config['name']}.log")
+        if os.path.exists(script_path):
+            os.remove(script_path)
+            print(f"Removed {script_path}")
+        if os.path.exists(log_path):
+            os.remove(log_path)
+            print(f"Removed {log_path}")
     log_message("Shutdown complete.")

@@ -2,6 +2,7 @@ from .base_processor import BaseProcessor
 import mediapipe as mp
 import numpy as np
 import cv2
+from typing import Dict, Union, Tuple, List, Optional
 
 class MediaPipeProcessor(BaseProcessor):
     def __init__(self, 
@@ -58,6 +59,14 @@ class MediaPipeProcessor(BaseProcessor):
                 min_detection_confidence=min_detection_confidence,
                 min_tracking_confidence=min_tracking_confidence
             )
+
+    
+    def process_pointcloud(self, point_cloud_data: Dict) -> Tuple[Optional[Dict], Union[str, Dict]]:
+        # This processor generates point clouds, doesn't typically process existing ones.
+        # Return the input point cloud and an informative message, or raise error.
+        # raise NotImplementedError("DepthProcessor does not process existing point clouds.")
+        return point_cloud_data, {"message": "DepthProcessor received point cloud data but does not process it further."}
+
 
     def process_frame(self, frame):
         """

@@ -10,7 +10,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Dict, Any, Tuple, Union, Optional
 import base64
 from .base_processor import BaseProcessor
 
@@ -299,6 +299,13 @@ class AirCanvasProcessor(BaseProcessor):
         return ((landmark1.x - landmark2.x) ** 2 + 
                 (landmark1.y - landmark2.y) ** 2 + 
                 (landmark1.z - landmark2.z) ** 2) ** 0.5
+    
+    def process_pointcloud(self, point_cloud_data: Dict) -> Tuple[Optional[Dict], Union[str, Dict]]:
+        # This processor generates point clouds, doesn't typically process existing ones.
+        # Return the input point cloud and an informative message, or raise error.
+        # raise NotImplementedError("DepthProcessor does not process existing point clouds.")
+        return point_cloud_data, {"message": "DepthProcessor received point cloud data but does not process it further."}
+
 
 processor = AirCanvasProcessor()
 app = processor.app
