@@ -48,11 +48,16 @@ PROCESSOR_CONFIG = {
         "expects_input": "point_cloud", # SpatialProcessor takes a point cloud
     },
     # Example for YOLO (ID 4, port 8005, if added):
-    # 4: {
-    #     "host": "127.0.0.1", "port": 8005,
-    #     "name": "yolo_processor", "conda_env": "whatsai2", "dependencies": [],
-    #     "expects_input": "image",
-    # }
+    4: {
+        "host": "127.0.0.1", "port": 8005,
+        "name": "dense_processor", "conda_env": "whatsai2", "dependencies": [],
+        "expects_input": "image",
+    },
+    5: {
+        "host": "127.0.0.1", "port": 8006,
+        "name": "camio_processor", "conda_env": "whatsai2", "dependencies": [],
+        "expects_input": "image",
+    }
 }
 
 
