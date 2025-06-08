@@ -37,7 +37,7 @@ app.add_middleware(
 PROCESSOR_CONFIG = {
     0: {
         "host": "127.0.0.1", "port": 8001,
-        "name": "base_processor", "conda_env": "whatsai2", "dependencies": [],
+        "name": "flame_processor", "conda_env": "depth-pro", "dependencies": [],
         "expects_input": "image",
     },
     # 1: {
