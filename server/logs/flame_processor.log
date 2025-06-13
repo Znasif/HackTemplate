@@ -1,0 +1,486 @@
+/home/znasif/vision-depth-pro/src/depth_pro/depth_pro.py:136: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state_dict = torch.load(config.checkpoint_uri, map_location="cpu")
+INFO:     Started server process [5895]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8001 (Press CTRL+C to quit)
+WARNING: FDS executable not found. Disabling FDS simulation.
+DEBUG: Processing base frame...
+DEBUG: _process_base_frame shape: (480, 853, 3)
+DEBUG: Found worst-case ignition point in material 'D/E' at index 63915
+DEBUG: Precomputed fire state at time 0.0s
+DEBUG: Precomputed fire state at time 0.5s
+DEBUG: Precomputed fire state at time 1.0s
+DEBUG: Precomputed fire state at time 1.5s
+DEBUG: Precomputed fire state at time 2.0s
+DEBUG: Precomputed fire state at time 2.5s
+DEBUG: Precomputed fire state at time 3.0s
+DEBUG: Precomputed fire state at time 3.5s
+DEBUG: Precomputed fire state at time 4.0s
+DEBUG: Precomputed fire state at time 4.5s
+DEBUG: Precomputed fire state at time 5.0s
+DEBUG: Precomputed fire state at time 5.5s
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 6.0s
+DEBUG: Precomputed fire state at time 6.5s
+DEBUG: Precomputed fire state at time 7.0s
+DEBUG: Precomputed fire state at time 7.5s
+DEBUG: Precomputed fire state at time 8.0s
+DEBUG: Precomputed fire state at time 8.5s
+DEBUG: Precomputed fire state at time 9.0s
+DEBUG: Precomputed fire state at time 9.5s
+DEBUG: Precomputed fire state at time 10.0s
+DEBUG: Precomputed fire state at time 10.5s
+DEBUG: Precomputed fire state at time 11.0s
+DEBUG: Precomputed fire state at time 11.5s
+DEBUG: Precomputed fire state at time 12.0s
+DEBUG: Precomputed fire state at time 12.5s
+DEBUG: Precomputed fire state at time 13.0s
+DEBUG: Precomputed fire state at time 13.5s
+DEBUG: Precomputed fire state at time 14.0s
+DEBUG: Fire propagation at time 0.0s
+DEBUG: Precomputed fire state at time 14.5s
+DEBUG: Using precomputed state at 0.5s
+DEBUG: Precomputed fire state at time 15.0s
+DEBUG: Fire details : {'simulation_time': 0.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1, 'max_temperature': 600.0, 'average_intensity': 0.5}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 15.5s
+DEBUG: Precomputed fire state at time 16.0s
+DEBUG: Precomputed fire state at time 16.5s
+DEBUG: Precomputed fire state at time 17.0s
+DEBUG: Precomputed fire state at time 17.5s
+DEBUG: Fire propagation at time 0.5s
+DEBUG: Using precomputed state at 1.0s
+DEBUG: Precomputed fire state at time 18.0s
+DEBUG: Fire details : {'simulation_time': 1.0, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 18.5s
+DEBUG: Precomputed fire state at time 19.0s
+DEBUG: Precomputed fire state at time 19.5s
+DEBUG: Precomputed fire state at time 20.0s
+DEBUG: Precomputed fire state at time 20.5s
+DEBUG: Precomputed fire state at time 21.0s
+DEBUG: Fire propagation at time 1.0s
+DEBUG: Precomputed fire state at time 21.5s
+DEBUG: Using precomputed state at 1.5s
+DEBUG: Precomputed fire state at time 22.0s
+DEBUG: Fire details : {'simulation_time': 1.5, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 22.5s
+DEBUG: Precomputed fire state at time 23.0s
+DEBUG: Precomputed fire state at time 23.5s
+DEBUG: Fire propagation at time 1.5s
+DEBUG: Precomputed fire state at time 24.0s
+DEBUG: Using precomputed state at 2.0s
+DEBUG: Precomputed fire state at time 24.5s
+DEBUG: Fire details : {'simulation_time': 2.0, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 25.0s
+DEBUG: Precomputed fire state at time 25.5s
+DEBUG: Precomputed fire state at time 26.0s
+DEBUG: Fire propagation at time 2.0s
+DEBUG: Precomputed fire state at time 26.5s
+DEBUG: Using precomputed state at 2.5s
+DEBUG: Precomputed fire state at time 27.0s
+DEBUG: Fire details : {'simulation_time': 2.5, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 27.5s
+DEBUG: Precomputed fire state at time 28.0s
+DEBUG: Precomputed fire state at time 28.5s
+DEBUG: Fire propagation at time 2.5s
+DEBUG: Precomputed fire state at time 29.0s
+DEBUG: Using precomputed state at 3.0s
+DEBUG: Precomputed fire state at time 29.5s
+DEBUG: Fire details : {'simulation_time': 3.0, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 30.0s
+DEBUG: Precomputed fire state at time 30.5s
+DEBUG: Precomputed fire state at time 31.0s
+DEBUG: Precomputed fire state at time 31.5s
+DEBUG: Fire propagation at time 3.0s
+DEBUG: Using precomputed state at 3.5s
+DEBUG: Precomputed fire state at time 32.0s
+DEBUG: Fire details : {'simulation_time': 3.5, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 32.5s
+DEBUG: Precomputed fire state at time 33.0s
+DEBUG: Precomputed fire state at time 33.5s
+DEBUG: Precomputed fire state at time 34.0s
+DEBUG: Fire propagation at time 3.5s
+DEBUG: Precomputed fire state at time 34.5s
+DEBUG: Using precomputed state at 4.0s
+DEBUG: Precomputed fire state at time 35.0s
+DEBUG: Fire details : {'simulation_time': 4.0, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 35.5s
+DEBUG: Precomputed fire state at time 36.0s
+DEBUG: Precomputed fire state at time 36.5s
+DEBUG: Precomputed fire state at time 37.0s
+DEBUG: Fire propagation at time 4.0s
+DEBUG: Precomputed fire state at time 37.5s
+DEBUG: Using precomputed state at 4.5s
+DEBUG: Precomputed fire state at time 38.0s
+DEBUG: Fire details : {'simulation_time': 4.5, 'fire_active': False, 'simulation_summary': {'total_burning_points': 0, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 38.5s
+DEBUG: Precomputed fire state at time 39.0s
+DEBUG: Precomputed fire state at time 39.5s
+DEBUG: Precomputed fire state at time 40.0s
+DEBUG: Precomputed fire state at time 40.5s
+DEBUG: Precomputed fire state at time 41.0s
+DEBUG: Precomputed fire state at time 41.5s
+DEBUG: Fire propagation at time 4.5s
+DEBUG: Using precomputed state at 5.0s
+DEBUG: Precomputed fire state at time 42.0s
+DEBUG: Fire details : {'simulation_time': 5.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1, 'max_temperature': 20.0, 'average_intensity': 0.0}}
+DEBUG: Precomputed fire state at time 42.5s
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 43.0s
+DEBUG: Precomputed fire state at time 43.5s
+DEBUG: Precomputed fire state at time 44.0s
+DEBUG: Precomputed fire state at time 44.5s
+DEBUG: Precomputed fire state at time 45.0s
+DEBUG: Precomputed fire state at time 45.5s
+DEBUG: Precomputed fire state at time 46.0s
+DEBUG: Precomputed fire state at time 46.5s
+DEBUG: Precomputed fire state at time 47.0s
+DEBUG: Fire propagation at time 5.0s
+DEBUG: Using precomputed state at 5.5s
+DEBUG: Precomputed fire state at time 47.5s
+DEBUG: Fire details : {'simulation_time': 5.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 17, 'max_temperature': 54.23694400049876, 'average_intensity': 0.017209387074256264}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 48.0s
+DEBUG: Precomputed fire state at time 48.5s
+DEBUG: Precomputed fire state at time 49.0s
+DEBUG: Precomputed fire state at time 49.5s
+DEBUG: Fire propagation at time 5.5s
+DEBUG: Using precomputed state at 6.0s
+DEBUG: Precomputed fire state at time 50.0s
+DEBUG: Fire details : {'simulation_time': 6.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 53, 'max_temperature': 86.80413253875642, 'average_intensity': 0.03313030457801991}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 50.5s
+DEBUG: Precomputed fire state at time 51.0s
+DEBUG: Precomputed fire state at time 51.5s
+DEBUG: Precomputed fire state at time 52.0s
+DEBUG: Precomputed fire state at time 52.5s
+DEBUG: Precomputed fire state at time 53.0s
+DEBUG: Precomputed fire state at time 53.5s
+DEBUG: Fire propagation at time 6.0s
+DEBUG: Precomputed fire state at time 54.0s
+DEBUG: Using precomputed state at 6.5s
+DEBUG: Precomputed fire state at time 54.5s
+DEBUG: Fire details : {'simulation_time': 6.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 87, 'max_temperature': 117.78300054960943, 'average_intensity': 0.05566869111438034}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 55.0s
+DEBUG: Precomputed fire state at time 55.5s
+DEBUG: Precomputed fire state at time 56.0s
+DEBUG: Precomputed fire state at time 56.5s
+DEBUG: Precomputed fire state at time 57.0s
+DEBUG: Fire propagation at time 6.5s
+DEBUG: Precomputed fire state at time 57.5s
+DEBUG: Using precomputed state at 7.0s
+DEBUG: Precomputed fire state at time 58.0s
+DEBUG: Fire details : {'simulation_time': 7.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 111, 'max_temperature': 147.25101133925676, 'average_intensity': 0.07901852916928735}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputed fire state at time 58.5s
+DEBUG: Precomputed fire state at time 59.0s
+DEBUG: Precomputed fire state at time 59.5s
+DEBUG: Precomputed fire state at time 60.0s
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 7.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 7.5s
+DEBUG: Fire details : {'simulation_time': 7.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 136, 'max_temperature': 175.28185028387378, 'average_intensity': 0.10008525379961818}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 7.5s
+DEBUG: Using precomputed state at 8.0s
+DEBUG: Fire details : {'simulation_time': 8.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 175, 'max_temperature': 201.94560908143404, 'average_intensity': 0.11310195404422718}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 8.0s
+DEBUG: Using precomputed state at 8.5s
+DEBUG: Fire details : {'simulation_time': 8.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 216, 'max_temperature': 227.3089610174632, 'average_intensity': 0.1268362231618497}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 8.5s
+DEBUG: Using precomputed state at 9.0s
+DEBUG: Fire details : {'simulation_time': 9.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 254, 'max_temperature': 251.43532768298127, 'average_intensity': 0.14318698097039614}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 9.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 9.5s
+DEBUG: Fire details : {'simulation_time': 9.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 302, 'max_temperature': 274.3850375615152, 'average_intensity': 0.1549822221391966}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 9.5s
+DEBUG: Using precomputed state at 10.0s
+DEBUG: Fire details : {'simulation_time': 10.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 350, 'max_temperature': 296.2154768817314, 'average_intensity': 0.16797618062191622}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 10.0s
+DEBUG: Using precomputed state at 10.5s
+DEBUG: Fire details : {'simulation_time': 10.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 411, 'max_temperature': 316.9812331128984, 'average_intensity': 0.17664288259714753}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 10.5s
+DEBUG: Using precomputed state at 11.0s
+DEBUG: Fire details : {'simulation_time': 11.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 492, 'max_temperature': 336.73423146199343, 'average_intensity': 0.18052063580113342}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 11.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 11.5s
+DEBUG: Fire details : {'simulation_time': 11.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 579, 'max_temperature': 355.5238647137667, 'average_intensity': 0.18647149185402412}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 11.5s
+DEBUG: Using precomputed state at 12.0s
+DEBUG: Fire details : {'simulation_time': 12.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 662, 'max_temperature': 373.39711673843044, 'average_intensity': 0.19631054488035363}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 12.0s
+DEBUG: Using precomputed state at 12.5s
+DEBUG: Fire details : {'simulation_time': 12.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 733, 'max_temperature': 390.39867997580774, 'average_intensity': 0.2106064889713656}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 12.5s
+DEBUG: Using precomputed state at 13.0s
+DEBUG: Fire details : {'simulation_time': 13.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 822, 'max_temperature': 406.5710671897105, 'average_intensity': 0.21972810667038814}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 13.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 13.5s
+DEBUG: Fire details : {'simulation_time': 13.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 949, 'max_temperature': 421.95471777199396, 'average_intensity': 0.22211791407438353}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 13.5s
+DEBUG: Using precomputed state at 14.0s
+DEBUG: Fire details : {'simulation_time': 14.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1036, 'max_temperature': 436.5880988620994, 'average_intensity': 0.23568827595666894}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 14.0s
+DEBUG: Using precomputed state at 14.5s
+DEBUG: Fire details : {'simulation_time': 14.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1119, 'max_temperature': 450.50780153494014, 'average_intensity': 0.2498793726733317}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 14.5s
+DEBUG: Using precomputed state at 15.0s
+DEBUG: Fire details : {'simulation_time': 15.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1195, 'max_temperature': 463.74863229764753, 'average_intensity': 0.26515364679325865}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 15.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 15.5s
+DEBUG: Fire details : {'simulation_time': 15.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1273, 'max_temperature': 476.34370012396903, 'average_intensity': 0.27932065199628947}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 15.5s
+DEBUG: Using precomputed state at 16.0s
+DEBUG: Fire details : {'simulation_time': 16.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1393, 'max_temperature': 488.32449924394825, 'average_intensity': 0.28474941096854317}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 16.0s
+DEBUG: Using precomputed state at 16.5s
+DEBUG: Fire details : {'simulation_time': 16.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1495, 'max_temperature': 499.72098789590456, 'average_intensity': 0.2949401326096333}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 16.5s
+DEBUG: Using precomputed state at 17.0s
+DEBUG: Fire details : {'simulation_time': 17.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1551, 'max_temperature': 510.5616632376342, 'average_intensity': 0.31362012288131025}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 17.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 17.5s
+DEBUG: Fire details : {'simulation_time': 17.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1572, 'max_temperature': 520.8736326041465, 'average_intensity': 0.3379853806695572}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 17.5s
+DEBUG: Using precomputed state at 18.0s
+DEBUG: Fire details : {'simulation_time': 18.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1614, 'max_temperature': 530.6826812901231, 'average_intensity': 0.3564752893167131}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 18.0s
+DEBUG: Using precomputed state at 18.5s
+DEBUG: Fire details : {'simulation_time': 18.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1641, 'max_temperature': 540.0133370265842, 'average_intensity': 0.37706019913788497}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 18.5s
+DEBUG: Using precomputed state at 19.0s
+DEBUG: Fire details : {'simulation_time': 19.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1725, 'max_temperature': 548.8889313129922, 'average_intensity': 0.38380892190984517}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 19.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 19.5s
+DEBUG: Fire details : {'simulation_time': 19.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1903, 'max_temperature': 557.331657758154, 'average_intensity': 0.3724228998739739}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 19.5s
+DEBUG: Using precomputed state at 20.0s
+DEBUG: Fire details : {'simulation_time': 20.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2174, 'max_temperature': 565.3626275758022, 'average_intensity': 0.35115850892655126}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 20.0s
+DEBUG: Using precomputed state at 20.5s
+DEBUG: Fire details : {'simulation_time': 20.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2472, 'max_temperature': 565.3277075238084, 'average_intensity': 0.3303038223127815}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 20.5s
+DEBUG: Using precomputed state at 21.0s
+DEBUG: Fire details : {'simulation_time': 21.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2640, 'max_temperature': 565.2550621811803, 'average_intensity': 0.32776255863719167}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 21.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 21.5s
+DEBUG: Fire details : {'simulation_time': 21.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2774, 'max_temperature': 563.6027829402167, 'average_intensity': 0.3308680106682039}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 21.5s
+DEBUG: Using precomputed state at 22.0s
+DEBUG: Fire details : {'simulation_time': 22.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2902, 'max_temperature': 565.217179915232, 'average_intensity': 0.338523177763004}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 22.0s
+DEBUG: Using precomputed state at 22.5s
+DEBUG: Fire details : {'simulation_time': 22.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3094, 'max_temperature': 565.1582012409882, 'average_intensity': 0.3388058078470703}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 22.5s
+DEBUG: Using precomputed state at 23.0s
+DEBUG: Fire details : {'simulation_time': 23.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3360, 'max_temperature': 565.2331857473706, 'average_intensity': 0.3313935810116419}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 23.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 23.5s
+DEBUG: Fire details : {'simulation_time': 23.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3424, 'max_temperature': 565.1619709212288, 'average_intensity': 0.34467566066467153}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 23.5s
+DEBUG: Using precomputed state at 24.0s
+DEBUG: Fire details : {'simulation_time': 24.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3422, 'max_temperature': 565.3532965246575, 'average_intensity': 0.36437521971408265}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 24.0s
+DEBUG: Using precomputed state at 24.5s
+DEBUG: Fire details : {'simulation_time': 24.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3464, 'max_temperature': 565.0813289579074, 'average_intensity': 0.3766579245679947}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 24.5s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 25.0s
+DEBUG: Fire details : {'simulation_time': 25.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3581, 'max_temperature': 565.2656789388288, 'average_intensity': 0.38056459549033317}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 25.0s
+DEBUG: Using precomputed state at 25.5s
+DEBUG: Fire details : {'simulation_time': 25.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3818, 'max_temperature': 565.2087199498934, 'average_intensity': 0.3710471927788521}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 25.5s
+DEBUG: Using precomputed state at 26.0s
+DEBUG: Fire details : {'simulation_time': 26.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4123, 'max_temperature': 565.1081059685081, 'average_intensity': 0.35585502461709556}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 26.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 26.5s
+DEBUG: Fire details : {'simulation_time': 26.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4268, 'max_temperature': 565.3251234767919, 'average_intensity': 0.356406765356379}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 26.5s
+DEBUG: Using precomputed state at 27.0s
+DEBUG: Fire details : {'simulation_time': 27.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4292, 'max_temperature': 565.109456835409, 'average_intensity': 0.3677094498397193}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 27.0s
+DEBUG: Using precomputed state at 27.5s
+DEBUG: Fire details : {'simulation_time': 27.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4343, 'max_temperature': 565.2157461856236, 'average_intensity': 0.3780800745247311}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 27.5s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 28.0s
+DEBUG: Fire details : {'simulation_time': 28.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4388, 'max_temperature': 565.3270495702632, 'average_intensity': 0.38593408813277524}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 28.0s
+DEBUG: Using precomputed state at 28.5s
+DEBUG: Fire details : {'simulation_time': 28.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4277, 'max_temperature': 565.3204846210539, 'average_intensity': 0.4008907876443015}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 28.5s
+DEBUG: Using precomputed state at 29.0s
+DEBUG: Fire details : {'simulation_time': 29.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4191, 'max_temperature': 565.3332033017003, 'average_intensity': 0.41934265198214876}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 29.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 29.5s
+DEBUG: Fire details : {'simulation_time': 29.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4109, 'max_temperature': 565.2717636924324, 'average_intensity': 0.43739813786615056}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 29.5s
+DEBUG: Using precomputed state at 30.0s
+DEBUG: Fire details : {'simulation_time': 30.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 4033, 'max_temperature': 565.3274530080226, 'average_intensity': 0.4553538642938598}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 30.0s
+DEBUG: Using precomputed state at 30.5s
+DEBUG: Fire details : {'simulation_time': 30.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3955, 'max_temperature': 565.356341255272, 'average_intensity': 0.4725615499040598}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 30.5s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 31.0s
+DEBUG: Fire details : {'simulation_time': 31.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3835, 'max_temperature': 565.3122074545678, 'average_intensity': 0.48682099309733196}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 31.0s
+DEBUG: Using precomputed state at 31.5s
+DEBUG: Fire details : {'simulation_time': 31.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3733, 'max_temperature': 565.2799722802165, 'average_intensity': 0.5015717288136412}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 31.5s
+DEBUG: Using precomputed state at 32.0s
+DEBUG: Fire details : {'simulation_time': 32.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3677, 'max_temperature': 564.7081689436885, 'average_intensity': 0.5182063364547376}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 32.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 32.5s
+DEBUG: Fire details : {'simulation_time': 32.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3656, 'max_temperature': 565.3280351162356, 'average_intensity': 0.5358615578711712}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 32.5s
+DEBUG: Using precomputed state at 33.0s
+DEBUG: Fire details : {'simulation_time': 33.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3614, 'max_temperature': 565.3170553686662, 'average_intensity': 0.5518705047305406}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 33.0s
+DEBUG: Using precomputed state at 33.5s
+DEBUG: Fire details : {'simulation_time': 33.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3587, 'max_temperature': 565.239732793051, 'average_intensity': 0.5678293207450544}}
+DEBUG: Precomputation thread finished
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 33.5s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 34.0s
+DEBUG: Fire details : {'simulation_time': 34.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3503, 'max_temperature': 565.3395501704963, 'average_intensity': 0.5811750103031852}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 34.0s
+DEBUG: Using precomputed state at 34.5s
+DEBUG: Fire details : {'simulation_time': 34.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3325, 'max_temperature': 565.3538905784127, 'average_intensity': 0.5910229614219643}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 34.5s
+DEBUG: Using precomputed state at 35.0s
+DEBUG: Fire details : {'simulation_time': 35.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 3054, 'max_temperature': 565.343544290122, 'average_intensity': 0.597412551890723}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 35.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 35.5s
+DEBUG: Fire details : {'simulation_time': 35.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2739, 'max_temperature': 565.3588904498829, 'average_intensity': 0.6016047841807488}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 35.5s
+DEBUG: Using precomputed state at 36.0s
+DEBUG: Fire details : {'simulation_time': 36.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2535, 'max_temperature': 565.3192781954612, 'average_intensity': 0.6089981790349939}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 36.0s
+DEBUG: Using precomputed state at 36.5s
+DEBUG: Fire details : {'simulation_time': 36.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2367, 'max_temperature': 565.3524962587054, 'average_intensity': 0.6175312552425547}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 36.5s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 37.0s
+DEBUG: Fire details : {'simulation_time': 37.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 2215, 'max_temperature': 565.3359459538334, 'average_intensity': 0.6262037210382625}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 37.0s
+DEBUG: Using precomputed state at 37.5s
+DEBUG: Fire details : {'simulation_time': 37.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1998, 'max_temperature': 565.3620842224944, 'average_intensity': 0.6326374745405924}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 37.5s
+DEBUG: Using precomputed state at 38.0s
+DEBUG: Fire details : {'simulation_time': 38.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1693, 'max_temperature': 565.3159189515709, 'average_intensity': 0.6349834133372672}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Precomputation thread finished
+DEBUG: Fire propagation at time 38.0s
+DEBUG: Started precomputation
+DEBUG: Using precomputed state at 38.5s
+DEBUG: Fire details : {'simulation_time': 38.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1589, 'max_temperature': 565.3489018140929, 'average_intensity': 0.6437800972491567}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 38.5s
+DEBUG: Using precomputed state at 39.0s
+DEBUG: Fire details : {'simulation_time': 39.0, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1691, 'max_temperature': 565.2929298082274, 'average_intensity': 0.6034097969255102}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
+DEBUG: Fire propagation at time 39.0s
+DEBUG: Using precomputed state at 39.5s
+DEBUG: Fire details : {'simulation_time': 39.5, 'fire_active': True, 'simulation_summary': {'total_burning_points': 1725, 'max_temperature': 565.2731744635698, 'average_intensity': 0.5705349302831244}}
+INFO:     127.0.0.1:49764 - "POST /process HTTP/1.1" 200 OK
