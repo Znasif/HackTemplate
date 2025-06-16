@@ -8,7 +8,6 @@ import socket
 import os
 import signal
 import time
-import wave
 from datetime import datetime
 from typing import List, Dict, Optional, Union, Any
 from pathlib import Path
@@ -19,6 +18,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
+
+from google import genai
+from google.genai import types
 
 app = FastAPI()
 
@@ -36,6 +38,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Gemini configuration constants
+MODEL = "models/gemini-2.0-flash-live-001"
 
 def load_config(path: str) -> dict:
     with open(path, 'r') as f:
@@ -70,7 +75,6 @@ class AudioStreamRecorder:
             'start_time': datetime.now(),
             'chunk_count': 0,
             'total_bytes': 0,
-            'audio_chunks': []  # Store individual chunks for streaming back
         }
         
         log_message(f"Started audio recording session {session_id} (in memory)")
@@ -88,9 +92,6 @@ class AudioStreamRecorder:
             # Write to memory buffer
             recording['audio_buffer'].write(audio_data)
             
-            # Store chunk for streaming back
-            recording['audio_chunks'].append(audio_data)
-            
             recording['chunk_count'] += 1
             recording['total_bytes'] += len(audio_data)
             
@@ -102,7 +103,7 @@ class AudioStreamRecorder:
             return False
     
     def stop_recording_and_convert(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """Stop recording, convert to MP3, and prepare for streaming back"""
+        """Stop recording, convert to MP3"""
         if session_id not in self.active_recordings:
             log_message(f"No active recording for session {session_id}", level="WARNING")
             return None
@@ -132,10 +133,9 @@ class AudioStreamRecorder:
                 log_message(f"  Total bytes (PCM): {recording['total_bytes']}")
                 log_message(f"  MP3 size: {len(mp3_data)} bytes")
                 
-                # Prepare result with both filepath and audio chunks for streaming
+                # Prepare result
                 result = {
                     'filepath': str(filepath),
-                    'audio_chunks': recording['audio_chunks'],  # Original chunks to stream back
                     'mp3_data': mp3_data,  # Converted MP3 data
                     'total_chunks': recording['chunk_count'],
                     'duration': str(duration)
@@ -212,6 +212,231 @@ class AudioStreamRecorder:
             except Exception as e:
                 log_message(f"Error cleaning up session {session_id}: {e}", level="ERROR")
 
+class GeminiFlashStreamManager:
+    def __init__(self, audio_recorder):
+        """Initialize the Gemini Flash Stream Manager.
+        
+        Args:
+            audio_recorder: Instance of AudioStreamRecorder to store audio chunks.
+        """
+        self.audio_recorder = audio_recorder
+        self.active_sessions = {}  # WebSocket -> session info
+        load_dotenv()
+        self.gemini_client = genai.Client(
+            http_options={"api_version": "v1beta"},
+            api_key=os.environ.get("GEMINI_API_KEY"),
+        )
+        
+        # Gemini configuration
+        self.tools = [types.Tool(function_declarations=[])]
+        self.config = types.LiveConnectConfig(
+            response_modalities=["AUDIO"],
+            media_resolution="MEDIA_RESOLUTION_MEDIUM",
+            speech_config=types.SpeechConfig(
+                language_code="en-US",
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Puck")
+                )
+            ),
+            context_window_compression=types.ContextWindowCompressionConfig(
+                trigger_tokens=25600,
+                sliding_window=types.SlidingWindow(target_tokens=12800),
+            ),
+            tools=self.tools,
+        )
+        
+    def log_message(self, message: str, level: str = "INFO"):
+        """Log messages with timestamp and level."""
+        print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] GeminiFlashStreamManager: {message}")
+
+    async def start_session(self, websocket: WebSocket, session_id: str):
+        """Start a Gemini streaming session for a WebSocket connection.
+        
+        Args:
+            websocket: WebSocket connection.
+            session_id: Unique session ID for audio streaming.
+        """
+        try:
+            # Initialize session data
+            self.active_sessions[websocket] = {
+                'session_id': session_id,
+                'audio_in_queue': Queue(),
+                'out_queue': Queue(maxsize=5),
+                'gemini_session': None,
+                'tasks': [],
+                'gemini_audio_responses': [],  # Store Gemini audio responses
+            }
+            
+            session_data = self.active_sessions[websocket]
+            
+            # Start Gemini live session
+            async with self.gemini_client.aio.live.connect(model=MODEL, config=self.config) as gemini_session:
+                session_data['gemini_session'] = gemini_session
+                
+                # Create tasks for concurrent processing
+                async with asyncio.TaskGroup() as tg:
+                    session_data['tasks'] = [
+                        tg.create_task(self.send_audio_to_gemini(websocket)),
+                        tg.create_task(self.receive_audio_from_gemini(websocket)),
+                        tg.create_task(self.play_audio_to_client(websocket)),
+                    ]
+                    
+                    self.log_message(f"Started Gemini streaming session for {session_id}")
+                    
+                    # Keep session alive until stopped
+                    await asyncio.Event().wait()
+                    
+        except Exception as e:
+            self.log_message(f"Error starting session {session_id}: {e}", level="ERROR")
+            await websocket.send_text(json.dumps({
+                "error": f"Failed to start Gemini streaming: {str(e)}"
+            }))
+        finally:
+            await self.cleanup_session(websocket)
+
+    async def send_audio_to_gemini(self, websocket: WebSocket):
+        """Send audio chunks to Gemini Flash."""
+        session_data = self.active_sessions.get(websocket)
+        if not session_data or not session_data['gemini_session']:
+            return
+            
+        out_queue = session_data['out_queue']
+        while True:
+            try:
+                msg = await out_queue.get()
+                if msg is None:
+                    break
+                await session_data['gemini_session'].send(input=msg)
+                self.log_message(f"Sent audio chunk to Gemini: {msg}")
+            except Exception as e:
+                self.log_message(f"Error sending audio to Gemini: {e}", level="ERROR")
+
+    async def receive_audio_from_gemini(self, websocket: WebSocket):
+        """Receive audio and text responses from Gemini Flash."""
+        session_data = self.active_sessions.get(websocket)
+        if not session_data or not session_data['gemini_session']:
+            return
+            
+        audio_in_queue = session_data['audio_in_queue']
+        while True:
+            try:
+                turn = session_data['gemini_session'].receive()
+                async for response in turn:
+                    if data := response.data:
+                        # Store audio response for playback after stop
+                        session_data['gemini_audio_responses'].append(data)
+                        await audio_in_queue.put(data)
+                        continue
+                    if text := response.text:
+                        self.log_message(f"Gemini text response: {text}")
+                        await websocket.send_text(json.dumps({
+                            "type": "gemini_text_response",
+                            "text": text
+                        }))
+                # Clear audio queue on turn completion to handle interruptions
+                self.log_message(f"Received audio back from Gemini, clearing audio queue")
+                while not audio_in_queue.empty():
+                    audio_in_queue.get_nowait()
+            except Exception as e:
+                self.log_message(f"Error receiving audio from Gemini: {e}", level="ERROR")
+
+    async def play_audio_to_client(self, websocket: WebSocket):
+        """Stream Gemini audio responses to the client in real-time."""
+        session_data = self.active_sessions.get(websocket)
+        if not session_data:
+            return
+            
+        audio_in_queue = session_data['audio_in_queue']
+        while True:
+            try:
+                bytestream = await audio_in_queue.get()
+                chunk_b64 = base64.b64encode(bytestream).decode('utf-8')
+                await websocket.send_text(json.dumps({
+                    "type": "gemini_audio_response",
+                    "audio_chunk": chunk_b64
+                }))
+                self.log_message(f"Streaming back to client: {len(bytestream)} bytes")
+            except Exception as e:
+                self.log_message(f"Error streaming audio to client: {e}", level="ERROR")
+
+    async def handle_audio_chunk(self, websocket: WebSocket, audio_chunk_b64: str, session_id: str):
+        """Process an incoming audio chunk, storing it and sending to Gemini.
+        
+        Args:
+            websocket: WebSocket connection.
+            audio_chunk_b64: Base64-encoded audio chunk.
+            session_id: Session ID for audio recording.
+        """
+        try:
+            # Decode audio chunk
+            audio_bytes = base64.b64decode(audio_chunk_b64)
+            
+            # Store in recorder
+            success = self.audio_recorder.add_audio_chunk(session_id, audio_bytes)
+            if not success:
+                await websocket.send_text(json.dumps({
+                    "error": "Failed to save audio chunk in recorder"
+                }))
+                return
+                
+            # Send to Gemini if session is active
+            if websocket in self.active_sessions:
+                session_data = self.active_sessions[websocket]
+                await session_data['out_queue'].put({
+                    "data": audio_bytes,
+                    "mime_type": "audio/pcm"
+                })
+                
+        except Exception as e:
+            self.log_message(f"Error handling audio chunk: {e}", level="ERROR")
+            await websocket.send_text(json.dumps({
+                "error": f"Audio chunk processing error: {str(e)}"
+            }))
+
+    async def stop_session(self, websocket: WebSocket) -> Optional[Dict[str, Any]]:
+        """Stop the Gemini streaming session and return recording results and Gemini audio responses.
+        
+        Args:
+            websocket: WebSocket connection.
+            
+        Returns:
+            Dictionary with recording results and Gemini audio responses, if available.
+        """
+        session_id = self.active_sessions.get(websocket, {}).get('session_id')
+        if session_id:
+            # Stop recording and get results
+            recording_result = self.audio_recorder.stop_recording_and_convert(session_id)
+            session_data = self.active_sessions.get(websocket, {})
+            result = {
+                'recording': recording_result,
+                'gemini_audio_responses': session_data.get('gemini_audio_responses', []),
+            }
+            await self.cleanup_session(websocket)
+            return result
+        return None
+
+    async def cleanup_session(self, websocket: WebSocket):
+        """Clean up a Gemini streaming session.
+        
+        Args:
+            websocket: WebSocket connection.
+        """
+        if websocket in self.active_sessions:
+            session_data = self.active_sessions[websocket]
+            
+            # Cancel all tasks
+            for task in session_data['tasks']:
+                task.cancel()
+                
+            # Close Gemini session (handled by context manager)
+            session_data['gemini_session'] = None
+            
+            # Clean up recording
+            if session_data['session_id']:
+                self.audio_recorder.cleanup_session(session_data['session_id'])
+                
+            del self.active_sessions[websocket]
+            self.log_message(f"Cleaned up Gemini session for {session_data['session_id']}")
 
 class ConnectionManager:
     def __init__(self):
@@ -221,6 +446,7 @@ class ConnectionManager:
         
         # Audio recording components
         self.audio_recorder = AudioStreamRecorder()
+        self.gemini_manager = GeminiFlashStreamManager(self.audio_recorder)
         self.active_audio_sessions = {}  # websocket -> session_id mapping
 
         self.audio_queues = {}  # websocket -> Queue
@@ -243,16 +469,15 @@ class ConnectionManager:
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
         
-        # Clean up any active audio recording for this websocket
+        # Clean up any active audio recording and Gemini session
         self.stop_audio_recording(websocket)
 
     async def handle_audio_stream(self, websocket: WebSocket, message_data: Dict[str, Any]):
-        """Handle audio streaming data from client"""
+        """Handle audio streaming data from client."""
         try:
             message_type = message_data.get('type')
             
             if message_type == 'audio_stream':
-                # Handle streaming audio chunk
                 audio_chunk_b64 = message_data.get('audio_chunk')
                 if not audio_chunk_b64:
                     log_message("No audio chunk data received", level="WARNING")
@@ -267,6 +492,8 @@ class ConnectionManager:
                     filepath = self.audio_recorder.start_recording(session_id)
                     
                     if filepath:
+                        # Start Gemini streaming session
+                        asyncio.create_task(self.gemini_manager.start_session(websocket, session_id))
                         await websocket.send_text(json.dumps({
                             "status": "audio_recording_started",
                             "session_id": session_id,
@@ -278,59 +505,44 @@ class ConnectionManager:
                         }))
                         return
                 
-                # Decode and save audio chunk
-                try:
-                    audio_bytes = base64.b64decode(audio_chunk_b64)
-                    success = self.audio_recorder.add_audio_chunk(session_id, audio_bytes)
-                    
-                    if not success:
-                        await websocket.send_text(json.dumps({
-                            "error": "Failed to save audio chunk"
-                        }))
-                        
-                except Exception as e:
-                    log_message(f"Error decoding audio chunk: {e}", level="ERROR")
-                    await websocket.send_text(json.dumps({
-                        "error": f"Audio decoding error: {str(e)}"
-                    }))
+                # Process audio chunk through Gemini manager
+                await self.gemini_manager.handle_audio_chunk(websocket, audio_chunk_b64, session_id)
             
             elif message_type == 'audio_stream_stop':
-                # Handle stop audio streaming
                 session_id = self.active_audio_sessions.get(websocket)
                 if session_id:
-                    result = self.audio_recorder.stop_recording_and_convert(session_id)
-                    del self.active_audio_sessions[websocket]
-                    
-                    if result:
-                        # First send the completion status
+                    # Stop Gemini session and get recording results and Gemini responses
+                    result = await self.gemini_manager.stop_session(websocket)
+                    if result and result['recording']:
+                        # Send completion status
+                        recording = result['recording']
                         await websocket.send_text(json.dumps({
                             "status": "audio_recording_stopped",
                             "session_id": session_id,
-                            "filepath": result['filepath'],
-                            "total_chunks": result['total_chunks'],
-                            "duration": result['duration'],
+                            "filepath": recording['filepath'],
+                            "total_chunks": len(result['gemini_audio_responses']),
+                            "duration": recording['duration'],
                             "streaming_back": True
                         }))
                         
-                        # Now stream the audio chunks back to the client
-                        for i, chunk in enumerate(result['audio_chunks']):
+                        # Stream Gemini audio responses back to client for playback
+                        for i, chunk in enumerate(result['gemini_audio_responses']):
                             chunk_b64 = base64.b64encode(chunk).decode('utf-8')
                             await websocket.send_text(json.dumps({
                                 "type": "audio_stream_playback",
                                 "audio_chunk": chunk_b64,
                                 "chunk_index": i,
-                                "total_chunks": result['total_chunks'],
-                                "is_last_chunk": i == len(result['audio_chunks']) - 1
+                                "total_chunks": len(result['gemini_audio_responses']),
+                                "is_last_chunk": i == len(result['gemini_audio_responses']) - 1
                             }))
-                            
-                            # Small delay to prevent overwhelming the client
                             await asyncio.sleep(0.01)
                         
-                        log_message(f"Finished streaming {len(result['audio_chunks'])} chunks back to client")
+                        log_message(f"Finished streaming {len(result['gemini_audio_responses'])} Gemini audio response chunks back to client")
                     else:
                         await websocket.send_text(json.dumps({
-                            "error": "Failed to process audio recording"
+                            "error": "Failed to process audio recording or Gemini responses"
                         }))
+                    del self.active_audio_sessions[websocket]
                 else:
                     await websocket.send_text(json.dumps({
                         "status": "no_active_audio_session"
@@ -343,10 +555,12 @@ class ConnectionManager:
             }))
 
     def stop_audio_recording(self, websocket: WebSocket) -> Optional[str]:
-        """Stop audio recording for a websocket connection"""
+        """Stop audio recording and Gemini session for a websocket connection."""
         session_id = self.active_audio_sessions.get(websocket)
         if session_id:
-            # Just cleanup without converting/streaming since this is called on disconnect
+            # Clean up Gemini session
+            asyncio.create_task(self.gemini_manager.cleanup_session(websocket))
+            # Clean up recording
             self.audio_recorder.cleanup_session(session_id)
             del self.active_audio_sessions[websocket]
             return session_id
@@ -379,41 +593,41 @@ class ConnectionManager:
             return {"error": error_msg, "detail": "An unexpected error occurred."}
 
     async def handle_websocket_with_parallel_processing(self, websocket: WebSocket):
-            """Handle both audio and image processing in parallel"""
-            
-            # Create queues for this connection
-            audio_queue = Queue()
-            image_queue = Queue()
-            self.audio_queues[websocket] = audio_queue
-            self.image_queues[websocket] = image_queue
-            
-            # Create parallel tasks
-            audio_task = asyncio.create_task(
-                self.audio_processor_task(websocket, audio_queue)
+        """Handle both audio and image processing in parallel"""
+        
+        # Create queues for this connection
+        audio_queue = Queue()
+        image_queue = Queue()
+        self.audio_queues[websocket] = audio_queue
+        self.image_queues[websocket] = image_queue
+        
+        # Create parallel tasks
+        audio_task = asyncio.create_task(
+            self.audio_processor_task(websocket, audio_queue)
+        )
+        image_task = asyncio.create_task(
+            self.image_processor_task(websocket, image_queue)
+        )
+        message_router_task = asyncio.create_task(
+            self.message_router(websocket, audio_queue, image_queue)
+        )
+        
+        try:
+            # Wait for any task to complete (likely due to disconnect)
+            done, pending = await asyncio.wait(
+                [audio_task, image_task, message_router_task],
+                return_when=asyncio.FIRST_COMPLETED
             )
-            image_task = asyncio.create_task(
-                self.image_processor_task(websocket, image_queue)
-            )
-            message_router_task = asyncio.create_task(
-                self.message_router(websocket, audio_queue, image_queue)
-            )
             
-            try:
-                # Wait for any task to complete (likely due to disconnect)
-                done, pending = await asyncio.wait(
-                    [audio_task, image_task, message_router_task],
-                    return_when=asyncio.FIRST_COMPLETED
-                )
+            # Cancel remaining tasks
+            for task in pending:
+                task.cancel()
                 
-                # Cancel remaining tasks
-                for task in pending:
-                    task.cancel()
-                    
-            finally:
-                # Cleanup
-                del self.audio_queues[websocket]
-                del self.image_queues[websocket]
-    
+        finally:
+            # Cleanup
+            del self.audio_queues[websocket]
+            del self.image_queues[websocket]
+
     async def message_router(self, websocket: WebSocket, audio_queue: Queue, image_queue: Queue):
         """Route incoming messages to appropriate queues"""
         try:
@@ -747,8 +961,11 @@ async def shutdown_event():
             os.remove(log_path)
             print(f"Removed {log_path}")
 
-    # Stop all active audio recordings
+    # Stop all active audio recordings and Gemini sessions
     for session_id in manager.audio_recorder.get_active_sessions():
         manager.audio_recorder.cleanup_session(session_id)
-    
+        for ws, session_data in list(manager.gemini_manager.active_sessions.items()):
+            if session_data['session_id'] == session_id:
+                await manager.gemini_manager.cleanup_session(ws)
+
     log_message("Shutdown complete.")
