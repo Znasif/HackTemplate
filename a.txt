@@ -1,0 +1,348 @@
+Copyright 2025 Google LLC.
+
+#@title Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+     
+Gemini 2.0 - Multimodal live API tool use with websockets
+
+
+This notebook provides examples of how to use tools with the Multimodal Live API with the Gemini 2.0 models. The API provides Google Search, Code Execution and Function Calling.
+
+This tutorial assumes you are familiar with the Live API, as described in the Live API starter tutorial.
+
+Note: This version of the tutorial uses websockets directly. The SDK version of this tutorial is a bit simpler because the SDK handles some of the details for you.
+
+Set up
+To run the following cell, your API key must be stored in a Colab Secret named GOOGLE_API_KEY. If you don't already have an API key, or you're not sure how to create a Colab Secret, see Authentication for an example.
+
+
+from google.colab import userdata
+GOOGLE_API_KEY = userdata.get('GOOGLE_API_KEY')
+     
+Install the websockets package:
+
+
+%pip install -q websockets
+     
+import the necessary modules
+
+
+import asyncio
+import base64
+import contextlib
+import os
+import json
+import wave
+
+from IPython import display
+
+from websockets.asyncio.client import connect
+     
+
+uri = f"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key={GOOGLE_API_KEY}"
+
+model = "models/gemini-2.0-flash-live-001"
+     
+Define a context manager to convert streamed PCM data into a wave file that can be played directly using an IPython audio widget.
+
+
+@contextlib.contextmanager
+def wave_file(filename, channels=1, rate=24000, sample_width=2):
+    with wave.open(filename, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(sample_width)
+        wf.setframerate(rate)
+        yield wf
+     
+And define a custom logger so you can toggle extra information, like the in-flight requests and responses.
+
+
+import logging
+
+logger = logging.getLogger("Live")
+logger.setLevel("INFO")
+     
+These helpers handle the websocket connection and prompt transmission (run and send), server handshake (setup) and process server responses (handle_server_content, handle_tool_call).
+
+
+async def setup(ws, modality, tools):
+  setup = {
+      "setup": {
+          "model": model,
+          "tools": tools,
+          "generation_config": {
+              "response_modalities": [modality]
+              }}}
+  await ws.send(json.dumps(setup))
+  setup_response = json.loads(await ws.recv())
+  logger.debug(setup_response)
+
+async def send(ws, prompt):
+  msg = {
+    "client_content": {
+      "turns": [{"role": "user", "parts": [{"text": prompt}]}],
+      "turn_complete": True,
+    }
+  }
+  print(">>> ", msg)
+  await ws.send(json.dumps(msg))
+
+
+def handle_server_content(wf, server_content):
+  audio = False
+  model_turn = server_content.pop("modelTurn", None)
+  if model_turn:
+    text = model_turn["parts"][0].pop("text", None)
+    if text is not None:
+      print(text)
+
+    inline_data = model_turn['parts'][0].pop('inlineData', None)
+    if inline_data is not None:
+      print('.', end='')
+      b64data = inline_data['data']
+      pcm_data = base64.b64decode(b64data)
+      wf.writeframes(pcm_data)
+      audio = True
+
+  turn_complete = server_content.pop('turnComplete', None)
+  return turn_complete, audio
+
+
+async def handle_tool_call(ws, tool_call):
+  print("    ", tool_call)
+  for fc in tool_call['functionCalls']:
+
+    msg = {
+      'tool_response': {
+          'function_responses': [{
+              'id': fc['id'],
+              'name': fc['name'],
+              'response':{'result': {'string_value': 'ok'}}
+          }]
+        }
+    }
+    print('>>> ', msg)
+    await ws.send(json.dumps(msg))
+
+
+
+async def run(prompt, modality='TEXT', tools=None):
+  if tools is None:
+    tools=[]
+
+  async with (
+      connect(uri, additional_headers={"Content-Type": "application/json"}) as ws,
+  ):
+    await setup(ws, modality, tools)
+    await send(ws, prompt)
+
+    audio = False
+    filename = 'audio.wav'
+    with wave_file(filename) as wf:
+      async for raw_response in ws:
+        response = json.loads(raw_response.decode())
+        logger.debug(str(response)[:150])
+
+        server_content = response.pop("serverContent", None)
+        if server_content is not None:
+          turn_complete, a = handle_server_content(wf, server_content)
+          audio = audio or a
+          if turn_complete:
+            print()
+            print('Turn complete')
+            break
+
+        tool_call = response.pop('toolCall', None)
+        if tool_call is not None:
+          await handle_tool_call(ws, tool_call)
+
+  if audio:
+    display.display(display.Audio(filename, autoplay=True))
+     
+Run a test prompt to ensure everything is set up.
+
+
+await run(prompt='Hello?')
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'Hello?'}]}], 'turn_complete': True}}
+Hello
+! How can I help you today?
+
+
+Turn complete
+Simple function call
+Define some stub functions to use in a function calling example.
+
+
+turn_on_the_lights_schema = {'name': 'turn_on_the_lights'}
+turn_off_the_lights_schema = {'name': 'turn_off_the_lights'}
+     
+Send the function declarations as part of the tools (in the generation config).
+
+
+prompt = "Turn on the lights"
+
+tools = [
+    {'function_declarations': [turn_on_the_lights_schema, turn_off_the_lights_schema]}
+]
+
+await run(prompt, tools=tools)
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'Turn on the lights'}]}], 'turn_complete': True}}
+     {'functionCalls': [{'name': 'turn_on_the_lights', 'args': {}, 'id': 'function-call-97628297814691086'}]}
+>>>  {'tool_response': {'function_responses': [{'id': 'function-call-97628297814691086', 'name': 'turn_on_the_lights', 'response': {'result': {'string_value': 'ok'}}}]}}
+OK,
+ I've turned on the lights.
+
+
+Turn complete
+Try the same thing again, but using audio-out this time.
+
+
+prompt = "Turn on the lights"
+
+tools = [
+    {'function_declarations': [turn_on_the_lights_schema, turn_off_the_lights_schema]}
+]
+
+await run(prompt, tools=tools, modality = "AUDIO")
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'Turn on the lights'}]}], 'turn_complete': True}}
+     {'functionCalls': [{'name': 'turn_on_the_lights', 'args': {}, 'id': 'function-call-2750470989785539634'}]}
+>>>  {'tool_response': {'function_responses': [{'id': 'function-call-2750470989785539634', 'name': 'turn_on_the_lights', 'response': {'result': {'string_value': 'ok'}}}]}}
+...................
+Turn complete
+Code execution
+The API can generate and execute code during the conversation too.
+
+
+prompt="What is the largest prime palindrome under 100000"
+
+tools = [
+    {'code_execution': {}}
+]
+
+await run(prompt, tools=tools, modality='AUDIO')
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'What is the largest prime palindrome under 100000'}]}], 'turn_complete': True}}
+........................................................................................................
+Turn complete
+Google search
+A google_search tool is also available for use during live conversations.
+
+
+prompt="Can you use google search tell me about the largest earthquake in california the week of Dec 5 2024?"
+
+tools = [
+   {'google_search': {}}
+]
+
+await run(prompt, tools=tools, modality='TEXT')
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'Can you use google search tell me about the largest earthquake in california the week of Dec 5 2024?'}]}], 'turn_complete': True}}
+Based
+ on the search results, the largest earthquake in California during the week of December 5, 
+2024, was a magnitude 7.0 earthquake that struck offshore
+ of Cape Mendocino on December 5, 2024, at 10:44 a.m. local time.
+
+Here are
+ some details about the earthquake:
+
+*   **Magnitude:** 7.0
+*   **Date:** December 5, 2024
+*
+   **Location:** Offshore of Cape Mendocino, about 60 miles (100 kilometers) west of Ferndale, Northern California
+*   **Tectonic Setting:** Occurred in the Mendocino Triple Junction, where the
+ Pacific, Juan de Fuca, and North American tectonic plates meet.
+*   **Tsunami Warning:** A tsunami warning was issued for parts of coastal Oregon and California but was later lifted.
+*   **Aftershocks:** Several
+ aftershocks were recorded following the main earthquake.
+*   **Impact:** The earthquake was felt throughout Northern California and parts of Oregon. While it was a significant earthquake, it caused little immediate damage due to its remote location.
+
+
+Turn complete
+Try the same again, with audio.
+
+
+prompt="Can you use google search tell me about the largest earthquake in california the week of Dec 5 2024?"
+
+tools = [
+   {'google_search': {}}
+]
+
+await run(prompt, tools=tools, modality='AUDIO')
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': 'Can you use google search tell me about the largest earthquake in california the week of Dec 5 2024?'}]}], 'turn_complete': True}}
+.............................................................................................................................................
+Turn complete
+Compositional Function Calling
+Compositional function calling allows you to ask the model to use your provided functions in generated code. In this example, you can test this by asking for a sleep before calling the provided tool.
+
+
+prompt = """
+  Hey, can you write run some python code to turn on the lights, wait 10s and then turn off the lights?
+  """
+
+tools = [
+    {'code_execution': {}},
+    {'function_declarations': [turn_on_the_lights_schema, turn_off_the_lights_schema]}
+]
+
+import time
+start = time.time()
+await run(prompt, tools=tools, modality="AUDIO")
+end = time.time()
+print(f'Elapsed: {end-start}s')
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': '\n  Hey, can you write run some python code to turn on the lights, wait 10s and then turn off the lights?\n  '}]}], 'turn_complete': True}}
+     {'functionCalls': [{'name': 'turn_on_the_lights', 'args': {}, 'id': 'function-call-1800692609416461513'}]}
+>>>  {'tool_response': {'function_responses': [{'id': 'function-call-1800692609416461513', 'name': 'turn_on_the_lights', 'response': {'result': {'string_value': 'ok'}}}]}}
+     {'functionCalls': [{'name': 'turn_off_the_lights', 'args': {}, 'id': 'function-call-4553691635797568566'}]}
+>>>  {'tool_response': {'function_responses': [{'id': 'function-call-4553691635797568566', 'name': 'turn_off_the_lights', 'response': {'result': {'string_value': 'ok'}}}]}}
+.............................
+Turn complete
+Elapsed: 18.519413948059082s
+Multi-tool
+The model can be asked to use multiple tools in a single conversational turn. In this example, a single prompt is used to perform 3 tasks using all 3 provided tools.
+
+
+prompt = """
+  Hey, I need you to do three things for me.
+
+  1. Turn on the lights
+  2. Then compute the largest prime plaindrome under 100000.
+  3. Then use google search to lookup unformation about the largest earthquake in california the week of Dec 5 2024?
+
+  Thanks!
+  """
+
+tools = [
+    {'google_search': {}},
+    {'code_execution': {}},
+    {'function_declarations': [turn_on_the_lights_schema, turn_off_the_lights_schema]}
+]
+
+await run(prompt, tools=tools, modality="AUDIO")
+     
+>>>  {'client_content': {'turns': [{'role': 'user', 'parts': [{'text': '\n  Hey, I need you to do three things for me.\n\n  1. Turn on the lights\n  2. Then compute the largest prime plaindrome under 100000.\n  3. Then use google search to lookup unformation about the largest earthquake in california the week of Dec 5 2024?\n\n  Thanks!\n  '}]}], 'turn_complete': True}}
+     {'functionCalls': [{'name': 'turn_on_the_lights', 'args': {}, 'id': 'function-call-1123065684868959924'}]}
+>>>  {'tool_response': {'function_responses': [{'id': 'function-call-1123065684868959924', 'name': 'turn_on_the_lights', 'response': {'result': {'string_value': 'ok'}}}]}}
+.............................................................................................................................................................................................................................
+Turn complete
+Next steps
+
+This tutorial just shows basic usage of the Live API, using the Python GenAI SDK.
+
+If you aren't looking for code, and just want to try multimedia streaming use Live API in Google AI Studio.
+If you want to see how to setup streaming interruptible audio and video using the Live API and the SDK see the Audio and Video input Tutorial.
+There is a Streaming audio in Colab example, but this is more of a demo, it's not optimized for readability.
+Other nice Gemini 2.0 examples can also be found in the Cookbook.

@@ -168,12 +168,12 @@ class AudioStreamRecorder:
             cmd = [
                 'ffmpeg',
                 '-f', 's16le',      # Input format: signed 16-bit little-endian
-                '-ar', '16000',     # Input sample rate
+                '-ar', '24000',     # Input sample rate
                 '-ac', '1',         # Input channels (mono)
                 '-i', temp_pcm_path,
                 '-acodec', 'mp3',
                 '-ab', '128k',
-                '-ar', '16000',
+                '-ar', '24000',
                 temp_mp3_path,
                 '-y'  # Overwrite output file
             ]
@@ -213,22 +213,54 @@ class AudioStreamRecorder:
                 log_message(f"Error cleaning up session {session_id}: {e}", level="ERROR")
 
 class GeminiFlashStreamManager:
-    def __init__(self, audio_recorder):
+    def __init__(self, audio_recorder, connection_manager):
         """Initialize the Gemini Flash Stream Manager.
         
         Args:
             audio_recorder: Instance of AudioStreamRecorder to store audio chunks.
+            connection_manager: Reference to ConnectionManager for processor execution
         """
         self.audio_recorder = audio_recorder
+        self.connection_manager = connection_manager
         self.active_sessions = {}  # WebSocket -> session info
+        self.last_frame_by_websocket = {}  # Store last image frame from each websocket
         load_dotenv()
         self.gemini_client = genai.Client(
             http_options={"api_version": "v1beta"},
             api_key=os.environ.get("GEMINI_API_KEY"),
         )
         
-        # Gemini configuration
-        self.tools = [types.Tool(function_declarations=[])]
+        # Create processor descriptions for tool calling
+        self.processor_descriptions = self._generate_processor_descriptions()
+        
+        # Define tool functions
+        self.tools = [types.Tool(function_declarations=[
+            types.FunctionDeclaration(
+                name="execute_processor",
+                description="Execute a specific processor to handle image/video processing tasks",
+                parameters=types.Schema(
+                    type="OBJECT",
+                    properties={
+                        "processor_id": types.Schema(
+                            type="INTEGER",
+                            description="The ID of the processor to execute"
+                        ),
+                        "reason": types.Schema(
+                            type="STRING",
+                            description="Brief explanation of why this processor was chosen"
+                        )
+                    },
+                    required=["processor_id", "reason"]
+                )
+            ),
+            types.FunctionDeclaration(
+                name="list_available_processors",
+                description="List all available processors with their descriptions",
+                parameters=types.Schema(type="OBJECT", properties={})
+            )
+        ])]
+        
+        # Update Gemini configuration with tools
         self.config = types.LiveConnectConfig(
             response_modalities=["AUDIO"],
             media_resolution="MEDIA_RESOLUTION_MEDIUM",
@@ -243,7 +275,36 @@ class GeminiFlashStreamManager:
                 sliding_window=types.SlidingWindow(target_tokens=12800),
             ),
             tools=self.tools,
+            system_instruction=self._create_system_instruction()
         )
+    
+    def _generate_processor_descriptions(self) -> str:
+        """Generate a description of all available processors"""
+        descriptions = []
+        for proc_id, config in PROCESSOR_CONFIG.items():
+            desc = f"Processor {proc_id}: {config['name']}"
+            if 'description' in config:
+                desc += f" - {config['description']}"
+            if 'dependencies' in config and config['dependencies']:
+                desc += f" (depends on: {', '.join(map(str, config['dependencies']))})"
+            descriptions.append(desc)
+        return "\n".join(descriptions)
+    
+    def _create_system_instruction(self) -> str:
+        """Create system instruction for Gemini including processor information"""
+        return f"""You are a helpful AI assistant with access to various image and video processing capabilities.
+
+When a user asks you to perform a task related to image or video processing, you should:
+1. Analyze their request to understand what they want to accomplish
+2. Check if any of the available processors match their needs
+3. If a matching processor is found, use the execute_processor function to run it
+4. If no processor matches, inform the user that the requested capability is not available
+
+Available processors:
+{self.processor_descriptions}
+
+You can also use the list_available_processors function if the user asks what processors are available.
+Do not ask clarifying questions and keep your responses short."""
         
     def log_message(self, message: str, level: str = "INFO"):
         """Log messages with timestamp and level."""
@@ -265,6 +326,7 @@ class GeminiFlashStreamManager:
                 'gemini_session': None,
                 'tasks': [],
                 'gemini_audio_responses': [],  # Store Gemini audio responses
+                'websocket': websocket,  # Store websocket reference for tool execution
             }
             
             session_data = self.active_sessions[websocket]
@@ -307,7 +369,7 @@ class GeminiFlashStreamManager:
                 if msg is None:
                     break
                 await session_data['gemini_session'].send(input=msg)
-                self.log_message(f"Sent audio chunk to Gemini: {msg}")
+                self.log_message(f"Sent audio chunk to Gemini")
             except Exception as e:
                 self.log_message(f"Error sending audio to Gemini: {e}", level="ERROR")
 
@@ -333,12 +395,108 @@ class GeminiFlashStreamManager:
                             "type": "gemini_text_response",
                             "text": text
                         }))
+                    # Handle tool calls
+                    if hasattr(response, 'function_calls') and response.function_calls:
+                        for func_call in response.function_calls:
+                            await self.handle_tool_call(websocket, func_call)
+                            
                 # Clear audio queue on turn completion to handle interruptions
                 self.log_message(f"Received audio back from Gemini, clearing audio queue")
                 while not audio_in_queue.empty():
                     audio_in_queue.get_nowait()
             except Exception as e:
                 self.log_message(f"Error receiving audio from Gemini: {e}", level="ERROR")
+
+    async def handle_tool_call(self, websocket: WebSocket, func_call):
+        """Handle tool function calls from Gemini"""
+        try:
+            func_name = func_call.name
+            func_args = func_call.args
+            
+            self.log_message(f"Handling tool call: {func_name} with args: {func_args}")
+            
+            if func_name == "execute_processor":
+                processor_id = func_args.get("processor_id")
+                reason = func_args.get("reason", "No reason provided")
+                
+                # Get the last frame sent by this client
+                last_frame = self.last_frame_by_websocket.get(websocket)
+                
+                if not last_frame:
+                    error_msg = "No image frame available from client to process"
+                    self.log_message(error_msg, level="WARNING")
+                    await websocket.send_text(json.dumps({
+                        "type": "processor_error",
+                        "error": error_msg,
+                        "processor_id": processor_id
+                    }))
+                    return
+                
+                # Notify client that processor is being executed
+                await websocket.send_text(json.dumps({
+                    "type": "processor_execution_started",
+                    "processor_id": processor_id,
+                    "reason": reason
+                }))
+                
+                # Execute the processor using the existing execute_request method
+                try:
+                    response_data = await self.connection_manager.execute_request(
+                        processor_id, last_frame, None
+                    )
+                    
+                    # Send results back to client
+                    await websocket.send_text(json.dumps({
+                        "type": "processor_result",
+                        "processor_id": processor_id,
+                        "result": response_data
+                    }))
+                    
+                    # Send text response through Gemini audio if result contains text
+                    if isinstance(response_data, dict) and "text" in response_data:
+                        result_text = f"Processing complete. {response_data['text']}"
+                        # Send this as input to Gemini to generate audio response
+                        session_data = self.active_sessions.get(websocket)
+                        if session_data and session_data['gemini_session']:
+                            await session_data['gemini_session'].send(input=result_text, end_of_turn=True)
+                    
+                except Exception as e:
+                    self.log_message(f"Error executing processor {processor_id}: {e}", level="ERROR")
+                    await websocket.send_text(json.dumps({
+                        "type": "processor_error",
+                        "error": f"Processor execution failed: {str(e)}",
+                        "processor_id": processor_id
+                    }))
+                
+            elif func_name == "list_available_processors":
+                # Send list of processors to client
+                processors_info = []
+                for proc_id, config in PROCESSOR_CONFIG.items():
+                    info = {
+                        "id": proc_id,
+                        "name": config["name"],
+                        "description": config.get("description", "No description available"),
+                        "dependencies": config.get("dependencies", []),
+                        "expects_input": config.get("expects_input", "unknown")
+                    }
+                    processors_info.append(info)
+                
+                await websocket.send_text(json.dumps({
+                    "type": "available_processors",
+                    "processors": processors_info
+                }))
+                
+                # Generate audio response about available processors
+                response_text = f"I have {len(processors_info)} processors available. " + self.processor_descriptions
+                session_data = self.active_sessions.get(websocket)
+                if session_data and session_data['gemini_session']:
+                    await session_data['gemini_session'].send(input=response_text, end_of_turn=True)
+                
+        except Exception as e:
+            self.log_message(f"Error handling tool call: {e}", level="ERROR")
+            await websocket.send_text(json.dumps({
+                "error": f"Tool execution error: {str(e)}"
+            }))
 
     async def play_audio_to_client(self, websocket: WebSocket):
         """Stream Gemini audio responses to the client in real-time."""
@@ -437,6 +595,10 @@ class GeminiFlashStreamManager:
                 
             del self.active_sessions[websocket]
             self.log_message(f"Cleaned up Gemini session for {session_data['session_id']}")
+        
+        # Also clean up stored frame
+        if websocket in self.last_frame_by_websocket:
+            del self.last_frame_by_websocket[websocket]
 
 class ConnectionManager:
     def __init__(self):
@@ -446,7 +608,7 @@ class ConnectionManager:
         
         # Audio recording components
         self.audio_recorder = AudioStreamRecorder()
-        self.gemini_manager = GeminiFlashStreamManager(self.audio_recorder)
+        self.gemini_manager = GeminiFlashStreamManager(self.audio_recorder, self)
         self.active_audio_sessions = {}  # websocket -> session_id mapping
 
         self.audio_queues = {}  # websocket -> Queue
@@ -547,7 +709,7 @@ class ConnectionManager:
                     await websocket.send_text(json.dumps({
                         "status": "no_active_audio_session"
                     }))
-            
+                    
         except Exception as e:
             log_message(f"Error handling audio stream: {e}", level="ERROR")
             await websocket.send_text(json.dumps({
@@ -671,6 +833,10 @@ class ConnectionManager:
                 image_b64 = message.get("image")
                 point_cloud = message.get("point_cloud")
                 processor_id = message.get("processor")
+                
+                # Store the last image frame for potential Gemini tool calls
+                if image_b64:
+                    self.gemini_manager.last_frame_by_websocket[websocket] = image_b64
                 
                 if processor_id is not None:
                     response_data = await self.execute_request(
@@ -816,6 +982,7 @@ async def get_processors_info():
             "name": config["name"], 
             "dependencies": config.get("dependencies", []),
             "expects_input": config.get("expects_input", "unknown"),
+            "description": config.get("description", "No description available"),
         }
         for pid, config in PROCESSOR_CONFIG.items()
     ]
