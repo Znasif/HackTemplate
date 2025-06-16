@@ -1,0 +1,72 @@
+{
+  "0": {
+    "host": "127.0.0.1",
+    "port": 8001,
+    "name": "base_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "A simple processor that returns the original image without changes.",
+    "enabled": true
+  },
+  "1": {
+    "host": "127.0.0.1",
+    "port": 8002,
+    "name": "depth_processor",
+    "conda_env": "depth-pro",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Estimates depth from an image.",
+    "enabled": false
+  },
+  "2": {
+    "host": "127.0.0.1",
+    "port": 8003,
+    "name": "dense_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "A processor for creating a dense 3D point cloud visualization from an image.",
+    "enabled": true
+  },
+  "3": {
+    "host": "127.0.0.1",
+    "port": 8004,
+    "name": "aircanvas_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Enables drawing in the air using hand gestures.",
+    "enabled": false
+  },
+  "4": {
+    "host": "127.0.0.1",
+    "port": 8005,
+    "name": "camio_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Provides camera input and output functionalities.",
+    "enabled": false
+  },
+  "5": {
+    "host": "127.0.0.1",
+    "port": 8006,
+    "name": "yolo_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Performs object detection using YOLO.",
+    "enabled": false
+  },
+  "7": {
+    "host": "127.0.0.1",
+    "port": 8008,
+    "name": "mediapipe_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [0],
+    "expects_input": "image",
+    "description": "Utilizes MediaPipe for various vision tasks.",
+    "enabled": false
+  }
+}

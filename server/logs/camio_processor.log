@@ -1,0 +1,34 @@
+Explanation of Changes and How They Help:
+
+cleanupAudioResources() Function:
+
+This new function centralizes the logic for stopping audioStream tracks, nullifying mediaRecorder and audioStream objects, removing event listeners from mediaRecorder, and updating the UI state.
+This ensures that resources are consistently released and state is correctly reset, whether stopping normally, due to an error, or during a restart.
+Promise-based stopAudioStreaming():
+
+Now returns a Promise that resolves when mediaRecorder.onstop is fired. This is crucial because mediaRecorder.stop() is asynchronous.
+It ensures that any subsequent actions (like starting a new recording) only occur after the previous MediaRecorder has fully finished its lifecycle (including firing any final ondataavailable events).
+The audio_stream_stop message to the server is now sent after the local mediaRecorder.onstop event, ensuring the client has finished with the recorder before signaling the server.
+Error handling for the stop process itself is included.
+Improved startAudioStreaming():
+
+More robust checks (e.g., !streamReady || !audioStream) before proceeding.
+Calls cleanupAudioResources() in its main catch block to ensure that if startAudioStreaming fails at any point, resources are properly released.
+mediaRecorder.onstart and mediaRecorder.onerror handlers are kept for better diagnostics.
+Refined restartAudioStreaming():
+
+Uses await stopAudioStreaming() to ensure the previous session is fully stopped.
+A brief setTimeout (e.g., 150ms) is retained after stopping and before starting a new stream. While mediaRecorder.onstop should signal completion, this small delay can act as an extra safeguard for any browser-internal asynchronous operations or resource releases that might not be perfectly synchronized with the onstop event. This is often a pragmatic choice in complex media scenarios.
+Handles the case where audio wasn't streaming by simply starting it.
+Includes error handling for the restart sequence and ensures cleanup if it fails.
+setupAudioStream() Enhancement:
+
+Explicitly sets audioStream = null; before attempting to get a new stream if one already exists, further clarifying the intent to get a completely fresh stream.
+To Implement These Changes:
+
+Replace your existing startAudioStreaming, stopAudioStreaming, restartAudioStreaming, and toggleAudioStreaming functions with the new versions.
+Add the new cleanupAudioResources function.
+Ensure that updateStatus, toggleAudioButton, and ensureWebSocketConnection are correctly defined and accessible in your script.
+The audioInputSelect and videoFeed related lines are kept for context but ensure these elements exist if the functions using them are called.
+By making these changes, you significantly increase the robustness of your client-side audio handling. This should reduce the likelihood of sending corrupted WebM data on subsequent recording attempts, thereby resolving the server-side FFmpeg error and the "no audio heard" issue. Remember to also use the server-side diagnostic improvements (preserving the faulty .webm file) if the problem persists, as this will help pinpoint the nature of any remaining data corruption.
+

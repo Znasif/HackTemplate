@@ -113,10 +113,10 @@ class AudioStreamRecorder:
             
             # Get the complete audio data from buffer
             recording['audio_buffer'].seek(0)
-            webm_data = recording['audio_buffer'].read()
+            pcm_data = recording['audio_buffer'].read()
             
-            # Convert WebM to MP3 using ffmpeg
-            mp3_data = self._convert_webm_to_mp3(webm_data)
+            # Convert PCM to MP3 using ffmpeg
+            mp3_data = self._convert_pcm_to_mp3(pcm_data)
             
             if mp3_data:
                 # Save MP3 file
@@ -129,7 +129,7 @@ class AudioStreamRecorder:
                 log_message(f"  File: {filepath}")
                 log_message(f"  Duration: {duration}")
                 log_message(f"  Total chunks: {recording['chunk_count']}")
-                log_message(f"  Total bytes (WebM): {recording['total_bytes']}")
+                log_message(f"  Total bytes (PCM): {recording['total_bytes']}")
                 log_message(f"  MP3 size: {len(mp3_data)} bytes")
                 
                 # Prepare result with both filepath and audio chunks for streaming
@@ -154,23 +154,26 @@ class AudioStreamRecorder:
             log_message(f"Error stopping recording for session {session_id}: {e}", level="ERROR")
             return None
     
-    def _convert_webm_to_mp3(self, webm_data: bytes) -> Optional[bytes]:
-        """Convert WebM audio data to MP3 using ffmpeg"""
+    def _convert_pcm_to_mp3(self, pcm_data: bytes) -> Optional[bytes]:
+        """Convert raw PCM audio data (s16le, 16kHz, mono) to MP3 using ffmpeg"""
         try:
             # Create temporary files for conversion
-            with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as temp_webm:
-                temp_webm.write(webm_data)
-                temp_webm_path = temp_webm.name
+            with tempfile.NamedTemporaryFile(suffix='.pcm', delete=False) as temp_pcm:
+                temp_pcm.write(pcm_data)
+                temp_pcm_path = temp_pcm.name
             
-            temp_mp3_path = temp_webm_path.replace('.webm', '.mp3')
+            temp_mp3_path = temp_pcm_path.replace('.pcm', '.mp3')
             
-            # Run ffmpeg conversion
+            # Run ffmpeg conversion, specifying input format for raw PCM
             cmd = [
                 'ffmpeg',
-                '-i', temp_webm_path,
+                '-f', 's16le',      # Input format: signed 16-bit little-endian
+                '-ar', '16000',     # Input sample rate
+                '-ac', '1',         # Input channels (mono)
+                '-i', temp_pcm_path,
                 '-acodec', 'mp3',
                 '-ab', '128k',
-                '-ar', '44100',
+                '-ar', '16000',
                 temp_mp3_path,
                 '-y'  # Overwrite output file
             ]
@@ -186,13 +189,13 @@ class AudioStreamRecorder:
                 mp3_data = f.read()
             
             # Clean up temporary files
-            os.unlink(temp_webm_path)
+            os.unlink(temp_pcm_path)
             os.unlink(temp_mp3_path)
             
             return mp3_data
             
         except Exception as e:
-            log_message(f"Error during WebM to MP3 conversion: {e}", level="ERROR")
+            log_message(f"Error during PCM to MP3 conversion: {e}", level="ERROR")
             return None
     
     def get_active_sessions(self) -> List[str]:
@@ -410,7 +413,7 @@ class ConnectionManager:
                 # Cleanup
                 del self.audio_queues[websocket]
                 del self.image_queues[websocket]
-        
+    
     async def message_router(self, websocket: WebSocket, audio_queue: Queue, image_queue: Queue):
         """Route incoming messages to appropriate queues"""
         try:
@@ -564,8 +567,8 @@ class ConnectionManager:
                 new_point_cloud_data_candidate = response["processed_point_cloud"]
                 log_message(f"  {processor_name} provided 'processed_point_cloud'.")
             elif isinstance(node_result_payload, dict) and \
-                 "points" in node_result_payload and \
-                 isinstance(node_result_payload.get("points"), list):
+                    "points" in node_result_payload and \
+                    isinstance(node_result_payload.get("points"), list):
                 new_point_cloud_data_candidate = node_result_payload
                 log_message(f"  {processor_name}'s 'result' is identified as a point cloud.")
             
@@ -698,7 +701,7 @@ exec uvicorn {module_path} --host {config['host']} --port {config['port']} --log
             log_message(f"Started {config['name']} (PID {process.pid}) on {config['host']}:{config['port']}. Log: {log_file_path}")
         except Exception as e:
             log_message(f"Error starting {config['name']}: {str(e)}", level="ERROR")
-        await asyncio.sleep(3)
+    await asyncio.sleep(3)
 
 @app.on_event("startup")
 async def startup_event():
@@ -730,7 +733,7 @@ async def shutdown_event():
             except ProcessLookupError: 
                 log_message(f"PID {process.pid} (PGID/PID {pgid}) already exited.", level="WARNING")
             except Exception as e:
-                 log_message(f"Error terminating PID {process.pid} (PGID/PID {pgid}): {e}", level="ERROR")
+                log_message(f"Error terminating PID {process.pid} (PGID/PID {pgid}): {e}", level="ERROR")
     processor_processes = []
     
     # Clean up shell scripts

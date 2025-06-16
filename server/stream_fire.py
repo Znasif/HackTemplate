@@ -1,7 +1,6 @@
 import subprocess
 import httpx
 import asyncio
-from asyncio import Queue
 import json
 import base64
 import socket
@@ -12,10 +11,6 @@ import wave
 from datetime import datetime
 from typing import List, Dict, Optional, Union, Any
 from pathlib import Path
-from io import BytesIO
-import tempfile
-from gemini_filter import GeminiSemanticFilter
-from dotenv import load_dotenv
 
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,7 +37,7 @@ app.add_middleware(
 PROCESSOR_CONFIG = {
     0: {
         "host": "127.0.0.1", "port": 8001,
-        "name": "base_processor", "conda_env": "whatsai2", "dependencies": [],
+        "name": "flame_processor", "conda_env": "depth-pro", "dependencies": [],
         "expects_input": "image",
     },
     # 1: {
@@ -50,11 +45,11 @@ PROCESSOR_CONFIG = {
     #     "name": "depth_processor", "conda_env": "depth-pro", "dependencies": [],
     #     "expects_input": "image",
     # },
-    2: {
-        "host": "127.0.0.1", "port": 8003,
-        "name": "dense_processor", "conda_env": "whatsai2", "dependencies": [],
-        "expects_input": "image",
-    },
+    # 2: {
+    #     "host": "127.0.0.1", "port": 8003,
+    #     "name": "dense_processor", "conda_env": "whatsai2", "dependencies": [],
+    #     "expects_input": "image",
+    # },
     # 3: {
     #     "host": "127.0.0.1", "port": 8004,
     #     "name": "aircanvas_processor", "conda_env": "whatsai2", "dependencies": [],
@@ -81,7 +76,7 @@ def log_message(message: str, level: str = "INFO"):
     print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] {message}")
 
 class AudioStreamRecorder:
-    """Handles recording of streaming audio chunks in memory and conversion to MP3"""
+    """Handles recording of streaming audio chunks to a file"""
     
     def __init__(self, output_dir: str = "audio_recordings"):
         self.output_dir = Path(output_dir)
@@ -89,38 +84,41 @@ class AudioStreamRecorder:
         self.active_recordings = {}  # session_id -> recording_info
         
     def start_recording(self, session_id: str) -> str:
-        """Start a new audio recording session (in memory)"""
+        """Start a new audio recording session"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"audio_stream_{session_id}_{timestamp}.mp3"
+        filename = f"audio_stream_{session_id}_{timestamp}.webm"
         filepath = self.output_dir / filename
         
-        self.active_recordings[session_id] = {
-            'filepath': filepath,
-            'filename': filename,
-            'audio_buffer': BytesIO(),  # Store audio in memory
-            'start_time': datetime.now(),
-            'chunk_count': 0,
-            'total_bytes': 0,
-            'audio_chunks': []  # Store individual chunks for streaming back
-        }
-        
-        log_message(f"Started audio recording session {session_id} (in memory)")
-        return str(filepath)
+        try:
+            # Open file for binary writing
+            file_handle = open(filepath, 'wb')
+            
+            self.active_recordings[session_id] = {
+                'filepath': filepath,
+                'filename': filename,
+                'file_handle': file_handle,
+                'start_time': datetime.now(),
+                'chunk_count': 0,
+                'total_bytes': 0
+            }
+            
+            log_message(f"Started audio recording for session {session_id}: {filename}")
+            return str(filepath)
+            
+        except Exception as e:
+            log_message(f"Error starting recording for session {session_id}: {e}", level="ERROR")
+            return None
     
     def add_audio_chunk(self, session_id: str, audio_data: bytes) -> bool:
-        """Add an audio chunk to the in-memory buffer"""
+        """Add an audio chunk to the recording"""
         if session_id not in self.active_recordings:
             log_message(f"No active recording session: {session_id}", level="WARNING")
             return False
             
         try:
             recording = self.active_recordings[session_id]
-            
-            # Write to memory buffer
-            recording['audio_buffer'].write(audio_data)
-            
-            # Store chunk for streaming back
-            recording['audio_chunks'].append(audio_data)
+            recording['file_handle'].write(audio_data)
+            recording['file_handle'].flush()  # Ensure data is written immediately
             
             recording['chunk_count'] += 1
             recording['total_bytes'] += len(audio_data)
@@ -132,8 +130,8 @@ class AudioStreamRecorder:
             log_message(f"Error adding audio chunk to session {session_id}: {e}", level="ERROR")
             return False
     
-    def stop_recording_and_convert(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """Stop recording, convert to MP3, and prepare for streaming back"""
+    def stop_recording(self, session_id: str) -> Optional[str]:
+        """Stop recording and close the file"""
         if session_id not in self.active_recordings:
             log_message(f"No active recording for session {session_id}", level="WARNING")
             return None
@@ -142,88 +140,24 @@ class AudioStreamRecorder:
             recording = self.active_recordings[session_id]
             filepath = recording['filepath']
             
-            # Get the complete audio data from buffer
-            recording['audio_buffer'].seek(0)
-            webm_data = recording['audio_buffer'].read()
+            # Close the file handle
+            recording['file_handle'].close()
             
-            # Convert WebM to MP3 using ffmpeg
-            mp3_data = self._convert_webm_to_mp3(webm_data)
+            # Log recording statistics
+            duration = datetime.now() - recording['start_time']
+            log_message(f"Stopped audio recording for session {session_id}")
+            log_message(f"  File: {filepath}")
+            log_message(f"  Duration: {duration}")
+            log_message(f"  Total chunks: {recording['chunk_count']}")
+            log_message(f"  Total bytes: {recording['total_bytes']}")
             
-            if mp3_data:
-                # Save MP3 file
-                with open(filepath, 'wb') as f:
-                    f.write(mp3_data)
-                
-                # Log recording statistics
-                duration = datetime.now() - recording['start_time']
-                log_message(f"Stopped audio recording for session {session_id}")
-                log_message(f"  File: {filepath}")
-                log_message(f"  Duration: {duration}")
-                log_message(f"  Total chunks: {recording['chunk_count']}")
-                log_message(f"  Total bytes (WebM): {recording['total_bytes']}")
-                log_message(f"  MP3 size: {len(mp3_data)} bytes")
-                
-                # Prepare result with both filepath and audio chunks for streaming
-                result = {
-                    'filepath': str(filepath),
-                    'audio_chunks': recording['audio_chunks'],  # Original chunks to stream back
-                    'mp3_data': mp3_data,  # Converted MP3 data
-                    'total_chunks': recording['chunk_count'],
-                    'duration': str(duration)
-                }
-                
-                # Clean up
-                recording['audio_buffer'].close()
-                del self.active_recordings[session_id]
-                
-                return result
-            else:
-                log_message(f"Failed to convert audio to MP3 for session {session_id}", level="ERROR")
-                return None
-                
+            # Clean up
+            del self.active_recordings[session_id]
+            
+            return str(filepath)
+            
         except Exception as e:
             log_message(f"Error stopping recording for session {session_id}: {e}", level="ERROR")
-            return None
-    
-    def _convert_webm_to_mp3(self, webm_data: bytes) -> Optional[bytes]:
-        """Convert WebM audio data to MP3 using ffmpeg"""
-        try:
-            # Create temporary files for conversion
-            with tempfile.NamedTemporaryFile(suffix='.webm', delete=False) as temp_webm:
-                temp_webm.write(webm_data)
-                temp_webm_path = temp_webm.name
-            
-            temp_mp3_path = temp_webm_path.replace('.webm', '.mp3')
-            
-            # Run ffmpeg conversion
-            cmd = [
-                'ffmpeg',
-                '-i', temp_webm_path,
-                '-acodec', 'mp3',
-                '-ab', '128k',
-                '-ar', '44100',
-                temp_mp3_path,
-                '-y'  # Overwrite output file
-            ]
-            
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            
-            if result.returncode != 0:
-                log_message(f"FFmpeg conversion failed: {result.stderr}", level="ERROR")
-                return None
-            
-            # Read the converted MP3
-            with open(temp_mp3_path, 'rb') as f:
-                mp3_data = f.read()
-            
-            # Clean up temporary files
-            os.unlink(temp_webm_path)
-            os.unlink(temp_mp3_path)
-            
-            return mp3_data
-            
-        except Exception as e:
-            log_message(f"Error during WebM to MP3 conversion: {e}", level="ERROR")
             return None
     
     def get_active_sessions(self) -> List[str]:
@@ -234,7 +168,7 @@ class AudioStreamRecorder:
         """Clean up a session without proper stop (e.g., on disconnect)"""
         if session_id in self.active_recordings:
             try:
-                self.active_recordings[session_id]['audio_buffer'].close()
+                self.active_recordings[session_id]['file_handle'].close()
                 del self.active_recordings[session_id]
                 log_message(f"Cleaned up recording session {session_id}")
             except Exception as e:
@@ -250,18 +184,12 @@ class ConnectionManager:
         self.audio_recorder = AudioStreamRecorder()
         self.active_audio_sessions = {}  # websocket -> session_id mapping
 
-        self.audio_queues = {}  # websocket -> Queue
-        self.image_queues = {}
-
         # Instance variables reset for each execute_request call
         self.current_image_for_processing: Optional[str] = None
         self.current_point_cloud_for_processing: Optional[Dict] = None
         self.final_image_to_client: Optional[str] = None
         self.final_result_to_client: Union[str, Dict, None] = None
         self.target_processor_id_for_current_request: Optional[int] = None
-
-        load_dotenv()
-        self.semantic_filter = GeminiSemanticFilter()
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -326,39 +254,14 @@ class ConnectionManager:
                 # Handle stop audio streaming
                 session_id = self.active_audio_sessions.get(websocket)
                 if session_id:
-                    result = self.audio_recorder.stop_recording_and_convert(session_id)
+                    filepath = self.audio_recorder.stop_recording(session_id)
                     del self.active_audio_sessions[websocket]
                     
-                    if result:
-                        # First send the completion status
-                        await websocket.send_text(json.dumps({
-                            "status": "audio_recording_stopped",
-                            "session_id": session_id,
-                            "filepath": result['filepath'],
-                            "total_chunks": result['total_chunks'],
-                            "duration": result['duration'],
-                            "streaming_back": True
-                        }))
-                        
-                        # Now stream the audio chunks back to the client
-                        for i, chunk in enumerate(result['audio_chunks']):
-                            chunk_b64 = base64.b64encode(chunk).decode('utf-8')
-                            await websocket.send_text(json.dumps({
-                                "type": "audio_stream_playback",
-                                "audio_chunk": chunk_b64,
-                                "chunk_index": i,
-                                "total_chunks": result['total_chunks'],
-                                "is_last_chunk": i == len(result['audio_chunks']) - 1
-                            }))
-                            
-                            # Small delay to prevent overwhelming the client
-                            await asyncio.sleep(0.01)
-                        
-                        log_message(f"Finished streaming {len(result['audio_chunks'])} chunks back to client")
-                    else:
-                        await websocket.send_text(json.dumps({
-                            "error": "Failed to process audio recording"
-                        }))
+                    await websocket.send_text(json.dumps({
+                        "status": "audio_recording_stopped",
+                        "session_id": session_id,
+                        "filepath": filepath
+                    }))
                 else:
                     await websocket.send_text(json.dumps({
                         "status": "no_active_audio_session"
@@ -374,10 +277,9 @@ class ConnectionManager:
         """Stop audio recording for a websocket connection"""
         session_id = self.active_audio_sessions.get(websocket)
         if session_id:
-            # Just cleanup without converting/streaming since this is called on disconnect
-            self.audio_recorder.cleanup_session(session_id)
+            filepath = self.audio_recorder.stop_recording(session_id)
             del self.active_audio_sessions[websocket]
-            return session_id
+            return filepath
         return None
 
     async def _call_processor(self, processor_id: int, processor_config: Dict, input_payload: Dict) -> Dict:
@@ -405,113 +307,6 @@ class ConnectionManager:
             error_msg = f"Error during call to {processor_name}: {str(e)}."
             log_message(f"{error_msg} Traceback: {traceback.format_exc()}", level="ERROR")
             return {"error": error_msg, "detail": "An unexpected error occurred."}
-
-    async def handle_websocket_with_parallel_processing(self, websocket: WebSocket):
-            """Handle both audio and image processing in parallel"""
-            
-            # Create queues for this connection
-            audio_queue = Queue()
-            image_queue = Queue()
-            self.audio_queues[websocket] = audio_queue
-            self.image_queues[websocket] = image_queue
-            
-            # Create parallel tasks
-            audio_task = asyncio.create_task(
-                self.audio_processor_task(websocket, audio_queue)
-            )
-            image_task = asyncio.create_task(
-                self.image_processor_task(websocket, image_queue)
-            )
-            message_router_task = asyncio.create_task(
-                self.message_router(websocket, audio_queue, image_queue)
-            )
-            
-            try:
-                # Wait for any task to complete (likely due to disconnect)
-                done, pending = await asyncio.wait(
-                    [audio_task, image_task, message_router_task],
-                    return_when=asyncio.FIRST_COMPLETED
-                )
-                
-                # Cancel remaining tasks
-                for task in pending:
-                    task.cancel()
-                    
-            finally:
-                # Cleanup
-                del self.audio_queues[websocket]
-                del self.image_queues[websocket]
-        
-    async def message_router(self, websocket: WebSocket, audio_queue: Queue, image_queue: Queue):
-        """Route incoming messages to appropriate queues"""
-        try:
-            while True:
-                received_payload_str = await websocket.receive_text()
-                client_request = json.loads(received_payload_str)
-                
-                if 'type' in client_request and client_request['type'].startswith('audio_stream'):
-                    await audio_queue.put(client_request)
-                else:
-                    await image_queue.put(client_request)
-                    
-        except WebSocketDisconnect:
-            # Signal other tasks to stop
-            await audio_queue.put(None)
-            await image_queue.put(None)
-            raise
-
-    async def audio_processor_task(self, websocket: WebSocket, queue: Queue):
-        """Dedicated task for processing audio messages"""
-        while True:
-            message = await queue.get()
-            if message is None:  # Shutdown signal
-                break
-                
-            try:
-                await self.handle_audio_stream(websocket, message)
-            except Exception as e:
-                log_message(f"Error in audio processor: {e}", level="ERROR")
-
-    async def image_processor_task(self, websocket: WebSocket, queue: Queue):
-        """Dedicated task for processing image/processor messages"""
-        while True:
-            # Get frame data from queue
-            message = await queue.get()
-            
-            if message is None:  # Shutdown signal
-                break
-            try:
-                # Process the frame
-                image_b64 = message.get("image")
-                point_cloud = message.get("point_cloud")
-                processor_id = message.get("processor")
-                
-                if processor_id is not None:
-                    response_data = await self.execute_request(
-                        processor_id, image_b64, point_cloud
-                    )
-                    # Apply semantic filtering to text responses
-                    if isinstance(response_data, dict) and "text" in response_data and isinstance(response_data["text"], str):
-                        print("--------------------------FUCKDUCX")
-                        has_change, filtered_text = await self.semantic_filter.filter_response(response_data["text"])
-                        
-                        if not has_change:
-                            # No meaningful change - skip sending response
-                            log_message("No semantic change detected, skipping response")
-                            continue
-                        
-                        # Update result with filtered text
-                        response_data["text"] = filtered_text
-                    else:
-                        log_message("Didn't go through Gemini")
-                    await websocket.send_text(json.dumps(response_data))
-                
-            except Exception as e:
-                log_message(f"Error in image processor: {e}", level="ERROR")
-                # Send error response
-                await websocket.send_text(json.dumps({
-                    "error": f"Processing error: {str(e)}"
-                }))
 
     async def execute_request(self, target_processor_id: int, initial_image_b64: Optional[str], initial_point_cloud_json: Optional[Dict] = None) -> Dict:
         self.current_image_for_processing = initial_image_b64
@@ -657,13 +452,87 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     log_message("WebSocket connection opened.")
     
+    if not PROCESSOR_CONFIG:
+        log_message("PROCESSOR_CONFIG is empty. Websocket may not function correctly.", level="ERROR")
+
     try:
-        # Use parallel processing handler
-        await manager.handle_websocket_with_parallel_processing(websocket)
+        while True:
+            received_payload_str = await websocket.receive_text()
+            log_message(f"Received from client: {received_payload_str[:200]}")
+
+            try:
+                client_request = json.loads(received_payload_str)
+                
+                # Check if this is audio streaming data
+                if 'type' in client_request and client_request['type'].startswith('audio_stream'):
+                    await manager.handle_audio_stream(websocket, client_request)
+                    continue
+                
+                # Handle existing image/video processing logic
+                image_b64_from_client = client_request.get("image")
+                point_cloud_from_client = client_request.get("point_cloud")
+                target_processor_id = client_request.get("processor")
+
+                if target_processor_id is None:
+                    await websocket.send_text(json.dumps({
+                        "error": "Client must specify a 'processor' ID.", 
+                        "text": "Processor ID missing."
+                    }))
+                    continue
+                
+                if not isinstance(target_processor_id, int) or PROCESSOR_CONFIG.get(target_processor_id) is None:
+                    await websocket.send_text(json.dumps({
+                        "error": f"Invalid 'processor' ID: {target_processor_id}.", 
+                        "text": "Invalid processor ID."
+                    }))
+                    continue
+                
+                if not image_b64_from_client and not point_cloud_from_client:
+                    await websocket.send_text(json.dumps({
+                        "error": "No 'image' or 'point_cloud' data provided.", 
+                        "text": "Input data missing."
+                    }))
+                    continue
+
+                # Call the existing execution logic
+                response_data = await manager.execute_request(
+                    target_processor_id, 
+                    image_b64_from_client, 
+                    point_cloud_from_client
+                )
+                
+                await websocket.send_text(json.dumps(response_data))
+                text_summary = str(response_data.get("text", ""))[:100]
+                log_message(f"Response for target processor {target_processor_id} sent. Text summary: {text_summary}")
+
+            except json.JSONDecodeError:
+                log_message("Invalid JSON received from client.", level="ERROR")
+                await websocket.send_text(json.dumps({
+                    "error": "Invalid JSON payload.", 
+                    "text": "Bad request."
+                }))
+            except Exception as e:
+                import traceback
+                tb_str = traceback.format_exc()
+                log_message(f"Error processing client request: {str(e)}\n{tb_str}", level="CRITICAL")
+                try:
+                    await websocket.send_text(json.dumps({
+                        "error": f"Server error: {str(e)}", 
+                        "text": "Server error."
+                    }))
+                except Exception as ws_send_err:
+                     log_message(f"Could not send error to client: {ws_send_err}", level="ERROR")
+
     except WebSocketDisconnect:
         log_message("WebSocket connection closed by client.")
+        # Stop any active audio recording
+        filepath = manager.stop_audio_recording(websocket)
+        if filepath:
+            log_message(f"Stopped audio recording on disconnect: {filepath}")
     except Exception as e:
-        log_message(f"Unhandled error: {e}", level="CRITICAL")
+        import traceback
+        tb_str = traceback.format_exc()
+        log_message(f"Unhandled error in WebSocket connection: {str(e)}\n{tb_str}", level="CRITICAL")
     finally:
         manager.disconnect(websocket)
         log_message("WebSocket connection resources cleaned up.")
