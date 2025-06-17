@@ -1,7 +1,7 @@
 from .base_processor import BaseProcessor
 from transformers import AutoProcessor, AutoModelForCausalLM
 import numpy as np
-import cv2
+import cv2, os
 from typing import Dict, Union, Tuple, List, Optional
 from PIL import Image
 import torch
@@ -34,7 +34,8 @@ class SceneProcessor(BaseProcessor):
         self.min_confidence = min_confidence
         self.enable_layout_analysis = enable_layout_analysis
         self.font = cv2.freetype.createFreeType2()
-        self.font.loadFontData("/home/znasif/vidServer/server/models/AtkinsonHyperlegible-Regular.ttf", 0)
+        font_path = os.path.join(os.path.dirname(__file__), "..", "models", "AtkinsonHyperlegible-Regular.ttf")
+        self.font.loadFontData(font_path, 0)
 
     def _run_florence(self, image):
         """

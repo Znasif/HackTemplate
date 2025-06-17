@@ -1,6 +1,6 @@
 from .base_processor import BaseProcessor
 import numpy as np
-import cv2
+import cv2, os
 from PIL import Image
 import torch
 from groq import Groq
@@ -36,7 +36,8 @@ class GroqProcessor(BaseProcessor):
         self.min_confidence = min_confidence
         self.enable_layout_analysis = enable_layout_analysis
         self.font = cv2.freetype.createFreeType2()
-        self.font.loadFontData("/home/znasif/vidServer/server/models/AtkinsonHyperlegible-Regular.ttf", 0)
+        font_path = os.path.join(os.path.dirname(__file__), "..", "models", "AtkinsonHyperlegible-Regular.ttf")
+        self.font.loadFontData(font_path, 0)
         
         # Flag to track if a request is in progress
         self.is_processing = False

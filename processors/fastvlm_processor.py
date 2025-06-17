@@ -40,7 +40,8 @@ class FastVLMProcessor(BaseProcessor):
         self.model_size = model_size
         self.device = 'cuda' if use_gpu and torch.cuda.is_available() else 'cpu'
         self.font = cv2.freetype.createFreeType2()
-        self.font.loadFontData("/home/znasif/vidServer/server/models/AtkinsonHyperlegible-Regular.ttf", 0)
+        font_path = os.path.join(os.path.dirname(__file__), "..", "models", "AtkinsonHyperlegible-Regular.ttf")
+        self.font.loadFontData(font_path, 0)
         
         # Load the model and tokenizer
         self._load_model()

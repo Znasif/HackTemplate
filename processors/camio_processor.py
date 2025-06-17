@@ -34,7 +34,7 @@ class MapIOProcessor(BaseProcessor):
         else:
             print(f"No map parameters file found at {filename}")
             raise FileNotFoundError(f"Could not find model file: {filename}")
-        filename="../client/street_map_Market.json"
+        filename="./models/street_map_Market.json"
         
         if os.path.isfile(filename):
             with open(filename, 'r') as f:

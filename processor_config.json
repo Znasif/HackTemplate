@@ -17,7 +17,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "A processor for creating a dense 3D point cloud visualization from an image.",
-    "enabled": false
+    "enabled": true
   },
   "2": {
     "host": "127.0.0.1",
@@ -37,7 +37,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "Enables drawing in the air using hand gestures.",
-    "enabled": false
+    "enabled": true
   },
   "4": {
     "host": "127.0.0.1",
@@ -47,7 +47,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "Provides fine camera input and output functionalities to learn about curated objects.",
-    "enabled": false
+    "enabled": true
   },
   "5": {
     "host": "127.0.0.1",
@@ -57,7 +57,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "Performs object detection using YOLO.",
-    "enabled": false
+    "enabled": true
   },
   "7": {
     "host": "127.0.0.1",
@@ -67,6 +67,6 @@
     "dependencies": [0],
     "expects_input": "image",
     "description": "Utilizes MediaPipe for detecting hand gestures.",
-    "enabled": false
+    "enabled": true
   }
 }

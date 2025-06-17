@@ -1,4 +1,4 @@
 models/
 processors/__pycache__/
 __pycache__/
-server/.env
+.env
