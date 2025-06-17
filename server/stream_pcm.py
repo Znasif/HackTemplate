@@ -19,8 +19,8 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 
-from google import genai
-from google.genai import types
+from audio_processors.sonic_processor import SonicStreamManager
+
 
 app = FastAPI()
 
@@ -38,9 +38,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Gemini configuration constants
-MODEL = "models/gemini-2.0-flash-live-001"
 
 def load_config(path: str) -> dict:
     with open(path, 'r') as f:
@@ -212,394 +209,6 @@ class AudioStreamRecorder:
             except Exception as e:
                 log_message(f"Error cleaning up session {session_id}: {e}", level="ERROR")
 
-class GeminiFlashStreamManager:
-    def __init__(self, audio_recorder, connection_manager):
-        """Initialize the Gemini Flash Stream Manager.
-        
-        Args:
-            audio_recorder: Instance of AudioStreamRecorder to store audio chunks.
-            connection_manager: Reference to ConnectionManager for processor execution
-        """
-        self.audio_recorder = audio_recorder
-        self.connection_manager = connection_manager
-        self.active_sessions = {}  # WebSocket -> session info
-        self.last_frame_by_websocket = {}  # Store last image frame from each websocket
-        load_dotenv()
-        self.gemini_client = genai.Client(
-            http_options={"api_version": "v1beta"},
-            api_key=os.environ.get("GEMINI_API_KEY"),
-        )
-        
-        # Create processor descriptions for tool calling
-        self.processor_descriptions = self._generate_processor_descriptions()
-        
-        # Define tool functions
-        self.tools = [types.Tool(function_declarations=[
-            types.FunctionDeclaration(
-                name="execute_processor",
-                description="Execute a specific processor to handle image/video processing tasks",
-                parameters=types.Schema(
-                    type="OBJECT",
-                    properties={
-                        "processor_id": types.Schema(
-                            type="INTEGER",
-                            description="The ID of the processor to execute"
-                        ),
-                        "reason": types.Schema(
-                            type="STRING",
-                            description="Brief explanation of why this processor was chosen"
-                        )
-                    },
-                    required=["processor_id", "reason"]
-                )
-            ),
-            types.FunctionDeclaration(
-                name="list_available_processors",
-                description="List all available processors with their descriptions",
-                parameters=types.Schema(type="OBJECT", properties={})
-            )
-        ])]
-        
-        # Update Gemini configuration with tools
-        self.config = types.LiveConnectConfig(
-            response_modalities=["AUDIO"],
-            media_resolution="MEDIA_RESOLUTION_MEDIUM",
-            speech_config=types.SpeechConfig(
-                language_code="en-US",
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name="Puck")
-                )
-            ),
-            context_window_compression=types.ContextWindowCompressionConfig(
-                trigger_tokens=25600,
-                sliding_window=types.SlidingWindow(target_tokens=12800),
-            ),
-            tools=self.tools,
-            system_instruction=self._create_system_instruction()
-        )
-    
-    def _generate_processor_descriptions(self) -> str:
-        """Generate a description of all available processors"""
-        descriptions = []
-        for proc_id, config in PROCESSOR_CONFIG.items():
-            desc = f"Processor {proc_id}: {config['name']}"
-            if 'description' in config:
-                desc += f" - {config['description']}"
-            if 'dependencies' in config and config['dependencies']:
-                desc += f" (depends on: {', '.join(map(str, config['dependencies']))})"
-            descriptions.append(desc)
-        return "\n".join(descriptions)
-    
-    def _create_system_instruction(self) -> str:
-        """Create system instruction for Gemini including processor information"""
-        return f"""You are a helpful AI assistant with access to various image and video processing capabilities.
-
-When a user asks you to perform a task related to image or video processing, you should:
-1. Analyze their request to understand what they want to accomplish
-2. Check if any of the available processors match their needs
-3. If a matching processor is found, use the execute_processor function to run it
-4. If no processor matches, inform the user that the requested capability is not available
-
-Available processors:
-{self.processor_descriptions}
-
-You can also use the list_available_processors function if the user asks what processors are available.
-Do not ask clarifying questions and keep your responses short."""
-        
-    def log_message(self, message: str, level: str = "INFO"):
-        """Log messages with timestamp and level."""
-        print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] GeminiFlashStreamManager: {message}")
-
-    async def start_session(self, websocket: WebSocket, session_id: str):
-        """Start a Gemini streaming session for a WebSocket connection.
-        
-        Args:
-            websocket: WebSocket connection.
-            session_id: Unique session ID for audio streaming.
-        """
-        try:
-            # Initialize session data
-            self.active_sessions[websocket] = {
-                'session_id': session_id,
-                'audio_in_queue': Queue(),
-                'out_queue': Queue(maxsize=5),
-                'gemini_session': None,
-                'tasks': [],
-                'gemini_audio_responses': [],  # Store Gemini audio responses
-                'websocket': websocket,  # Store websocket reference for tool execution
-            }
-            
-            session_data = self.active_sessions[websocket]
-            
-            # Start Gemini live session
-            async with self.gemini_client.aio.live.connect(model=MODEL, config=self.config) as gemini_session:
-                session_data['gemini_session'] = gemini_session
-                
-                # Create tasks for concurrent processing
-                async with asyncio.TaskGroup() as tg:
-                    session_data['tasks'] = [
-                        tg.create_task(self.send_audio_to_gemini(websocket)),
-                        tg.create_task(self.receive_audio_from_gemini(websocket)),
-                        tg.create_task(self.play_audio_to_client(websocket)),
-                    ]
-                    
-                    self.log_message(f"Started Gemini streaming session for {session_id}")
-                    
-                    # Keep session alive until stopped
-                    await asyncio.Event().wait()
-                    
-        except Exception as e:
-            self.log_message(f"Error starting session {session_id}: {e}", level="ERROR")
-            await websocket.send_text(json.dumps({
-                "error": f"Failed to start Gemini streaming: {str(e)}"
-            }))
-        finally:
-            await self.cleanup_session(websocket)
-
-    async def send_audio_to_gemini(self, websocket: WebSocket):
-        """Send audio chunks to Gemini Flash."""
-        session_data = self.active_sessions.get(websocket)
-        if not session_data or not session_data['gemini_session']:
-            return
-            
-        out_queue = session_data['out_queue']
-        while True:
-            try:
-                msg = await out_queue.get()
-                if msg is None:
-                    break
-                await session_data['gemini_session'].send(input=msg)
-                self.log_message(f"Sent audio chunk to Gemini")
-            except Exception as e:
-                self.log_message(f"Error sending audio to Gemini: {e}", level="ERROR")
-
-    async def receive_audio_from_gemini(self, websocket: WebSocket):
-        """Receive audio and text responses from Gemini Flash."""
-        session_data = self.active_sessions.get(websocket)
-        if not session_data or not session_data['gemini_session']:
-            return
-            
-        audio_in_queue = session_data['audio_in_queue']
-        while True:
-            try:
-                turn = session_data['gemini_session'].receive()
-                async for response in turn:
-                    if data := response.data:
-                        # Store audio response for playback after stop
-                        session_data['gemini_audio_responses'].append(data)
-                        await audio_in_queue.put(data)
-                        continue
-                    if text := response.text:
-                        self.log_message(f"Gemini text response: {text}")
-                        await websocket.send_text(json.dumps({
-                            "type": "gemini_text_response",
-                            "text": text
-                        }))
-                    # Handle tool calls
-                    if hasattr(response, 'function_calls') and response.function_calls:
-                        for func_call in response.function_calls:
-                            await self.handle_tool_call(websocket, func_call)
-                            
-                # Clear audio queue on turn completion to handle interruptions
-                self.log_message(f"Received audio back from Gemini, clearing audio queue")
-                while not audio_in_queue.empty():
-                    audio_in_queue.get_nowait()
-            except Exception as e:
-                self.log_message(f"Error receiving audio from Gemini: {e}", level="ERROR")
-
-    async def handle_tool_call(self, websocket: WebSocket, func_call):
-        """Handle tool function calls from Gemini"""
-        try:
-            func_name = func_call.name
-            func_args = func_call.args
-            
-            self.log_message(f"Handling tool call: {func_name} with args: {func_args}")
-            
-            if func_name == "execute_processor":
-                processor_id = func_args.get("processor_id")
-                reason = func_args.get("reason", "No reason provided")
-                
-                # Get the last frame sent by this client
-                last_frame = self.last_frame_by_websocket.get(websocket)
-                
-                if not last_frame:
-                    error_msg = "No image frame available from client to process"
-                    self.log_message(error_msg, level="WARNING")
-                    await websocket.send_text(json.dumps({
-                        "type": "processor_error",
-                        "error": error_msg,
-                        "processor_id": processor_id
-                    }))
-                    return
-                
-                # Notify client that processor is being executed
-                await websocket.send_text(json.dumps({
-                    "type": "processor_execution_started",
-                    "processor_id": processor_id,
-                    "reason": reason
-                }))
-                
-                # Execute the processor using the existing execute_request method
-                try:
-                    response_data = await self.connection_manager.execute_request(
-                        processor_id, last_frame, None
-                    )
-                    
-                    # Send results back to client
-                    await websocket.send_text(json.dumps({
-                        "type": "processor_result",
-                        "processor_id": processor_id,
-                        "result": response_data
-                    }))
-                    
-                    # Send text response through Gemini audio if result contains text
-                    if isinstance(response_data, dict) and "text" in response_data:
-                        result_text = f"Processing complete. {response_data['text']}"
-                        # Send this as input to Gemini to generate audio response
-                        session_data = self.active_sessions.get(websocket)
-                        if session_data and session_data['gemini_session']:
-                            await session_data['gemini_session'].send(input=result_text, end_of_turn=True)
-                    
-                except Exception as e:
-                    self.log_message(f"Error executing processor {processor_id}: {e}", level="ERROR")
-                    await websocket.send_text(json.dumps({
-                        "type": "processor_error",
-                        "error": f"Processor execution failed: {str(e)}",
-                        "processor_id": processor_id
-                    }))
-                
-            elif func_name == "list_available_processors":
-                # Send list of processors to client
-                processors_info = []
-                for proc_id, config in PROCESSOR_CONFIG.items():
-                    info = {
-                        "id": proc_id,
-                        "name": config["name"],
-                        "description": config.get("description", "No description available"),
-                        "dependencies": config.get("dependencies", []),
-                        "expects_input": config.get("expects_input", "unknown")
-                    }
-                    processors_info.append(info)
-                
-                await websocket.send_text(json.dumps({
-                    "type": "available_processors",
-                    "processors": processors_info
-                }))
-                
-                # Generate audio response about available processors
-                response_text = f"I have {len(processors_info)} processors available. " + self.processor_descriptions
-                session_data = self.active_sessions.get(websocket)
-                if session_data and session_data['gemini_session']:
-                    await session_data['gemini_session'].send(input=response_text, end_of_turn=True)
-                
-        except Exception as e:
-            self.log_message(f"Error handling tool call: {e}", level="ERROR")
-            await websocket.send_text(json.dumps({
-                "error": f"Tool execution error: {str(e)}"
-            }))
-
-    async def play_audio_to_client(self, websocket: WebSocket):
-        """Stream Gemini audio responses to the client in real-time."""
-        session_data = self.active_sessions.get(websocket)
-        if not session_data:
-            return
-            
-        audio_in_queue = session_data['audio_in_queue']
-        while True:
-            try:
-                bytestream = await audio_in_queue.get()
-                chunk_b64 = base64.b64encode(bytestream).decode('utf-8')
-                await websocket.send_text(json.dumps({
-                    "type": "gemini_audio_response",
-                    "audio_chunk": chunk_b64
-                }))
-                self.log_message(f"Streaming back to client: {len(bytestream)} bytes")
-            except Exception as e:
-                self.log_message(f"Error streaming audio to client: {e}", level="ERROR")
-
-    async def handle_audio_chunk(self, websocket: WebSocket, audio_chunk_b64: str, session_id: str):
-        """Process an incoming audio chunk, storing it and sending to Gemini.
-        
-        Args:
-            websocket: WebSocket connection.
-            audio_chunk_b64: Base64-encoded audio chunk.
-            session_id: Session ID for audio recording.
-        """
-        try:
-            # Decode audio chunk
-            audio_bytes = base64.b64decode(audio_chunk_b64)
-            
-            # Store in recorder
-            success = self.audio_recorder.add_audio_chunk(session_id, audio_bytes)
-            if not success:
-                await websocket.send_text(json.dumps({
-                    "error": "Failed to save audio chunk in recorder"
-                }))
-                return
-                
-            # Send to Gemini if session is active
-            if websocket in self.active_sessions:
-                session_data = self.active_sessions[websocket]
-                await session_data['out_queue'].put({
-                    "data": audio_bytes,
-                    "mime_type": "audio/pcm"
-                })
-                
-        except Exception as e:
-            self.log_message(f"Error handling audio chunk: {e}", level="ERROR")
-            await websocket.send_text(json.dumps({
-                "error": f"Audio chunk processing error: {str(e)}"
-            }))
-
-    async def stop_session(self, websocket: WebSocket) -> Optional[Dict[str, Any]]:
-        """Stop the Gemini streaming session and return recording results and Gemini audio responses.
-        
-        Args:
-            websocket: WebSocket connection.
-            
-        Returns:
-            Dictionary with recording results and Gemini audio responses, if available.
-        """
-        session_id = self.active_sessions.get(websocket, {}).get('session_id')
-        if session_id:
-            # Stop recording and get results
-            recording_result = self.audio_recorder.stop_recording_and_convert(session_id)
-            session_data = self.active_sessions.get(websocket, {})
-            result = {
-                'recording': recording_result,
-                'gemini_audio_responses': session_data.get('gemini_audio_responses', []),
-            }
-            await self.cleanup_session(websocket)
-            return result
-        return None
-
-    async def cleanup_session(self, websocket: WebSocket):
-        """Clean up a Gemini streaming session.
-        
-        Args:
-            websocket: WebSocket connection.
-        """
-        if websocket in self.active_sessions:
-            session_data = self.active_sessions[websocket]
-            
-            # Cancel all tasks
-            for task in session_data['tasks']:
-                task.cancel()
-                
-            # Close Gemini session (handled by context manager)
-            session_data['gemini_session'] = None
-            
-            # Clean up recording
-            if session_data['session_id']:
-                self.audio_recorder.cleanup_session(session_data['session_id'])
-                
-            del self.active_sessions[websocket]
-            self.log_message(f"Cleaned up Gemini session for {session_data['session_id']}")
-        
-        # Also clean up stored frame
-        if websocket in self.last_frame_by_websocket:
-            del self.last_frame_by_websocket[websocket]
-
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -608,7 +217,7 @@ class ConnectionManager:
         
         # Audio recording components
         self.audio_recorder = AudioStreamRecorder()
-        self.gemini_manager = GeminiFlashStreamManager(self.audio_recorder, self)
+        self.sonic_manager = SonicStreamManager(self.audio_recorder, self)
         self.active_audio_sessions = {}  # websocket -> session_id mapping
 
         self.audio_queues = {}  # websocket -> Queue
@@ -631,7 +240,7 @@ class ConnectionManager:
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
         
-        # Clean up any active audio recording and Gemini session
+        # Clean up any active audio recording and AI session
         self.stop_audio_recording(websocket)
 
     async def handle_audio_stream(self, websocket: WebSocket, message_data: Dict[str, Any]):
@@ -654,8 +263,8 @@ class ConnectionManager:
                     filepath = self.audio_recorder.start_recording(session_id)
                     
                     if filepath:
-                        # Start Gemini streaming session
-                        asyncio.create_task(self.gemini_manager.start_session(websocket, session_id))
+                        # Start sonic streaming session
+                        asyncio.create_task(self.sonic_manager.start_session(websocket, session_id))
                         await websocket.send_text(json.dumps({
                             "status": "audio_recording_started",
                             "session_id": session_id,
@@ -667,14 +276,14 @@ class ConnectionManager:
                         }))
                         return
                 
-                # Process audio chunk through Gemini manager
-                await self.gemini_manager.handle_audio_chunk(websocket, audio_chunk_b64, session_id)
+                # Process audio chunk through sonic manager
+                await self.sonic_manager.handle_audio_chunk(websocket, audio_chunk_b64, session_id)
             
             elif message_type == 'audio_stream_stop':
                 session_id = self.active_audio_sessions.get(websocket)
                 if session_id:
-                    # Stop Gemini session and get recording results and Gemini responses
-                    result = await self.gemini_manager.stop_session(websocket)
+                    # Stop sonic session and get recording results and sonic responses
+                    result = await self.sonic_manager.stop_session(websocket)
                     if result and result['recording']:
                         # Send completion status
                         recording = result['recording']
@@ -682,27 +291,27 @@ class ConnectionManager:
                             "status": "audio_recording_stopped",
                             "session_id": session_id,
                             "filepath": recording['filepath'],
-                            "total_chunks": len(result['gemini_audio_responses']),
+                            "total_chunks": len(result['sonic_audio_responses']),
                             "duration": recording['duration'],
                             "streaming_back": True
                         }))
                         
-                        # Stream Gemini audio responses back to client for playback
-                        for i, chunk in enumerate(result['gemini_audio_responses']):
+                        # Stream sonic audio responses back to client for playback
+                        for i, chunk in enumerate(result['sonic_audio_responses']):
                             chunk_b64 = base64.b64encode(chunk).decode('utf-8')
                             await websocket.send_text(json.dumps({
                                 "type": "audio_stream_playback",
                                 "audio_chunk": chunk_b64,
                                 "chunk_index": i,
-                                "total_chunks": len(result['gemini_audio_responses']),
-                                "is_last_chunk": i == len(result['gemini_audio_responses']) - 1
+                                "total_chunks": len(result['sonic_audio_responses']),
+                                "is_last_chunk": i == len(result['sonic_audio_responses']) - 1
                             }))
                             await asyncio.sleep(0.01)
                         
-                        log_message(f"Finished streaming {len(result['gemini_audio_responses'])} Gemini audio response chunks back to client")
+                        log_message(f"Finished streaming {len(result['sonic_audio_responses'])} sonic audio response chunks back to client")
                     else:
                         await websocket.send_text(json.dumps({
-                            "error": "Failed to process audio recording or Gemini responses"
+                            "error": "Failed to process audio recording or sonic responses"
                         }))
                     del self.active_audio_sessions[websocket]
                 else:
@@ -717,11 +326,11 @@ class ConnectionManager:
             }))
 
     def stop_audio_recording(self, websocket: WebSocket) -> Optional[str]:
-        """Stop audio recording and Gemini session for a websocket connection."""
+        """Stop audio recording and sonic session for a websocket connection."""
         session_id = self.active_audio_sessions.get(websocket)
         if session_id:
-            # Clean up Gemini session
-            asyncio.create_task(self.gemini_manager.cleanup_session(websocket))
+            # Clean up sonic session
+            asyncio.create_task(self.sonic_manager.cleanup_session(websocket))
             # Clean up recording
             self.audio_recorder.cleanup_session(session_id)
             del self.active_audio_sessions[websocket]
@@ -834,9 +443,9 @@ class ConnectionManager:
                 point_cloud = message.get("point_cloud")
                 processor_id = message.get("processor")
                 
-                # Store the last image frame for potential Gemini tool calls
+                # Store the last image frame for potential sonic tool calls
                 if image_b64:
-                    self.gemini_manager.last_frame_by_websocket[websocket] = image_b64
+                    self.sonic_manager.last_frame_by_websocket[websocket] = image_b64
                 
                 if processor_id is not None:
                     response_data = await self.execute_request(
@@ -847,7 +456,7 @@ class ConnectionManager:
                         # Update result with filtered text
                         response_data["text"] = response_data["text"]
                     else:
-                        log_message("Didn't go through Gemini")
+                        log_message("Didn't go through sonic")
                     await websocket.send_text(json.dumps(response_data))
                 
             except Exception as e:
@@ -1128,11 +737,11 @@ async def shutdown_event():
             os.remove(log_path)
             print(f"Removed {log_path}")
 
-    # Stop all active audio recordings and Gemini sessions
+    # Stop all active audio recordings and sonic sessions
     for session_id in manager.audio_recorder.get_active_sessions():
         manager.audio_recorder.cleanup_session(session_id)
-        for ws, session_data in list(manager.gemini_manager.active_sessions.items()):
+        for ws, session_data in list(manager.sonic_manager.active_sessions.items()):
             if session_data['session_id'] == session_id:
-                await manager.gemini_manager.cleanup_session(ws)
+                await manager.sonic_manager.cleanup_session(ws)
 
     log_message("Shutdown complete.")
