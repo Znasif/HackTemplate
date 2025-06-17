@@ -1,75 +1,26 @@
-# WhatsApp Client
+# WhatsAI Web Client
 
-This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client applications running for it to work. Make sure to start the server first. Also, with the current setup, you need at least two displays in the client computer. If you don't have two displays, you can change 'client = StreamingClient(root) -> client = StreamingClient(root, monitor_index=0)' in the client/main.py.
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client web applications running for it to work. Make sure to start the server first. You can access the client at this website: https://znasif.netlify.app/screencapture.html
 
-## AWS Deployment
+## Remote Server Access
 
-The project has CI/CD pipelines set up to automatically deploy the server and client components to AWS. The server is deployed to AWS ECS with GPU support, and the client is deployed to AWS S3 and CloudFront.
+If you want to use already up and running servers, just obtain the api URL and paste it into the text field of Server URL in the WhatsAI Web Client. Then click "Select Screen to Share" button and select the desired screen. 
+- Click **Start Streaming** → This will start sharing the PC screen with the server.  
+- Then, you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
 
-### Deployment Architecture
+  ```python
+  processor_options = [
+      "Dense Region Caption",
+      "OCR",
+      "YOLO Detection",
+      "MediaPipe",
+      "Base Processor"
+  ]
+  ```
 
-- **Server**: Runs on AWS ECS with GPU-enabled instances (g4dn or g5)
-- **Client**: Hosted on S3 with CloudFront for global distribution
-- **CI/CD**: GitHub Actions workflows for automated deployment
+## Local Server Setup
 
-### Setup AWS Infrastructure
-
-1. Deploy the CloudFormation stack:
-   ```bash
-   cd scripts
-   chmod +x make-executable.sh
-   ./make-executable.sh
-   ./deploy-infra.sh
-   ```
-
-2. Set up GitHub repository secrets for CI/CD:
-   ```bash
-   ./setup-github-secrets.sh
-   ```
-
-3. Manual deployment commands (if needed):
-   ```bash
-   # Build and push server Docker image
-   ./build-push-server.sh
-   
-   # Deploy client to S3
-   ./deploy-client.sh
-   ```
-
-### CI/CD Workflows
-
-The project includes GitHub Actions workflows for automated deployment:
-
-- `.github/workflows/deploy-server.yml`: Deploys the server component to AWS ECS
-- `.github/workflows/deploy-client.yml`: Deploys the client component to AWS S3 and CloudFront
-
-## Client Setup (Windows Only)
-
-Currently, the client only works in Windows, and the shared monitor is not selectable in the GUI.
-
-#### a. Install the following dependencies in Windows after installing Python (version >= 3.10):
-
-```powershell
-pip install numpy opencv-python asyncio websockets pillow pywin32 pyttsx3
-```
-1. Someone with Meta Ray-Ban glasses or a smartphone video calls your WhatsApp. Currently there is no way to call yourself unless you have two separate whatsapp accounts.
-2. You accept the video call from your computer. For that you need to install and log into WhatsApp desktop client: https://www.whatsapp.com/download
-3. The monitor with the focused participant's video feed is captured and sent to a local server for processing.
-
-## Client Setup (Cross Platform)
-
-Currently, this beta version works cross platform but based on the OS, you would need to install different virtual audio cable solutions.
-
-#### a. Install the following dependencies after installing Python (version >= 3.10):
-
-```powershell
-pip install numpy opencv-python asyncio websockets pillow pyautogui screeninfo pyttsx3
-```
-The rest is same as the windows version.
-
-## Server Setup
-
-The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding. Change 'client = StreamingClient(root) -> client = StreamingClient(root, server_url="ws://{localtunnel result}/ws")' in the client/main.py.
+If you want to host your own server in your local computer, follow these steps. The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding. Change the Server URL textfield value to "ws://{localtunnel result}/ws".
 
 #### a. Set up the server
 - Open WSL on your Windows machine and clone this repository.
@@ -101,39 +52,6 @@ conda activate whatsapp-vision
 cd path/to/server/
 uvicorn stream:app --reload
 ```
-
-#### d. Launch the client from Windows PowerShell:
-
-```powershell
-cd path\to\client
-python main.py
-```
-
-or using the cross-platform client:
-
-```terminal
-cd path\to\client
-python main_beta.py
-```
-
-If doing in MacOS, you need to enable terminal.app inside settings -> privacy & security -> screen and system audio recording
-
-#### e. Start the client
-
-- Press **Start Streaming** → This will start sharing the PC screen with the server.  
-- Then, you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
-
-  ```python
-  processor_options = [
-      "Dense Region Caption",
-      "OCR",
-      "YOLO Detection",
-      "MediaPipe",
-      "Base Processor",
-      "Groq",
-      "OpenAI"
-  ]
-  ```
 
 #### f. Processing Options
 
