@@ -1,0 +1,1164 @@
+Name: absl-py
+Version: 2.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: mediapipe
+---
+Name: accelerate
+Version: 1.4.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: huggingface-hub, numpy, packaging, psutil, pyyaml, safetensors, torch
+Required-by: 
+---
+Name: aiohappyeyeballs
+Version: 2.4.6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: aiohttp
+---
+Name: aiohttp
+Version: 3.11.12
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: aiohappyeyeballs, aiosignal, async-timeout, attrs, frozenlist, multidict, propcache, yarl
+Required-by: discord.py
+---
+Name: aiosignal
+Version: 1.3.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: frozenlist
+Required-by: aiohttp
+---
+Name: albucore
+Version: 0.0.13
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy, opencv-python-headless, tomli, typing-extensions
+Required-by: albumentations, paddleocr
+---
+Name: albumentations
+Version: 1.4.10
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: albucore, numpy, opencv-python-headless, pydantic, PyYAML, scikit-image, scikit-learn, scipy, typing-extensions
+Required-by: paddleocr
+---
+Name: annotated-types
+Version: 0.7.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: pydantic
+---
+Name: anyio
+Version: 4.8.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: exceptiongroup, idna, sniffio, typing_extensions
+Required-by: google-genai, groq, httpx, openai, starlette, watchfiles
+---
+Name: astor
+Version: 0.8.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: paddlepaddle-gpu
+---
+Name: asttokens
+Version: 3.0.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: stack_data
+---
+Name: async-timeout
+Version: 5.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: aiohttp
+---
+Name: attrs
+Version: 25.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: aiohttp, mediapipe
+---
+Name: beautifulsoup4
+Version: 4.13.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: soupsieve, typing-extensions
+Required-by: gdown, paddleocr
+---
+Name: boto3
+Version: 1.38.27
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: botocore, jmespath, s3transfer
+Required-by: 
+---
+Name: botocore
+Version: 1.38.27
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: jmespath, python-dateutil, urllib3
+Required-by: boto3, s3transfer
+---
+Name: Brotli
+Version: 1.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: cachetools
+Version: 5.5.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: google-auth
+---
+Name: certifi
+Version: 2025.4.26
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: httpcore, httpx, requests
+---
+Name: cffi
+Version: 1.17.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pycparser
+Required-by: sounddevice
+---
+Name: charset-normalizer
+Version: 3.4.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: requests
+---
+Name: click
+Version: 8.1.8
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: rich-toolkit, typer, typer-slim, uvicorn
+---
+Name: contourpy
+Version: 1.3.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: matplotlib
+---
+Name: cycler
+Version: 0.12.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: Cython
+Version: 3.0.12
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: paddleocr
+---
+Name: decorator
+Version: 5.2.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: ipython, paddlepaddle-gpu
+---
+Name: discord.py
+Version: 2.3.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: aiohttp
+Required-by: 
+---
+Name: distro
+Version: 1.9.0
+License: Apache License, Version 2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: groq, openai
+---
+Name: dnspython
+Version: 2.7.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: email_validator
+---
+Name: einops
+Version: 0.8.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: email_validator
+Version: 2.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: dnspython, idna
+Required-by: 
+---
+Name: exceptiongroup
+Version: 1.2.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: anyio, ipython
+---
+Name: executing
+Version: 2.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: stack_data
+---
+Name: fastapi
+Version: 0.115.8
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pydantic, starlette, typing-extensions
+Required-by: 
+---
+Name: fastapi-cli
+Version: 0.0.7
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: rich-toolkit, typer, uvicorn
+Required-by: 
+---
+Name: filelock
+Version: 3.17.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: gdown, huggingface-hub, torch, transformers, triton
+---
+Name: fire
+Version: 0.7.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: termcolor
+Required-by: paddleocr
+---
+Name: flatbuffers
+Version: 25.2.10
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: mediapipe
+---
+Name: fonttools
+Version: 4.56.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: matplotlib, paddleocr
+---
+Name: frozenlist
+Version: 1.5.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: aiohttp, aiosignal
+---
+Name: fsspec
+Version: 2025.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: huggingface-hub, torch
+---
+Name: gdown
+Version: 5.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: beautifulsoup4, filelock, requests, tqdm
+Required-by: hloc
+---
+Name: gmpy2
+Version: 2.1.5
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: google-auth
+Version: 2.40.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: cachetools, pyasn1-modules, rsa
+Required-by: google-genai
+---
+Name: google-genai
+Version: 1.13.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio, google-auth, httpx, pydantic, requests, typing-extensions, websockets
+Required-by: 
+---
+Name: groq
+Version: 0.18.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio, distro, httpx, pydantic, sniffio, typing-extensions
+Required-by: 
+---
+Name: h11
+Version: 0.14.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: httpcore, uvicorn
+---
+Name: h2
+Version: 4.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: hpack, hyperframe
+Required-by: 
+---
+Name: h5py
+Version: 3.13.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: hloc
+---
+Name: hloc
+Version: 1.5
+Location: /home/znasif/vidServer/resources/Hierarchical-Localization
+Requires: gdown, h5py, kornia, lightglue, matplotlib, numpy, opencv-python, plotly, pycolmap, scipy, torch, torchvision, tqdm
+Required-by: 
+---
+Name: hpack
+Version: 4.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: h2
+---
+Name: httpcore
+Version: 1.0.7
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: certifi, h11
+Required-by: httpx
+---
+Name: httptools
+Version: 0.6.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: httpx
+Version: 0.28.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio, certifi, httpcore, idna
+Required-by: google-genai, groq, openai, paddlepaddle-gpu
+---
+Name: huggingface-hub
+Version: 0.29.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: filelock, fsspec, packaging, pyyaml, requests, tqdm, typing-extensions
+Required-by: accelerate, timm, tokenizers, transformers
+---
+Name: hyperframe
+Version: 6.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: h2
+---
+Name: idna
+Version: 3.10
+Summary: Internationalized Domain Names in Applications (IDNA)
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: anyio, email_validator, httpx, requests, yarl
+---
+Name: imageio
+Version: 2.37.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy, pillow
+Required-by: imgaug, scikit-image
+---
+Name: imgaug
+Version: 0.4.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: imageio, matplotlib, numpy, opencv-python, Pillow, scikit-image, scipy, Shapely, six
+Required-by: paddleocr
+---
+Name: ipython
+Version: 8.32.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: decorator, exceptiongroup, jedi, matplotlib-inline, pexpect, prompt_toolkit, pygments, stack_data, traitlets, typing_extensions
+Required-by: 
+---
+Name: jax
+Version: 0.5.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: jaxlib, ml_dtypes, numpy, opt_einsum, scipy
+Required-by: mediapipe
+---
+Name: jaxlib
+Version: 0.5.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: ml-dtypes, numpy, scipy
+Required-by: jax, mediapipe
+---
+Name: jedi
+Version: 0.19.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: parso
+Required-by: ipython
+---
+Name: Jinja2
+Version: 3.1.5
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: MarkupSafe
+Required-by: torch
+---
+Name: jiter
+Version: 0.6.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: openai
+---
+Name: jmespath
+Version: 1.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: boto3, botocore
+---
+Name: joblib
+Version: 1.4.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: scikit-learn
+---
+Name: kiwisolver
+Version: 1.4.8
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: kornia
+Version: 0.8.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: kornia_rs, packaging, torch
+Required-by: hloc, lightglue
+---
+Name: kornia_rs
+Version: 0.1.8
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: kornia
+---
+Name: lazy_loader
+Version: 0.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: packaging
+Required-by: scikit-image
+---
+Name: lightglue
+Version: 0.0
+                                   Version 2.0, January 2004
+           Licensed under the Apache License, Version 2.0 (the "License");
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: kornia, matplotlib, numpy, opencv-python, torch, torchvision
+Required-by: hloc
+---
+Name: llvmlite
+Version: 0.44.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: numba
+---
+Name: lmdb
+Version: 1.6.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: paddleocr
+---
+Name: lxml
+Version: 5.3.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: python-docx
+---
+Name: markdown-it-py
+Version: 3.0.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: mdurl
+Required-by: rich
+---
+Name: MarkupSafe
+Version: 3.0.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: Jinja2
+---
+Name: matplotlib
+Version: 3.10.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: contourpy, cycler, fonttools, kiwisolver, numpy, packaging, pillow, pyparsing, python-dateutil
+Required-by: hloc, imgaug, lightglue, mediapipe, seaborn, ultralytics
+---
+Name: matplotlib-inline
+Version: 0.1.7
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: traitlets
+Required-by: ipython
+---
+Name: mdurl
+Version: 0.1.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: markdown-it-py
+---
+Name: mediapipe
+Version: 0.10.21
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: absl-py, attrs, flatbuffers, jax, jaxlib, matplotlib, numpy, opencv-contrib-python, protobuf, sentencepiece, sounddevice
+Required-by: 
+---
+Name: ml_dtypes
+Version: 0.5.1
+                                   Version 2.0, January 2004
+           Licensed under the Apache License, Version 2.0 (the "License");
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: jax, jaxlib
+---
+Name: MouseInfo
+Version: 0.1.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pyperclip, python3-Xlib
+Required-by: PyAutoGUI
+---
+Name: mpmath
+Version: 1.3.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: sympy
+---
+Name: multidict
+Version: 6.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: typing-extensions
+Required-by: aiohttp, yarl
+---
+Name: narwhals
+Version: 1.38.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: plotly
+---
+Name: networkx
+Version: 3.4.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: scikit-image, torch
+---
+Name: numba
+Version: 0.61.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: llvmlite, numpy
+Required-by: 
+---
+Name: numpy
+Version: 1.26.4
+        Name: lapack-lite
+        Name: tempita
+        Name: dragon4
+        Name: libdivide
+        Name: Meson
+        Name: spin
+        Name: OpenBLAS
+        Name: LAPACK
+        Name: GCC runtime library
+        Version 3.1, 31 March 2009
+                               Version 3, 29 June 2007
+          5. Conveying Modified Source Versions.
+          14. Revised Versions of this License.
+        Name: libquadmath
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: accelerate, albucore, albumentations, contourpy, h5py, hloc, imageio, imgaug, jax, jaxlib, lightglue, matplotlib, mediapipe, ml_dtypes, numba, opencv-contrib-python, opt-einsum, paddleocr, paddlepaddle-gpu, pandas, pycolmap, scikit-image, scikit-learn, scipy, seaborn, shapely, tifffile, torchvision, transformers, ultralytics, ultralytics-thop
+---
+Name: openai
+Version: 1.77.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio, distro, httpx, jiter, pydantic, sniffio, tqdm, typing-extensions
+Required-by: 
+---
+Name: opencv-contrib-python
+Version: 4.11.0.86
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: mediapipe, paddleocr
+---
+Name: opencv-python
+Version: 4.11.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: hloc, imgaug, lightglue, paddleocr, ultralytics
+---
+Name: opencv-python-headless
+Version: 4.11.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: albucore, albumentations
+---
+Name: opt-einsum
+Version: 3.3.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: jax, paddlepaddle-gpu
+---
+Name: packaging
+Version: 24.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: accelerate, huggingface-hub, kornia, lazy_loader, matplotlib, plotly, scikit-image, transformers
+---
+Name: paddleocr
+Version: 2.9.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: albucore, albumentations, beautifulsoup4, cython, fire, fonttools, imgaug, lmdb, numpy, opencv-contrib-python, opencv-python, Pillow, pyclipper, python-docx, pyyaml, rapidfuzz, requests, scikit-image, shapely, tqdm
+Required-by: 
+---
+Name: paddlepaddle-gpu
+Version: 2.6.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: astor, decorator, httpx, numpy, opt-einsum, Pillow, protobuf
+Required-by: 
+---
+Name: pandas
+Version: 2.2.3
+           Licensed under the Apache License, Version 2.0 (the "License");
+                                   Version 2.0, January 2004
+        Python Software Foundation License Version 2.
+        the documentation are dual licensed under the PSF License Version 2
+        Version 2.0, January 2004
+           Licensed under the Apache License, Version 2.0 (the "License");
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy, python-dateutil, pytz, tzdata
+Required-by: seaborn, ultralytics
+---
+Name: parso
+Version: 0.8.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: jedi
+---
+Name: pexpect
+Version: 4.9.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: ptyprocess
+Required-by: ipython
+---
+Name: pickleshare
+Version: 0.7.5
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: pillow
+Version: 11.1.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: imageio, imgaug, matplotlib, paddleocr, paddlepaddle-gpu, PyScreeze, scikit-image, torchvision, ultralytics
+---
+Name: pip
+Version: 25.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: plotly
+Version: 6.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: narwhals, packaging
+Required-by: hloc
+---
+Name: prompt_toolkit
+Version: 3.0.50
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: wcwidth
+Required-by: ipython
+---
+Name: propcache
+Version: 0.2.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: aiohttp, yarl
+---
+Name: protobuf
+Version: 4.25.6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: mediapipe, paddlepaddle-gpu
+---
+Name: psutil
+Version: 7.0.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: accelerate, ultralytics
+---
+Name: ptyprocess
+Version: 0.7.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: pexpect
+---
+Name: pure_eval
+Version: 0.2.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: stack_data
+---
+Name: py-cpuinfo
+Version: 9.0.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: ultralytics
+---
+Name: pyasn1
+Version: 0.6.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: pyasn1_modules, rsa
+---
+Name: pyasn1_modules
+Version: 0.4.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pyasn1
+Required-by: google-auth
+---
+Name: PyAutoGUI
+Version: 0.9.54
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: mouseinfo, pygetwindow, pymsgbox, pyscreeze, python3-Xlib, pytweening
+Required-by: 
+---
+Name: pyclipper
+Version: 1.3.0.post6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: paddleocr
+---
+Name: pycolmap
+Version: 3.11.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: hloc
+---
+Name: pycparser
+Version: 2.22
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: cffi
+---
+Name: pydantic
+Version: 2.10.6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: annotated-types, pydantic-core, typing-extensions
+Required-by: albumentations, fastapi, google-genai, groq, openai
+---
+Name: pydantic_core
+Version: 2.27.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: typing-extensions
+Required-by: pydantic
+---
+Name: PyGetWindow
+Version: 0.0.9
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pyrect
+Required-by: PyAutoGUI
+---
+Name: Pygments
+Version: 2.19.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: ipython, rich
+---
+Name: PyMsgBox
+Version: 1.0.9
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: PyAutoGUI
+---
+Name: pyparsing
+Version: 3.2.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: pyperclip
+Version: 1.9.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: MouseInfo
+---
+Name: PyRect
+Version: 0.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: PyGetWindow
+---
+Name: PyScreeze
+Version: 1.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: Pillow
+Required-by: PyAutoGUI
+---
+Name: PySocks
+Version: 1.7.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: python-dateutil
+Version: 2.9.0.post0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: six
+Required-by: botocore, matplotlib, pandas
+---
+Name: python-docx
+Version: 1.1.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: lxml, typing-extensions
+Required-by: paddleocr
+---
+Name: python-dotenv
+Version: 1.0.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: python-multipart
+Version: 0.0.20
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: python3-xlib
+Version: 0.15
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: MouseInfo, PyAutoGUI
+---
+Name: pyttsx3
+Version: 2.98
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: pytweening
+Version: 1.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: PyAutoGUI
+---
+Name: pytz
+Version: 2025.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: pandas
+---
+Name: PyYAML
+Version: 6.0.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: accelerate, albumentations, huggingface-hub, paddleocr, timm, transformers, ultralytics
+---
+Name: RapidFuzz
+Version: 3.12.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: paddleocr
+---
+Name: regex
+Version: 2024.11.6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: tiktoken, transformers
+---
+Name: requests
+Version: 2.32.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: certifi, charset_normalizer, idna, urllib3
+Required-by: gdown, google-genai, huggingface-hub, paddleocr, tiktoken, transformers, ultralytics
+---
+Name: rich
+Version: 13.9.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: markdown-it-py, pygments, typing-extensions
+Required-by: rich-toolkit, typer
+---
+Name: rich-toolkit
+Version: 0.11.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: click, rich, typing-extensions
+Required-by: fastapi-cli
+---
+Name: rsa
+Version: 4.9.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: pyasn1
+Required-by: google-auth
+---
+Name: s3transfer
+Version: 0.13.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: botocore
+Required-by: boto3
+---
+Name: safetensors
+Version: 0.5.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: accelerate, timm, transformers
+---
+Name: scikit-image
+Version: 0.25.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: imageio, lazy-loader, networkx, numpy, packaging, pillow, scipy, tifffile
+Required-by: albumentations, imgaug, paddleocr
+---
+Name: scikit-learn
+Version: 1.6.1
+         Name: GCC runtime library
+         Version 3.1, 31 March 2009
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: joblib, numpy, scipy, threadpoolctl
+Required-by: albumentations
+---
+Name: scipy
+Version: 1.15.2
+         Name: OpenBLAS
+         Name: LAPACK
+         Name: GCC runtime library
+         Version 3.1, 31 March 2009
+                                Version 3, 29 June 2007
+           5. Conveying Modified Source Versions.
+           14. Revised Versions of this License.
+         Name: libquadmath
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: albumentations, hloc, imgaug, jax, jaxlib, scikit-image, scikit-learn, ultralytics
+---
+Name: seaborn
+Version: 0.13.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: matplotlib, numpy, pandas
+Required-by: ultralytics
+---
+Name: sentencepiece
+Version: 0.2.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: mediapipe
+---
+Name: setuptools
+Version: 75.8.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: shapely
+Version: 2.0.7
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: imgaug, paddleocr
+---
+Name: shellingham
+Version: 1.5.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: typer
+---
+Name: six
+Version: 1.17.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: imgaug, python-dateutil
+---
+Name: sniffio
+Version: 1.3.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: anyio, groq, openai
+---
+Name: sounddevice
+Version: 0.5.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: CFFI
+Required-by: mediapipe
+---
+Name: soupsieve
+Version: 2.6
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: beautifulsoup4
+---
+Name: stack_data
+Version: 0.6.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: asttokens, executing, pure_eval
+Required-by: ipython
+---
+Name: starlette
+Version: 0.45.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio
+Required-by: fastapi
+---
+Name: sympy
+Version: 1.13.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: mpmath
+Required-by: torch
+---
+Name: tabulate
+Version: 0.9.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: termcolor
+Version: 2.5.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: fire
+---
+Name: threadpoolctl
+Version: 3.5.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: scikit-learn
+---
+Name: tifffile
+Version: 2025.2.18
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy
+Required-by: scikit-image
+---
+Name: tiktoken
+Version: 0.3.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: regex, requests
+Required-by: 
+---
+Name: timm
+Version: 1.0.15
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: huggingface_hub, pyyaml, safetensors, torch, torchvision
+Required-by: 
+---
+Name: tokenizers
+Version: 0.21.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: huggingface-hub
+Required-by: transformers
+---
+Name: tomli
+Version: 2.2.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: albucore
+---
+Name: torch
+Version: 2.4.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: filelock, fsspec, jinja2, networkx, sympy, typing-extensions
+Required-by: accelerate, hloc, kornia, lightglue, timm, torchvision, ultralytics, ultralytics-thop
+---
+Name: torchvision
+Version: 0.19.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy, pillow, torch
+Required-by: hloc, lightglue, timm, ultralytics
+---
+Name: tqdm
+Version: 4.67.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: gdown, hloc, huggingface-hub, openai, paddleocr, transformers, ultralytics
+---
+Name: traitlets
+Version: 5.14.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: ipython, matplotlib-inline
+---
+Name: transformers
+Version: 4.49.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: filelock, huggingface-hub, numpy, packaging, pyyaml, regex, requests, safetensors, tokenizers, tqdm
+Required-by: 
+---
+Name: triton
+Version: 3.0.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: filelock
+Required-by: 
+---
+Name: typer
+Version: 0.15.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: click, rich, shellingham, typing-extensions
+Required-by: fastapi-cli
+---
+Name: typer-slim
+Version: 0.15.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: click, typing-extensions
+Required-by: 
+---
+Name: typing_extensions
+Version: 4.12.2
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: albucore, albumentations, anyio, beautifulsoup4, fastapi, google-genai, groq, huggingface-hub, ipython, multidict, openai, pydantic, pydantic_core, python-docx, rich, rich-toolkit, torch, typer, typer-slim, uvicorn
+---
+Name: tzdata
+Version: 2025.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: pandas
+---
+Name: ultralytics
+Version: 8.3.78
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: matplotlib, numpy, opencv-python, pandas, pillow, psutil, py-cpuinfo, pyyaml, requests, scipy, seaborn, torch, torchvision, tqdm, ultralytics-thop
+Required-by: 
+---
+Name: ultralytics-thop
+Version: 2.0.14
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: numpy, torch
+Required-by: ultralytics
+---
+Name: urllib3
+Version: 2.3.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: botocore, requests
+---
+Name: uvicorn
+Version: 0.34.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: click, h11, typing-extensions
+Required-by: fastapi-cli
+---
+Name: uvloop
+Version: 0.21.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: watchfiles
+Version: 1.0.4
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: anyio
+Required-by: 
+---
+Name: wcwidth
+Version: 0.2.13
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: prompt_toolkit
+---
+Name: websockets
+Version: 15.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: google-genai
+---
+Name: wheel
+Version: 0.45.1
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---
+Name: yarl
+Version: 1.18.3
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: idna, multidict, propcache
+Required-by: aiohttp
+---
+Name: zstandard
+Version: 0.19.0
+Location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages
+Requires: 
+Required-by: 
+---

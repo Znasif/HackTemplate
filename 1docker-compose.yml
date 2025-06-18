@@ -1,0 +1,25 @@
+services:
+  whatsai-server:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    # Override the default command to start with bash
+    command: /bin/bash
+    # Keep container running with interactive terminal
+    stdin_open: true
+    tty: true

@@ -1,0 +1,992 @@
+Name: addict
+Version: 2.4.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: open3d
+---
+Name: altair
+Version: 5.5.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: jinja2, jsonschema, narwhals, packaging, typing-extensions
+Required-by: streamlit
+---
+Name: annotated-types
+Version: 0.7.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: pydantic
+---
+Name: anyio
+Version: 4.9.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: exceptiongroup, idna, sniffio, typing_extensions
+Required-by: starlette, watchfiles
+---
+Name: archspec
+Version: 0.2.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: asttokens
+Version: 3.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: stack-data
+---
+Name: attrs
+Version: 24.3.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: jsonschema, referencing
+---
+Name: av
+Version: 14.0.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: depth_pro
+---
+Name: blinker
+Version: 1.9.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: Flask, streamlit
+---
+Name: boltons
+Version: 24.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, conda-libmamba-solver
+---
+Name: Brotli
+Version: 1.0.9
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: cachetools
+Version: 5.5.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: certifi
+Version: 2024.12.14
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: requests
+---
+Name: cffi
+Version: 1.17.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: pycparser
+Required-by: 
+---
+Name: charset-normalizer
+Version: 3.3.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, requests
+---
+Name: click
+Version: 8.1.8
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: Flask, streamlit, uvicorn
+---
+Name: comm
+Version: 0.2.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: traitlets
+Required-by: ipywidgets
+---
+Name: conda
+Version: 25.3.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: archspec, boltons, charset-normalizer, conda-package-handling, distro, frozendict, jsonpatch, menuinst, packaging, platformdirs, pluggy, pycosat, requests, ruamel-yaml, setuptools, tqdm, zstandard
+Required-by: conda-libmamba-solver, conda_subprocess
+---
+Name: conda-libmamba-solver
+Version: 25.4.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: boltons, conda
+Required-by: 
+---
+Name: conda-package-handling
+Version: 2.4.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: conda-package-streaming
+Required-by: conda
+---
+Name: conda_package_streaming
+Version: 0.11.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: requests, zstandard
+Required-by: conda-package-handling
+---
+Name: conda_subprocess
+Version: 0.0.8
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: conda
+Required-by: 
+---
+Name: ConfigArgParse
+Version: 1.7
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: open3d
+---
+Name: contourpy
+Version: 1.3.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy
+Required-by: matplotlib
+---
+Name: cycler
+Version: 0.12.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: dash
+Version: 2.18.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: dash-core-components, dash-html-components, dash-table, Flask, importlib-metadata, nest-asyncio, plotly, requests, retrying, setuptools, typing-extensions, Werkzeug
+Required-by: open3d
+---
+Name: dash-core-components
+Version: 2.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: dash
+---
+Name: dash-html-components
+Version: 2.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: dash
+---
+Name: dash-table
+Version: 5.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: dash
+---
+Name: decorator
+Version: 5.1.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: ipython
+---
+Name: depth_pro
+Version: 0.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: av, matplotlib, numpy, open3d, pillow_heif, streamlit, timm, torch, torchvision
+Required-by: 
+---
+Name: distro
+Version: 1.9.0
+License: Apache License, Version 2.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: exceptiongroup
+Version: 1.2.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: anyio, ipython
+---
+Name: executing
+Version: 2.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: stack-data
+---
+Name: fastapi
+Version: 0.115.12
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: pydantic, starlette, typing-extensions
+Required-by: 
+---
+Name: fastjsonschema
+Version: 2.21.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: nbformat
+---
+Name: filelock
+Version: 3.17.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: huggingface-hub, torch, triton
+---
+Name: Flask
+Version: 3.0.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: blinker, click, importlib-metadata, itsdangerous, Jinja2, Werkzeug
+Required-by: dash, open3d
+---
+Name: fonttools
+Version: 4.55.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: frozendict
+Version: 2.4.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: fsspec
+Version: 2024.12.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: huggingface-hub, torch
+---
+Name: gitdb
+Version: 4.0.12
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: smmap
+Required-by: GitPython
+---
+Name: GitPython
+Version: 3.1.44
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: gitdb
+Required-by: streamlit
+---
+Name: h11
+Version: 0.16.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: uvicorn
+---
+Name: httptools
+Version: 0.6.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: huggingface-hub
+Version: 0.27.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: filelock, fsspec, packaging, pyyaml, requests, tqdm, typing-extensions
+Required-by: timm
+---
+Name: idna
+Version: 3.10
+Summary: Internationalized Domain Names in Applications (IDNA)
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: anyio, requests
+---
+Name: importlib_metadata
+Version: 8.6.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: zipp
+Required-by: dash, Flask
+---
+Name: importlib_resources
+Version: 6.5.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: zipp
+Required-by: matplotlib
+---
+Name: ipython
+Version: 8.18.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: decorator, exceptiongroup, jedi, matplotlib-inline, pexpect, prompt-toolkit, pygments, stack-data, traitlets, typing-extensions
+Required-by: ipywidgets
+---
+Name: ipywidgets
+Version: 8.1.5
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: comm, ipython, jupyterlab-widgets, traitlets, widgetsnbextension
+Required-by: open3d
+---
+Name: itsdangerous
+Version: 2.2.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: Flask
+---
+Name: jedi
+Version: 0.19.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: parso
+Required-by: ipython
+---
+Name: Jinja2
+Version: 3.1.5
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: MarkupSafe
+Required-by: altair, Flask, pydeck, torch
+---
+Name: joblib
+Version: 1.4.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: scikit-learn
+---
+Name: jsonpatch
+Version: 1.33
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: jsonpointer
+Required-by: conda
+---
+Name: jsonpointer
+Version: 2.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: jsonpatch
+---
+Name: jsonschema
+Version: 4.23.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: attrs, jsonschema-specifications, referencing, rpds-py
+Required-by: altair, nbformat
+---
+Name: jsonschema-specifications
+Version: 2024.10.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: referencing
+Required-by: jsonschema
+---
+Name: jupyter_core
+Version: 5.7.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: platformdirs, traitlets
+Required-by: nbformat
+---
+Name: jupyterlab_widgets
+Version: 3.0.13
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: ipywidgets
+---
+Name: kiwisolver
+Version: 1.4.7
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: libmambapy
+Version: 2.0.5
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: markdown-it-py
+Version: 3.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: mdurl
+Required-by: rich
+---
+Name: MarkupSafe
+Version: 3.0.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: Jinja2, Werkzeug
+---
+Name: matplotlib
+Version: 3.9.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: contourpy, cycler, fonttools, importlib-resources, kiwisolver, numpy, packaging, pillow, pyparsing, python-dateutil
+Required-by: depth_pro, open3d
+---
+Name: matplotlib-inline
+Version: 0.1.7
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: traitlets
+Required-by: ipython
+---
+Name: mdurl
+Version: 0.1.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: markdown-it-py
+---
+Name: menuinst
+Version: 2.2.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: mpmath
+Version: 1.3.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: sympy
+---
+Name: narwhals
+Version: 1.23.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: altair
+---
+Name: nbformat
+Version: 5.10.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: fastjsonschema, jsonschema, jupyter-core, traitlets
+Required-by: open3d
+---
+Name: nest-asyncio
+Version: 1.6.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: dash
+---
+Name: networkx
+Version: 3.2.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: numpy
+Version: 1.26.4
+        Name: lapack-lite
+        Name: tempita
+        Name: dragon4
+        Name: libdivide
+        Name: Meson
+        Name: spin
+        Name: OpenBLAS
+        Name: LAPACK
+        Name: GCC runtime library
+        Version 3.1, 31 March 2009
+                               Version 3, 29 June 2007
+          5. Conveying Modified Source Versions.
+          14. Revised Versions of this License.
+        Name: libquadmath
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: contourpy, depth_pro, matplotlib, open3d, opencv-python, pandas, pydeck, pyquaternion, scikit-learn, scipy, streamlit, torchvision
+---
+Name: nvidia-cublas-cu12
+Version: 12.4.5.8
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: nvidia-cudnn-cu12, nvidia-cusolver-cu12, torch
+---
+Name: nvidia-cuda-cupti-cu12
+Version: 12.4.127
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-cuda-nvrtc-cu12
+Version: 12.4.127
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-cuda-runtime-cu12
+Version: 12.4.127
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-cudnn-cu12
+Version: 9.1.0.70
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: nvidia-cublas-cu12
+Required-by: torch
+---
+Name: nvidia-cufft-cu12
+Version: 11.2.1.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-curand-cu12
+Version: 10.3.5.147
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-cusolver-cu12
+Version: 11.6.1.9
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: nvidia-cublas-cu12, nvidia-cusparse-cu12, nvidia-nvjitlink-cu12
+Required-by: torch
+---
+Name: nvidia-cusparse-cu12
+Version: 12.3.1.170
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: nvidia-nvjitlink-cu12
+Required-by: nvidia-cusolver-cu12, torch
+---
+Name: nvidia-nccl-cu12
+Version: 2.21.5
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: nvidia-nvjitlink-cu12
+Version: 12.4.127
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: nvidia-cusolver-cu12, nvidia-cusparse-cu12, torch
+---
+Name: nvidia-nvtx-cu12
+Version: 12.4.127
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: torch
+---
+Name: open3d
+Version: 0.19.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: addict, configargparse, dash, flask, ipywidgets, matplotlib, nbformat, numpy, pandas, pillow, pyquaternion, pyyaml, scikit-learn, tqdm, werkzeug
+Required-by: depth_pro
+---
+Name: opencv-python
+Version: 4.11.0.86
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy
+Required-by: 
+---
+Name: packaging
+Version: 24.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: altair, conda, huggingface-hub, matplotlib, plotly, streamlit
+---
+Name: pandas
+Version: 2.2.3
+           Licensed under the Apache License, Version 2.0 (the "License");
+                                   Version 2.0, January 2004
+        Python Software Foundation License Version 2.
+        the documentation are dual licensed under the PSF License Version 2
+        Version 2.0, January 2004
+           Licensed under the Apache License, Version 2.0 (the "License");
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy, python-dateutil, pytz, tzdata
+Required-by: open3d, streamlit
+---
+Name: parso
+Version: 0.8.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: jedi
+---
+Name: pexpect
+Version: 4.9.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: ptyprocess
+Required-by: ipython
+---
+Name: pillow
+Version: 11.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: matplotlib, open3d, pillow_heif, streamlit, torchvision
+---
+Name: pillow_heif
+Version: 0.21.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: pillow
+Required-by: depth_pro
+---
+Name: pip
+Version: 24.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: platformdirs
+Version: 4.3.6
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, jupyter_core
+---
+Name: plotly
+Version: 5.24.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: packaging, tenacity
+Required-by: dash
+---
+Name: pluggy
+Version: 1.5.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: prompt_toolkit
+Version: 3.0.50
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: wcwidth
+Required-by: ipython
+---
+Name: protobuf
+Version: 5.29.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: ptyprocess
+Version: 0.7.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: pexpect
+---
+Name: pure_eval
+Version: 0.2.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: stack-data
+---
+Name: pyarrow
+Version: 19.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: pycosat
+Version: 0.6.6
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda
+---
+Name: pycparser
+Version: 2.21
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: cffi
+---
+Name: pydantic
+Version: 2.11.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: annotated-types, pydantic-core, typing-extensions, typing-inspection
+Required-by: fastapi
+---
+Name: pydantic_core
+Version: 2.33.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: typing-extensions
+Required-by: pydantic
+---
+Name: pydeck
+Version: 0.9.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: jinja2, numpy
+Required-by: streamlit
+---
+Name: Pygments
+Version: 2.19.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: ipython, rich
+---
+Name: pyparsing
+Version: 3.2.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: matplotlib
+---
+Name: pyquaternion
+Version: 0.9.9
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy
+Required-by: open3d
+---
+Name: PySocks
+Version: 1.7.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: python-dateutil
+Version: 2.9.0.post0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: six
+Required-by: matplotlib, pandas
+---
+Name: python-dotenv
+Version: 1.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: pytz
+Version: 2024.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: pandas
+---
+Name: PyYAML
+Version: 6.0.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: huggingface-hub, open3d, timm
+---
+Name: referencing
+Version: 0.36.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: attrs, rpds-py, typing-extensions
+Required-by: jsonschema, jsonschema-specifications
+---
+Name: requests
+Version: 2.32.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: certifi, charset-normalizer, idna, urllib3
+Required-by: conda, conda_package_streaming, dash, huggingface-hub, streamlit
+---
+Name: retrying
+Version: 1.3.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: six
+Required-by: dash
+---
+Name: rich
+Version: 13.9.4
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: markdown-it-py, pygments, typing-extensions
+Required-by: streamlit
+---
+Name: rpds-py
+Version: 0.22.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: jsonschema, referencing
+---
+Name: ruamel.yaml
+Version: 0.18.10
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: ruamel.yaml.clib
+Required-by: conda
+---
+Name: ruamel.yaml.clib
+Version: 0.2.12
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: ruamel.yaml
+---
+Name: safetensors
+Version: 0.5.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: timm
+---
+Name: scikit-learn
+Version: 1.6.1
+         Name: GCC runtime library
+         Version 3.1, 31 March 2009
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: joblib, numpy, scipy, threadpoolctl
+Required-by: open3d
+---
+Name: scipy
+Version: 1.13.1
+        Name: OpenBLAS
+        Name: LAPACK
+        Name: GCC runtime library
+        Version 3.1, 31 March 2009
+                               Version 3, 29 June 2007
+          5. Conveying Modified Source Versions.
+          14. Revised Versions of this License.
+        Name: libquadmath
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy
+Required-by: scikit-learn
+---
+Name: setuptools
+Version: 75.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, dash
+---
+Name: six
+Version: 1.17.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: python-dateutil, retrying
+---
+Name: smmap
+Version: 5.0.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: gitdb
+---
+Name: sniffio
+Version: 1.3.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: anyio
+---
+Name: stack-data
+Version: 0.6.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: asttokens, executing, pure-eval
+Required-by: ipython
+---
+Name: starlette
+Version: 0.46.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: anyio, typing-extensions
+Required-by: fastapi
+---
+Name: streamlit
+Version: 1.41.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: altair, blinker, cachetools, click, gitpython, numpy, packaging, pandas, pillow, protobuf, pyarrow, pydeck, requests, rich, tenacity, toml, tornado, typing-extensions, watchdog
+Required-by: depth_pro
+---
+Name: sympy
+Version: 1.13.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: mpmath
+Required-by: torch
+---
+Name: tenacity
+Version: 9.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: plotly, streamlit
+---
+Name: threadpoolctl
+Version: 3.5.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: scikit-learn
+---
+Name: timm
+Version: 1.0.14
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: huggingface_hub, pyyaml, safetensors, torch, torchvision
+Required-by: depth_pro
+---
+Name: toml
+Version: 0.10.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: torch
+Version: 2.5.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: filelock, fsspec, jinja2, networkx, nvidia-cublas-cu12, nvidia-cuda-cupti-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-runtime-cu12, nvidia-cudnn-cu12, nvidia-cufft-cu12, nvidia-curand-cu12, nvidia-cusolver-cu12, nvidia-cusparse-cu12, nvidia-nccl-cu12, nvidia-nvjitlink-cu12, nvidia-nvtx-cu12, sympy, triton, typing-extensions
+Required-by: depth_pro, timm, torchvision
+---
+Name: torchvision
+Version: 0.20.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: numpy, pillow, torch
+Required-by: depth_pro, timm
+---
+Name: tornado
+Version: 6.4.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: tqdm
+Version: 4.67.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, huggingface-hub, open3d
+---
+Name: traitlets
+Version: 5.14.3
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: comm, ipython, ipywidgets, jupyter_core, matplotlib-inline, nbformat
+---
+Name: triton
+Version: 3.1.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: filelock
+Required-by: torch
+---
+Name: typing_extensions
+Version: 4.12.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: altair, anyio, dash, fastapi, huggingface-hub, ipython, pydantic, pydantic_core, referencing, rich, starlette, streamlit, torch, typing-inspection, uvicorn
+---
+Name: typing-inspection
+Version: 0.4.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: typing-extensions
+Required-by: pydantic
+---
+Name: tzdata
+Version: 2025.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: pandas
+---
+Name: urllib3
+Version: 2.3.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: requests
+---
+Name: uvicorn
+Version: 0.34.2
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: click, h11, typing-extensions
+Required-by: 
+---
+Name: uvloop
+Version: 0.21.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: watchdog
+Version: 6.0.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: streamlit
+---
+Name: watchfiles
+Version: 1.0.5
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: anyio
+Required-by: 
+---
+Name: wcwidth
+Version: 0.2.13
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: prompt_toolkit
+---
+Name: websockets
+Version: 15.0.1
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: Werkzeug
+Version: 3.0.6
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: MarkupSafe
+Required-by: dash, Flask, open3d
+---
+Name: wheel
+Version: 0.44.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: 
+---
+Name: widgetsnbextension
+Version: 4.0.13
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: ipywidgets
+---
+Name: zipp
+Version: 3.21.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: importlib_metadata, importlib_resources
+---
+Name: zstandard
+Version: 0.23.0
+Location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages
+Requires: 
+Required-by: conda, conda_package_streaming
+---

@@ -1,0 +1,155 @@
+# Source-built Package Analysis for depth-pro
+# Generated on: Tue Jun 17 07:06:29 PDT 2025
+
+cv2 location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/cv2/__init__.py
+cv2 version: 4.11.0
+cv2 file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/cv2/__init__.py
+cv2 path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/cv2']
+OpenCV build info: 
+General configuration for OpenCV 4.11.0 =====================================
+  Version control:               4.11.0-dirty
+
+  Platform:
+    Timestamp:                   2025-01-16T09:53:30Z
+    Host:                        Linux 5.15.0-1074-azure x86_64
+    CMake:                       3.31.1
+    CMake generator:             Unix Makefiles
+    CMake build tool:            /bin/gmake
+    Configuration:               Release
+    Algorithm Hint:              ALGO_HINT_ACCURATE
+
+  CPU/HW features:
+    Baseline:                    SSE SSE2 SSE3
+      requested:                 SSE3
+    Dispatched code generation:  SSE4_1 SSE4_2 AVX FP16 AVX2 AVX512_SKX
+      SSE4_1 (16 files):         + SSSE3 SSE4_1
+      SSE4_2 (1 files):          + SSSE3 SSE4_1 POPCNT SSE4_2
+      AVX (8 files):             + SSSE3 SSE4_1 POPCNT SSE4_2 AVX
+      FP16 (0 files):            + SSSE3 SSE4_1 POPCNT SSE4_2 AVX FP16
+      AVX2 (36 files):           + SSSE3 SSE4_1 POPCNT SSE4_2 AVX FP16 AVX2 FMA3
+      AVX512_SKX (5 files):      + SSSE3 SSE4_1 POPCNT SSE4_2 AVX FP16 AVX2 FMA3 AVX_512F AVX512_COMMON AVX512_SKX
+
+  C/C++:
+    Built as dynamic libs?:      NO
+    C++ standard:                11
+    C++ Compiler:                /opt/rh/devtoolset-10/root/usr/bin/c++  (ver 10.2.1)
+    C++ flags (Release):         -Wl,-strip-all   -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -O3 -DNDEBUG  -DNDEBUG
+    C++ flags (Debug):           -Wl,-strip-all   -fsigned-char -W -Wall -Wreturn-type -Wnon-virtual-dtor -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wshadow -Wsign-promo -Wuninitialized -Wsuggest-override -Wno-delete-non-virtual-dtor -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse3 -fvisibility=hidden -fvisibility-inlines-hidden -g  -O0 -DDEBUG -D_DEBUG
+    C Compiler:                  /opt/rh/devtoolset-10/root/usr/bin/cc
+    C flags (Release):           -Wl,-strip-all   -fsigned-char -W -Wall -Wreturn-type -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse3 -fvisibility=hidden -O3 -DNDEBUG  -DNDEBUG
+    C flags (Debug):             -Wl,-strip-all   -fsigned-char -W -Wall -Wreturn-type -Waddress -Wsequence-point -Wformat -Wformat-security -Wmissing-declarations -Wmissing-prototypes -Wstrict-prototypes -Wundef -Winit-self -Wpointer-arith -Wshadow -Wuninitialized -Wno-comment -Wimplicit-fallthrough=3 -Wno-strict-overflow -fdiagnostics-show-option -pthread -fomit-frame-pointer -ffunction-sections -fdata-sections  -msse3 -fvisibility=hidden -g  -O0 -DDEBUG -D_DEBUG
+    Linker flags (Release):      -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed -Wl,--no-undefined  
+    Linker flags (Debug):        -Wl,--exclude-libs,libippicv.a -Wl,--exclude-libs,libippiw.a -L/ffmpeg_build/lib  -Wl,--gc-sections -Wl,--as-needed -Wl,--no-undefined  
+    ccache:                      YES
+    Precompiled headers:         NO
+    Extra dependencies:          /lib64/libopenblas.so Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Test Qt5::Concurrent /usr/local/lib/libpng.so /usr/lib64/libz.so dl m pthread rt
+    3rdparty dependencies:       libprotobuf ade ittnotify libjpeg-turbo libwebp libtiff libopenjp2 IlmImf ippiw ippicv
+
+  OpenCV modules:
+    To be built:                 calib3d core dnn features2d flann gapi highgui imgcodecs imgproc ml objdetect photo python3 stitching video videoio
+    Disabled:                    world
+    Disabled by dependency:      -
+    Unavailable:                 java python2 ts
+    Applications:                -
+    Documentation:               NO
+    Non-free algorithms:         NO
+
+  GUI:                           QT5
+    QT:                          YES (ver 5.15.16 )
+      QT OpenGL support:         NO
+    GTK+:                        NO
+    VTK support:                 NO
+
+  Media I/O: 
+    ZLib:                        /usr/lib64/libz.so (ver 1.2.7)
+    JPEG:                        build-libjpeg-turbo (ver 3.0.3-70)
+      SIMD Support Request:      YES
+      SIMD Support:              YES
+    WEBP:                        build (ver decoder: 0x0209, encoder: 0x020f, demux: 0x0107)
+    AVIF:                        NO
+    PNG:                         /usr/local/lib/libpng.so (ver 1.6.44)
+    TIFF:                        build (ver 42 - 4.6.0)
+    JPEG 2000:                   build (ver 2.5.0)
+    OpenEXR:                     build (ver 2.3.0)
+    GIF:                         NO
+    HDR:                         YES
+    SUNRASTER:                   YES
+    PXM:                         YES
+    PFM:                         YES
+
+  Video I/O:
+    FFMPEG:                      YES
+      avcodec:                   YES (59.37.100)
+      avformat:                  YES (59.27.100)
+      avutil:                    YES (57.28.100)
+      swscale:                   YES (6.7.100)
+      avresample:                NO
+    GStreamer:                   NO
+    v4l/v4l2:                    YES (linux/videodev2.h)
+
+  Parallel framework:            pthreads
+
+  Trace:                         YES (with Intel ITT)
+
+  Other third-party libraries:
+    Intel IPP:                   2021.12.0 [2021.12.0]
+           at:                   /io/_skbuild/linux-x86_64-3.9/cmake-build/3rdparty/ippicv/ippicv_lnx/icv
+    Intel IPP IW:                sources (2021.12.0)
+              at:                /io/_skbuild/linux-x86_64-3.9/cmake-build/3rdparty/ippicv/ippicv_lnx/iw
+    VA:                          NO
+    Lapack:                      YES (/lib64/libopenblas.so)
+    Eigen:                       NO
+    Custom HAL:                  NO
+    Protobuf:                    build (3.19.1)
+    Flatbuffers:                 builtin/3rdparty (23.5.9)
+
+  OpenCL:                        YES (no extra features)
+    Include path:                /io/opencv/3rdparty/include/opencl/1.2
+    Link libraries:              Dynamic load
+
+  Python 3:
+    Interpreter:                 /opt/python/cp39-cp39/bin/python3.9 (ver 3.9.20)
+    Libraries:                   libpython3.9m.a (ver 3.9.20)
+    Limited API:                 YES (ver 0x03060000)
+    numpy:                       /home/ci/.local/lib/python3.9/site-packages/numpy/_core/include (ver 2.0.2)
+    install path:                python/cv2/python-3
+
+  Python (for build):            /opt/python/cp39-cp39/bin/python3.9
+
+  Java:                          
+    ant:                         NO
+    Java:                        NO
+    JNI:                         NO
+    Java wrappers:               NO
+    Java tests:                  NO
+
+  Install to:                    /io/_skbuild/linux-x86_64-3.9/cmake-install
+-----------------------------------------------------------------
+
+
+torch location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torch/__init__.py
+torch version: 2.5.1+cu124
+torch file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torch/__init__.py
+torch path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torch']
+PyTorch compiled with CUDA: True
+PyTorch CUDA arch list: ['sm_50', 'sm_60', 'sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90']
+torchvision location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torchvision/__init__.py
+torchvision version: 0.20.1+cu124
+torchvision file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torchvision/__init__.py
+torchvision path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/torchvision']
+numpy location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/numpy/__init__.py
+numpy version: 1.26.4
+numpy file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/numpy/__init__.py
+numpy path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/numpy']
+scipy location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/scipy/__init__.py
+scipy version: 1.13.1
+scipy file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/scipy/__init__.py
+scipy path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/scipy']
+matplotlib location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/matplotlib/__init__.py
+matplotlib version: 3.9.4
+matplotlib file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/matplotlib/__init__.py
+matplotlib path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/matplotlib']
+open3d location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/open3d/__init__.py
+open3d version: 0.19.0
+open3d file: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/open3d/__init__.py
+open3d path: ['/home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/open3d']

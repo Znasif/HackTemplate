@@ -1,0 +1,7 @@
+# Source-built Package Analysis for aws
+# Generated on: Tue Jun 17 07:03:50 PDT 2025
+
+numpy location: /home/znasif/anaconda3/envs/aws/lib/python3.13/site-packages/numpy/__init__.py
+numpy version: 2.3.0
+numpy file: /home/znasif/anaconda3/envs/aws/lib/python3.13/site-packages/numpy/__init__.py
+numpy path: ['/home/znasif/anaconda3/envs/aws/lib/python3.13/site-packages/numpy']

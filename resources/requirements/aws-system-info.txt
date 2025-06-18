@@ -1,0 +1,12 @@
+# System Information for aws environment
+# Generated on: Tue Jun 17 07:03:50 PDT 2025
+# Python version: Python 3.13.2
+# Python executable: /home/znasif/anaconda3/envs/aws/bin/python
+# Conda version: conda 25.1.1
+# Platform: Linux Nasif 6.6.87.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Mon Apr 21 17:08:54 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+
+# CUDA Information (if available)
+# NVIDIA Driver version:
+566.41
+# CUDA version:
+Cuda compilation tools, release 12.6, V12.6.85

@@ -1,0 +1,36 @@
+# Base Python packages
+fastapi
+uvicorn[standard]
+websockets
+opencv-python-headless
+pillow
+numpy
+torch
+torchvision
+transformers
+accelerate
+httpx
+python-dotenv
+asyncio-mqtt
+pydantic
+starlette
+
+# Audio processing
+soundfile
+librosa
+
+# Computer vision
+mediapipe
+ultralytics
+
+# Point cloud processing
+open3d
+
+# Scientific computing
+scipy
+scikit-learn
+matplotlib
+
+# AWS SDK (if needed)
+boto3
+
