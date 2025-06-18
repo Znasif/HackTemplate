@@ -1,5 +1,8 @@
-# Source-built Package Analysis for depth-pro
-# Generated on: Tue Jun 17 07:06:29 PDT 2025
+# Source-built package analysis for depth-pro environment
+# Generated on: Wed Jun 18 10:40:55 PDT 2025
+# Environment path: /home/znasif/anaconda3/envs/depth-pro
+# Python path: /home/znasif/anaconda3/envs/depth-pro/bin/python
+-----------------------------------------------------------------
 
 cv2 location: /home/znasif/anaconda3/envs/depth-pro/lib/python3.9/site-packages/cv2/__init__.py
 cv2 version: 4.11.0

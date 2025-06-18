@@ -1,5 +1,8 @@
-# Source-built Package Analysis for whatsai2
-# Generated on: Tue Jun 17 07:04:17 PDT 2025
+# Source-built package analysis for whatsai2 environment
+# Generated on: Wed Jun 18 10:38:46 PDT 2025
+# Environment path: /home/znasif/anaconda3/envs/whatsai2
+# Python path: /home/znasif/anaconda3/envs/whatsai2/bin/python
+-----------------------------------------------------------------
 
 cv2 location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/cv2/__init__.py
 cv2 version: 4.11.0

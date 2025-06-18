@@ -1,12 +1,14 @@
 # System Information for depth-pro environment
-# Generated on: Tue Jun 17 07:06:26 PDT 2025
+# Generated on: Wed Jun 18 10:40:52 PDT 2025
 # Python version: Python 3.9.21
 # Python executable: /home/znasif/anaconda3/envs/depth-pro/bin/python
 # Conda version: conda 25.1.1
-# Platform: Linux Nasif 6.6.87.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Mon Apr 21 17:08:54 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+# Platform: Linux Nasif 6.6.87.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun  5 18:30:46 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
 
 # CUDA Information (if available)
 # NVIDIA Driver version:
 566.41
-# CUDA version:
-Cuda compilation tools, release 12.6, V12.6.85
+# Python CUDA availability:
+PyTorch CUDA available: True
+PyTorch CUDA version: 12.4
+CUDA devices: 1
