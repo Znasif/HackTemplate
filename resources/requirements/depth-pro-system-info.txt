@@ -1,5 +1,5 @@
 # System Information for depth-pro environment
-# Generated on: Wed Jun 18 10:40:52 PDT 2025
+# Generated on: Wed Jun 18 16:51:19 PDT 2025
 # Python version: Python 3.9.21
 # Python executable: /home/znasif/anaconda3/envs/depth-pro/bin/python
 # Conda version: conda 25.1.1
@@ -8,7 +8,3 @@
 # CUDA Information (if available)
 # NVIDIA Driver version:
 566.41
-# Python CUDA availability:
-PyTorch CUDA available: True
-PyTorch CUDA version: 12.4
-CUDA devices: 1

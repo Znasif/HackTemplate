@@ -101,7 +101,7 @@ class SceneProcessor(BaseProcessor):
                     line_type=cv2.LINE_AA,  # Required argument
                     bottomLeftOrigin=False  # Add this argument
                 )
-        
+        print(texts)
         return output, texts
 
     def process_ocr(self, pil_image, output):

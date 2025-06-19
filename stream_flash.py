@@ -5,7 +5,7 @@ from asyncio import Queue
 import json
 import base64
 import socket
-import os
+import os, sys
 import signal
 import time
 from datetime import datetime
@@ -49,6 +49,7 @@ PROCESSOR_CONFIG = load_config("processor_config.json")
 
 def log_message(message: str, level: str = "INFO"):
     print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} [{level}] {message}")
+    #sys.stdout.flush()
 
 class AudioStreamRecorder:
     """Handles recording of streaming audio chunks in memory and conversion to MP3"""

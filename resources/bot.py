@@ -6,8 +6,8 @@ from discord.ext import commands
 import os
 import base64
 from dotenv import load_dotenv
-from llama import LlamaCppServerModifier
-from llava import ImageDescriber
+from resources.llama import LlamaCppServerModifier
+from resources.llava import ImageDescriber
 import asyncio, io
 from utils import render_code, encode_image
 import httpx

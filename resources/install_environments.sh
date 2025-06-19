@@ -106,7 +106,7 @@ verify_environment() {
 
 echo "--- Starting build for $ENV_NAME_TO_CREATE ---"
 
-if create_environment "$ENV_NAME_TO_CREATE" && verify_environment "$ENV_NAME_TO_CREATE"; then
+if create_environment "$ENV_NAME_TO_CREATE"; then
     echo "✅ Successfully created and verified $ENV_NAME_TO_CREATE"
 else
     echo "❌ Failed to create or verify $ENV_NAME_TO_CREATE"

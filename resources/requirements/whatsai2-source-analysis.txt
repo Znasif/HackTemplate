@@ -1,8 +1,5 @@
-# Source-built package analysis for whatsai2 environment
-# Generated on: Wed Jun 18 10:38:46 PDT 2025
-# Environment path: /home/znasif/anaconda3/envs/whatsai2
-# Python path: /home/znasif/anaconda3/envs/whatsai2/bin/python
------------------------------------------------------------------
+# Source Analysis for whatsai2 environment
+# Generated on: Wed Jun 18 16:48:23 PDT 2025
 
 cv2 location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/cv2/__init__.py
 cv2 version: 4.11.0
@@ -147,7 +144,3 @@ matplotlib location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-pa
 matplotlib version: 3.10.0
 matplotlib file: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/matplotlib/__init__.py
 matplotlib path: ['/home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/matplotlib']
-mediapipe location: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/mediapipe/__init__.py
-mediapipe version: 0.10.21
-mediapipe file: /home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/mediapipe/__init__.py
-mediapipe path: ['/home/znasif/anaconda3/envs/whatsai2/lib/python3.10/site-packages/mediapipe']

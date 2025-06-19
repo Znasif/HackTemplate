@@ -1,5 +1,5 @@
 # System Information for aws environment
-# Generated on: Wed Jun 18 10:38:20 PDT 2025
+# Generated on: Wed Jun 18 16:47:03 PDT 2025
 # Python version: Python 3.13.2
 # Python executable: /home/znasif/anaconda3/envs/aws/bin/python
 # Conda version: conda 25.1.1
@@ -8,5 +8,3 @@
 # CUDA Information (if available)
 # NVIDIA Driver version:
 566.41
-# Python CUDA availability:
-PyTorch not available

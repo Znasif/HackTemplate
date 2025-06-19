@@ -9,11 +9,19 @@ ENV PYTHONPATH=/app:$PYTHONPATH
 ENV CUDA_HOME=/usr/local/cuda
 ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
 
-# Install ONLY the absolute bare minimum that conda cannot provide
 RUN apt-get update && apt-get install -y \
-    # Essential tools (wget needed for miniconda download)
+    # Essential tools
     wget \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    # Git (required for git dependencies in pip requirements)
+    git \
+    # libxml2 (required for cudatoolkit-dev post-link scripts)
+    libxml2 \
+    # Build essentials that some pip packages might need
+    build-essential \
+    # Clean up to minimize image size
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Install Miniconda
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
