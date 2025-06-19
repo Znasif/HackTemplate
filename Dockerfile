@@ -42,7 +42,6 @@ COPY resources/install_environments.sh /tmp/install_environments.sh
 RUN chmod +x /tmp/install_environments.sh
 RUN /tmp/install_environments.sh aws
 RUN /tmp/install_environments.sh whatsai2
-RUN /tmp/install_environments.sh depth-pro
 
 # --- Runtime setup ---
 WORKDIR /app
