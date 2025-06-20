@@ -3,7 +3,7 @@
     "host": "127.0.0.1",
     "port": 8001,
     "name": "basic_processor",
-    "conda_env": "whatsai2",
+    "conda_env": "whatsai",
     "dependencies": [],
     "expects_input": "image",
     "description": "A simple processor that returns the original image without changes.",
@@ -12,18 +12,18 @@
   "1": {
     "host": "127.0.0.1",
     "port": 8002,
-    "name": "depth_processor",
-    "conda_env": "depth-pro",
-    "dependencies": [],
+    "name": "finger_count_processor",
+    "conda_env": "whatsai",
+    "dependencies": [0],
     "expects_input": "image",
-    "description": "A processor for creating a dense 3D point cloud visualization from an image.",
+    "description": "Utilizes MediaPipe for counting fingers.",
     "enabled": true
   },
   "2": {
     "host": "127.0.0.1",
     "port": 8003,
-    "name": "dense_processor",
-    "conda_env": "whatsai2",
+    "name": "scene_captioning_processor",
+    "conda_env": "whatsai",
     "dependencies": [],
     "expects_input": "image",
     "description": "A processor for creating dense region captioning from an image.",
@@ -32,41 +32,21 @@
   "3": {
     "host": "127.0.0.1",
     "port": 8004,
-    "name": "aircanvas_processor",
-    "conda_env": "whatsai2",
-    "dependencies": [],
-    "expects_input": "image",
-    "description": "Enables drawing in the air using hand gestures.",
-    "enabled": true
-  },
-  "4": {
-    "host": "127.0.0.1",
-    "port": 8005,
     "name": "camio_processor",
-    "conda_env": "whatsai2",
+    "conda_env": "whatsai",
     "dependencies": [],
     "expects_input": "image",
     "description": "Provides fine camera input and output functionalities to learn about curated objects.",
     "enabled": true
   },
-  "5": {
+  "4": {
     "host": "127.0.0.1",
-    "port": 8006,
-    "name": "yolo_processor",
-    "conda_env": "whatsai2",
+    "port": 8005,
+    "name": "scene_object_processor",
+    "conda_env": "whatsai",
     "dependencies": [],
     "expects_input": "image",
     "description": "Performs object detection using YOLO.",
-    "enabled": true
-  },
-  "7": {
-    "host": "127.0.0.1",
-    "port": 8008,
-    "name": "mediapipe_processor",
-    "conda_env": "whatsai2",
-    "dependencies": [0],
-    "expects_input": "image",
-    "description": "Utilizes MediaPipe for detecting hand gestures.",
     "enabled": true
   }
 }

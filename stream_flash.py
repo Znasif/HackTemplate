@@ -451,12 +451,6 @@ class ConnectionManager:
                     response_data = await self.execute_request(
                         processor_id, image_b64, point_cloud
                     )
-                    # Apply semantic filtering to text responses
-                    if isinstance(response_data, dict) and "text" in response_data and isinstance(response_data["text"], str):
-                        # Update result with filtered text
-                        response_data["text"] = response_data["text"]
-                    else:
-                        log_message("Didn't go through Gemini")
                     await websocket.send_text(json.dumps(response_data))
                 
             except Exception as e:

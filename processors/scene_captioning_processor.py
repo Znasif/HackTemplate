@@ -33,9 +33,6 @@ class SceneProcessor(BaseProcessor):
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
         self.min_confidence = min_confidence
         self.enable_layout_analysis = enable_layout_analysis
-        self.font = cv2.freetype.createFreeType2()
-        font_path = os.path.join(os.path.dirname(__file__), "..", "models", "AtkinsonHyperlegible-Regular.ttf")
-        self.font.loadFontData(font_path, 0)
 
     def _run_florence(self, image):
         """
@@ -91,15 +88,16 @@ class SceneProcessor(BaseProcessor):
                 cv2.rectangle(output, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 texts += text + "\n"
                 # Add text overlay
-                self.font.putText(
+                cv2.putText(
                     output,
                     text,
                     (x1, y1),
-                    fontHeight=10,  # Use a proper font height instead of scale
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,  # Specify fontFace
+                    fontScale=1.0,  # Use fontScale for size (adjust as needed)
                     color=(255, 255, 255),
                     thickness=1,
-                    line_type=cv2.LINE_AA,  # Required argument
-                    bottomLeftOrigin=False  # Add this argument
+                    lineType=cv2.LINE_AA,  # Correct parameter name
+                    bottomLeftOrigin=False
                 )
         print(texts)
         return output, texts
@@ -140,10 +138,11 @@ class SceneProcessor(BaseProcessor):
                 # Add text overlay
                 text_x = int(box[0][0])
                 text_y = int(box[0][1] - 10)
-                self.font.putText(
+                cv2.putText(
                     blank,
                     text,
                     (text_x, text_y),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontHeight=10,  # Use a proper font height instead of scale
                     color=(255, 255, 255),
                     thickness=1,

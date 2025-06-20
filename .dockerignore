@@ -1,0 +1,10 @@
+.env
+models/
+processors/__pycache__/
+__pycache__/
+audio_recordings
+!models/colorMap.png
+!models/data.json
+!models/hotspots.json
+!models/template.png
+!models/street_map_Market.json

@@ -2,3 +2,5 @@ models/
 processors/__pycache__/
 __pycache__/
 .env
+deploy.sh
+user_data.sh

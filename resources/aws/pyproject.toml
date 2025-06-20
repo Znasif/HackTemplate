@@ -1,0 +1,38 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whatsai-unified-service"  # Updated to reflect the combined project
+version = "0.1.0"
+description = "A unified service combining FastAPI, real-time audio, and generative AI with AWS Bedrock." # Updated description
+requires-python = ">=3.12"
+license = { text = "MIT" }
+
+# --- CORE DEPENDENCIES ---
+# Combined list from both projects
+dependencies = [
+    # Original 'whatsai-aws' dependencies
+    "python-dotenv",
+    "aws-sdk-bedrock-runtime",
+    "google-genai",
+    "httpx",
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "Rx>=3.2.0",
+    "smithy-aws-core>=0.0.1",
+    "pytz",
+]
+
+# --- OPTIONAL DEPENDENCIES (for development) ---
+# Tools for formatting, linting, and testing. Install with: pip install -e ".[dev]"
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "black",
+]

@@ -2,7 +2,7 @@ services:
   whatsai-server:
     build: .
     ports:
-      - "8080:8080"
+      - "8000:8000"
     env_file:
       - .env
     volumes:
@@ -19,7 +19,7 @@ services:
               capabilities: [gpu]
     restart: unless-stopped
     # Override the default command to start with bash
-    command: /bin/bash
-    # Keep container running with interactive terminal
-    stdin_open: true
-    tty: true
+    # command: /bin/bash
+    # # Keep container running with interactive terminal
+    # stdin_open: true
+    # tty: true

@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import numba
 import mediapipe as mp
 from scipy import stats, signal
 from collections import deque
