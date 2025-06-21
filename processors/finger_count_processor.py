@@ -53,6 +53,8 @@ class FingerCounterProcessor(BaseProcessor):
             'finger_count': 0,
             'hand_type': None
         }
+
+        detections['finger_count'] = 0
         
         # Process hand detection
         hand_results = self.hands.process(frame_rgb)
@@ -102,7 +104,7 @@ class FingerCounterProcessor(BaseProcessor):
                     detections['hand_type'] = hand_label
         
         
-        return output, str(total_fingers)
+        return output, str(detections['finger_count'])
 
     def get_landmark_coordinates(self, landmarks, image_shape):
         """
