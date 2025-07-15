@@ -1,3 +1,3 @@
 [submodule "server/models/Hierarchical-Localization"]
-	path = server/models/Hierarchical-Localization
+	path = old_server/models/Hierarchical-Localization
 	url = https://github.com/cvg/Hierarchical-Localization.git
