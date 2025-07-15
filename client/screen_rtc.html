@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Screen Capture Client application for streaming and processing real-time content">
+    <title>Screen Capture Client</title>
+    <style>
+        :root {
+            --primary: #050816;
+            --secondary: #aaa6c3;
+            --tertiary: #151030;
+            --black-100: #100d25;
+            --black-200: #090325;
+            --white-100: #f3f3f3;
+            --accent-green: #28a745;
+            --accent-red: #dc3545;
+            --accent-blue: #007bff;
+            --accent-orange: #fd7e14;
+            --button-text: #FFFFFF;
+            --focus-outline: #4dabf7;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background-color: var(--primary);
+            color: var(--white-100);
+            margin: 0;
+        }
+        
+        main,
+        section#pointCloudAppSection,
+        footer {
+            width: 100%;
+            max-width: 853px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--white-100);
+            font-size: 2rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .controls, .settings-panel {
+            display: flex;
+            gap: 10px;
+            background-color: var(--tertiary);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 35px 120px -15px #211e35;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .settings-panel {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .setting-label {
+            width: 150px;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        #videoFeed {
+            max-width: 100%;
+            width: 853px;
+            aspect-ratio: 853 / 480; /* Enforce 16:9 */
+            border: 2px solid var(--tertiary);
+            background-color: #000;
+            border-radius: 8px;
+            box-shadow: 0px 35px 120px -15px #211e35;
+            display: block;
+            overflow: hidden; /* Hide any minor overflow from the video element */
+        }
+
+        #videoFeed video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures the video fits perfectly */
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            color: var(--button-text);
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button:focus-visible {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        
+        .start {
+            background-color: var(--accent-green);
+        }
+        
+        .help {
+            background-color: var(--accent-blue);
+        }
+
+        .stop {
+            background-color: var(--accent-red);
+        }
+        
+        .mute {
+            background-color: #6c757d;
+        }
+        
+        .select-screen {
+            background-color: var(--accent-blue);
+        }
+        
+        .fetch-processors {
+            background-color: var(--accent-blue);
+        }
+        
+        .refresh-audio {
+            background-color: var(--accent-orange);
+        }
+        
+        .crop-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .crop-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+        
+        select, input[type="text"], input[type="range"] {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--secondary);
+            background-color: var(--black-100);
+            color: var(--white-100);
+            margin-left: 5px;
+        }
+        
+        select:focus-visible, input:focus-visible {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        
+        select {
+            background-color: var(--black-100);
+            color: var(--white-100);
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--secondary);
+            cursor: pointer;
+        }
+        
+        select option {
+            background-color: var(--black-100);
+            color: var(--white-100);
+        }
+        
+        .response-area {
+            width: 90%;
+            max-width: 800px;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid var(--secondary);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: var(--black-100);
+            color: var(--white-100);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #statusBar {
+            width: 90%;
+            max-width: 800px;
+            padding: 8px; 
+            background-color: var(--black-100);
+            border-radius: 4px;
+            border: 1px solid var(--secondary);
+            text-align: left;
+            color: var(--secondary);
+        }
+        
+        #screenStatus, #audioStatus {
+            margin-left: 10px;
+            font-style: italic;
+            color: var(--secondary);
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--black-100);
+            color: var(--white-100);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .back-button:hover {
+            background-color: var(--tertiary);
+        }
+        
+        .back-button:focus-visible {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        
+        #serverUrl {
+            color: var(--secondary);
+            background-color: var(--black-200);
+            flex-grow: 1;
+            border: 1px solid var(--secondary);
+        }
+
+        section#pointCloudAppSection h2 {
+            color: var(--white-100);
+            font-size: 1.75rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .sound-splitting-controls {
+            background-color: var(--black-200);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --primary: #000000;
+                --white-100: #FFFFFF;
+                --secondary: #FFFFFF;
+                --tertiary: #1C2526;
+                --black-100: #1C2526;
+                --black-200: #1C2526;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            button:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav aria-label="Site navigation">
+        <a href="/" class="back-button" aria-label="Back to portfolio homepage">← Back to Portfolio</a>
+    </nav>
+    
+    <main aria-label="Screen capture application">
+        <h1>Screen Capture Client</h1>
+        
+        <div id="statusBar" role="status" aria-live="polite">Status: Ready</div>
+
+        <!-- MODIFIED: Changed from <canvas> to <div> to act as a container -->
+        <div id="videoFeed" role="img" aria-label="Live video feed display"></div>
+
+        <section class="settings-panel" aria-labelledby="captureSettingsHeading">
+            <h2 id="captureSettingsHeading" class="hidden">Capture Settings</h2>
+            <div class="setting-row">
+                <label for="serverUrl" class="setting-label">Server URL:</label>
+                <input id="serverUrl" type="text" value="http://localhost:8000" aria-describedby="serverUrlDesc">
+                <button id="fetchProcessorsButton" class="fetch-processors" aria-label="Fetch available processors">Fetch Processors</button>
+                <p id="serverUrlDesc" class="hidden">HTTP URL for server connection (e.g., http://localhost:8000)</p>
+            </div>
+            
+            <div class="setting-row">
+                <label for="processorSelect" class="setting-label">Processor Mode (Alt+P):</label>
+                <select id="processorSelect" aria-describedby="processorSelectDesc">
+                    <option value="0" selected>Base Processor</option>
+                </select>
+                <p id="processorSelectDesc" class="hidden">Select the processing mode for the video feed</p>
+            </div>
+            
+            <div class="setting-row">
+                <label for="audioInputSelect" class="setting-label"> Audio Input (Alt+I):</label>
+                <select id="audioInputSelect" aria-describedby="audioInputSelectDesc">
+                    <option value="">Loading audio devices...</option>
+                </select>
+                <button id="refreshAudioButton" class="refresh-audio" aria-label="Refresh audio devices">Refresh Audio</button>
+                <p id="audioInputSelectDesc" class="hidden">Select the audio input device for streaming</p>
+            </div>
+            
+            <div class="setting-row">
+                <label for="qualitySlider" class="setting-label">Quality (Alt+Q):</label>
+                <input type="range" id="qualitySlider" min="1" max="100" value="30" aria-valuetext="30 percent quality" aria-describedby="qualitySliderDesc">
+                <span id="qualityValue" aria-hidden="true">30</span>
+                <p id="qualitySliderDesc" class="hidden">Adjust the quality of the video feed from 1 to 100 percent</p>
+            </div>
+            
+            <div class="setting-row">
+                <label class="setting-label" id="screenSelectionLabel">Screen Selection:</label>
+                <button id="selectScreenButton" type="button" class="select-screen" aria-describedby="screenSelectionLabel">Select Screen to Share</button>
+                <span id="screenStatus" aria-live="polite">No screen selected</span>
+            </div>
+            
+            <div class="setting-row">
+                <div class="setting-label" id="croppingLabel">Cropping (%):</div>
+                <div class="crop-controls" aria-labelledby="croppingLabel">
+                    <div class="crop-group">
+                        <label for="leftCrop">Left (Alt+L)</label>
+                        <!-- MODIFIED: Sliders are now percentage-based -->
+                        <input type="range" id="leftCrop" min="0" max="50" value="0" aria-valuetext="Left crop: 0 percent" aria-describedby="leftCropDesc">
+                        <span id="leftValue" aria-hidden="true">0%</span>
+                        <p id="leftCropDesc" class="hidden">Adjust the left crop of the video feed in percent</p>
+                    </div>
+                    <div class="crop-group">
+                        <label for="rightCrop">Right (Alt+R)</label>
+                        <input type="range" id="rightCrop" min="0" max="50" value="0" aria-valuetext="Right crop: 0 percent" aria-describedby="rightCropDesc">
+                        <span id="rightValue" aria-hidden="true">0%</span>
+                        <p id="rightCropDesc" class="hidden">Adjust the right crop of the video feed in percent</p>
+                    </div>
+                    <div class="crop-group">
+                        <label for="topCrop">Top (Alt+T)</label>
+                        <input type="range" id="topCrop" min="0" max="50" value="0" aria-valuetext="Top crop: 0 percent" aria-describedby="topCropDesc">
+                        <span id="topValue" aria-hidden="true">0%</span>
+                        <p id="topCropDesc" class="hidden">Adjust the top crop of the video feed in percent</p>
+                    </div>
+                    <div class="crop-group">
+                        <label for="bottomCrop">Bottom (Alt+B)</label>
+                        <input type="range" id="bottomCrop" min="0" max="50" value="0" aria-valuetext="Bottom crop: 0 percent" aria-describedby="bottomCropDesc">
+                        <span id="bottomValue" aria-hidden="true">0%</span>
+                        <p id="bottomCropDesc" class="hidden">Adjust the bottom crop of the video feed in percent</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sound-splitting-controls">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="soundSplittingCheckbox" checked>
+                    <label for="soundSplittingCheckbox">Enable Sound Splitting (TTS: Left, Audio Playback: Right)</label>
+                </div>
+            </div>
+        </section>
+
+        <div class="controls" role="toolbar" aria-label="Streaming controls">
+            <button id="toggleStreamingButton" class="start" aria-keyshortcuts="Alt+S">Start Streaming (Alt+S)</button>
+            <button id="toggleMuteButton" class="mute" aria-keyshortcuts="Alt+M">Mute Speech (Alt+M)</button>
+            <button id="toggleAudioButton" class="start" aria-keyshortcuts="Alt+A">Start Audio (Alt+A)</button>
+            <button id="helpButton" class="help" aria-keyshortcuts="Alt+H">Help (Alt+H)</button>
+        </div>
+    </main>
+    
+    <section id="pointCloudAppSection" aria-labelledby="pointCloudAppHeading" style="margin-top: 40px;">
+        <h2 id="pointCloudAppHeading">3D Point Cloud Viewer</h2>
+        <div id="pointCloudViewerContainer" style="width: 100%; height: 480px; border: 2px solid var(--tertiary); background-color: #000; position: relative; border-radius: 8px; box-shadow: 0px 35px 120px -15px #211e35; margin-bottom: 20px;">
+        </div>
+
+        <div class="settings-panel" style="flex-direction:column; align-items:flex-start; gap: 8px;">
+            <div id="pointCloudStatus" style="color: var(--secondary);">Status: Initializing...</div>
+            <div id="pointCloudError" style="color: var(--accent-red);"></div>
+            <div id="pointCloudInfo" style="color: var(--secondary); display: none; font-size: 0.9em;">
+                <span>ℹ️ Point cloud visualization area. Controlled by server data.</span>
+            </div>
+        </div>
+    </section>
+    
+    <footer role="contentinfo">
+        <div class="response-area" id="responseText" aria-live="polite" role="status">Server response will appear here...</div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const videoFeedContainer = document.getElementById('videoFeed'); // MODIFIED: Renamed for clarity
+        const toggleStreamingButton = document.getElementById('toggleStreamingButton');
+        const toggleMuteButton = document.getElementById('toggleMuteButton');
+        const toggleAudioButton = document.getElementById('toggleAudioButton');
+        const helpButton = document.getElementById('helpButton');
+        const serverUrl = document.getElementById('serverUrl');
+        const processorSelect = document.getElementById('processorSelect');
+        const audioInputSelect = document.getElementById('audioInputSelect');
+        const refreshAudioButton = document.getElementById('refreshAudioButton');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityValue = document.getElementById('qualityValue');
+        const selectScreenButton = document.getElementById('selectScreenButton');
+        const screenStatus = document.getElementById('screenStatus');
+        const responseText = document.getElementById('responseText');
+        const statusBar = document.getElementById('statusBar');
+        const fetchProcessorsButton = document.getElementById('fetchProcessorsButton');
+        const soundSplittingCheckbox = document.getElementById('soundSplittingCheckbox');
+        
+        // Cropping controls
+        const leftCrop = document.getElementById('leftCrop');
+        const rightCrop = document.getElementById('rightCrop');
+        const topCrop = document.getElementById('topCrop');
+        const bottomCrop = document.getElementById('bottomCrop');
+        const leftValue = document.getElementById('leftValue');
+        const rightValue = document.getElementById('rightValue');
+        const topValue = document.getElementById('topValue');
+        const bottomValue = document.getElementById('bottomValue');
+        
+        // State variables
+        let isStreaming = false;
+        let isMuted = false;
+        let isAudioStreaming = false;
+        let currentProcessor = 0;
+        let quality = 30;
+        let cropSettings = [0, 0, 0, 0]; // left, right, top, bottom IN PERCENT
+        let currentStreamType = 'video';
+        let isWaitingForResponse = false;
+        let soundSplittingEnabled = true;
+
+        // WebRTC variables
+        let pc = null;
+        let dataChannel = null;
+        let localVideoStream = null; // This will hold the PROCESSED stream
+        let localAudioStream = null;
+        let serverDisplayCtx = null;
+
+        // NEW: Canvas processing variables
+        let canvasProcessor = {
+            animationFrameId: null,
+            sourceVideo: null,
+            processingCanvas: null,
+            ctx: null,
+            originalStream: null, // Keep a reference to the raw stream
+        };
+
+        // Other variables...
+        let utteranceQueue = [];
+        const MAX_UTTERANCE_QUEUE_SIZE = 2;
+        let lastSpokenText = "";
+        const BASE_SPEECH_RATE = 1.75;
+        const MAX_SPEECH_RATE = 2.5;
+        const RATE_INCREMENT = 0.25;
+        
+        let selectedAudioDeviceId = null;
+        let audioContext = null;
+        let audioPlaybackBuffer = [];
+        
+        const DEFAULT_SERVER_URL = "http://localhost:8000";
+        const screenSelectionLabel = document.getElementById('screenSelectionLabel');
+        
+        const speechSynthesis = window.speechSynthesis;
+        
+        // --- All your other functions (initializeAudioContext, speakWithPanning, etc.) remain unchanged ---
+        // ... (pasting all unchanged functions here for completeness, no modifications needed in them)
+
+        function initializeAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContext;
+        }
+        
+        function processSpeechQueue() {
+            if (utteranceQueue.length === 0 || isMuted) {
+                return;
+            }
+
+            const textToSpeak = utteranceQueue.shift(); 
+            lastSpokenText = textToSpeak;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+            const queueLength = utteranceQueue.length;
+            let dynamicRate = BASE_SPEECH_RATE + (queueLength * RATE_INCREMENT);
+            
+            utterance.rate = Math.min(dynamicRate, MAX_SPEECH_RATE);
+
+            console.log(`Speaking at rate: ${utterance.rate.toFixed(2)}. Items waiting: ${queueLength}`);
+
+            utterance.onend = () => {
+                processSpeechQueue();
+            };
+
+            utterance.onerror = (event) => {
+                console.error('An error occurred during speech synthesis:', event);
+                processSpeechQueue();
+            };
+
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakWithPanning(text, panValue = -1) {
+            if (isMuted) {
+                return;
+            }
+
+            if (!soundSplittingEnabled) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                speechSynthesis.speak(utterance);
+                return;
+            }
+            
+            const lastItemInQueue = utteranceQueue.length > 0 ? utteranceQueue[utteranceQueue.length - 1] : null;
+            if (text === lastItemInQueue) { return; }
+            if (utteranceQueue.length === 0 && speechSynthesis.speaking && text === lastSpokenText) { return; }
+            
+            if (utteranceQueue.length >= MAX_UTTERANCE_QUEUE_SIZE) {
+                utteranceQueue.shift(); 
+                console.log("Queue full. Dropping oldest utterance to prioritize new one.");
+            }
+            utteranceQueue.push(text);
+            
+            if (!speechSynthesis.speaking) {
+                processSpeechQueue();
+            }
+        }
+        
+        async function playAudioWithPanning(audioData, panValue = 1) {
+            if (!soundSplittingEnabled) {
+                await playAudioNormally(audioData);
+                return;
+            }
+            try {
+                const ctx = initializeAudioContext();
+
+                if (ctx.state === 'suspended') {
+                    await ctx.resume();
+                }
+
+                const audioBuffer = await pcmToAudioBuffer(audioData, 24000, 1);
+                const source = ctx.createBufferSource();
+                source.buffer = audioBuffer;
+                const panner = ctx.createStereoPanner();
+                panner.pan.value = panValue;
+                source.connect(panner);
+                panner.connect(ctx.destination);
+                source.start(0);
+            } catch (error) {
+                console.error('Error playing panned audio:', error);
+                await playAudioNormally(audioData);
+            }
+        }
+        
+        async function playAudioNormally(audioData) {
+            try {
+                const audioBuffer = await pcmToAudioBuffer(audioData, 24000, 1);
+                const blob = audioBufferToWav(audioBuffer);
+                const audioUrl = URL.createObjectURL(blob);
+                const audio = new Audio(audioUrl);
+                audio.onended = () => URL.revokeObjectURL(audioUrl);
+                await audio.play();
+            } catch (error) {
+                console.error('Error playing audio normally:', error);
+            }
+        }
+        
+        function pcmToAudioBuffer(pcmData, sampleRate, channels) {
+            return new Promise((resolve, reject) => {
+                const ctx = initializeAudioContext();
+                if (!(pcmData instanceof ArrayBuffer)) {
+                    console.error("pcmToAudioBuffer expected an ArrayBuffer, but got:", pcmData);
+                    return reject(new TypeError("Invalid data type for pcmToAudioBuffer"));
+                }
+
+                const float32Array = new Float32Array(pcmData.byteLength / 2);
+                const dataView = new DataView(pcmData);
+                
+                for (let i = 0; i < pcmData.byteLength; i += 2) {
+                    float32Array[i / 2] = dataView.getInt16(i, true) / 32768;
+                }
+
+                if (float32Array.length > 0) {
+                    console.log(`Playback buffer created with ${float32Array.length} samples. First sample: ${float32Array[0]}`);
+                }
+
+                const audioBuffer = ctx.createBuffer(channels, float32Array.length, sampleRate);
+                audioBuffer.copyToChannel(float32Array, 0);
+                resolve(audioBuffer);
+            });
+        }
+        
+        function audioBufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const length = buffer.length * numChannels * 2 + 44;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
+            
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            }
+            
+            let offset = 0;
+            writeString(view, offset, 'RIFF'); offset += 4;
+            view.setUint32(offset, length - 8, true); offset += 4;
+            writeString(view, offset, 'WAVE'); offset += 4;
+            writeString(view, offset, 'fmt '); offset += 4;
+            view.setUint32(offset, 16, true); offset += 4;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint16(offset, numChannels, true); offset += 2;
+            view.setUint32(offset, sampleRate, true); offset += 4;
+            view.setUint32(offset, sampleRate * numChannels * 2, true); offset += 4;
+            view.setUint16(offset, numChannels * 2, true); offset += 2;
+            view.setUint16(offset, 16, true); offset += 2;
+            writeString(view, offset, 'data'); offset += 4;
+            view.setUint32(offset, buffer.length * numChannels * 2, true); offset += 4;
+            
+            const channelData = buffer.getChannelData(0);
+            for (let i = 0; i < buffer.length; i++) {
+                view.setInt16(offset, channelData[i] * 32768, true);
+                offset += 2;
+            }
+            
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+        
+        function isMobileBrowser() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function updateScreenCaptureUI() {
+            if (isMobileBrowser()) {
+                selectScreenButton.textContent = "Select Camera to Share";
+                screenSelectionLabel.textContent = "Camera Selection:";
+                selectScreenButton.setAttribute('aria-label', "Select camera to share");
+            } else {
+                selectScreenButton.textContent = "Select Screen to Share";
+                screenSelectionLabel.textContent = "Screen Selection:";
+                selectScreenButton.setAttribute('aria-label', "Select screen to share");
+            }
+        }
+
+        async function enumerateAudioDevices() {
+            try {
+                updateStatus('Requesting microphone permission...');
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                updateStatus('Enumerating audio devices...');
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputDevices = devices.filter(device => device.kind === 'audioinput');
+                audioInputSelect.innerHTML = '';
+                if (audioInputDevices.length === 0) {
+                    audioInputSelect.innerHTML = '<option value="">No audio devices found</option>';
+                    let message = 'No audio input devices found.';
+                    if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+                        message += ' In Safari, ensure microphone permissions are granted for this site in System Settings > Privacy & Security > Microphone, and for Safari itself.';
+                    } else {
+                        message += ' Please ensure microphone access is allowed in your browser settings.';
+                    }
+                    updateStatus(message, true);
+                    return;
+                }
+                audioInputDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || `Audio Device ${index + 1}` + (device.deviceId === 'default' ? ' (Default)' : '');
+                    audioInputSelect.appendChild(option);
+                });
+                updateStatus('Audio devices loaded successfully');
+            } catch (error) {
+                console.error('Error enumerating audio devices:', error);
+                audioInputSelect.innerHTML = '<option value="">Error loading audio devices</option>';
+                updateStatus('Failed to load audio devices', true);
+            }
+        }
+        
+        async function createPeerConnection() {
+            pc = new RTCPeerConnection({
+                iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+            });
+
+            dataChannel = pc.createDataChannel('commands', { ordered: true });
+
+            dataChannel.onopen = () => {
+                console.log('Data channel opened');
+                updateStatus('WebRTC data channel established');
+                if (dataChannel.readyState === 'open') {
+                    dataChannel.send(JSON.stringify({ processor: currentProcessor }));
+                }
+            };
+
+            dataChannel.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'server_overload') {
+                    if (data.drop_frames) {
+                        console.log('Server overloaded, pausing frame sending');
+                        canvasProcessor.sourceVideo.pause(); // Pause video to stop sending frames
+                    } else {
+                        console.log('Server recovered, resuming frame sending');
+                        canvasProcessor.sourceVideo.play(); // Resume video
+                    }
+                }
+                // Existing handleServerResponse logic...
+                handleServerResponse(event.data).catch(error => {
+                    console.error("Error in handleServerResponse:", error);
+                    updateStatus("Internal error processing server message.", true);
+                });
+            };
+
+            dataChannel.onclose = () => console.log('Data channel closed');
+            pc.onicecandidate = (event) => {
+                if (event.candidate === null) console.log('All ICE candidates have been gathered');
+            };
+
+            pc.onconnectionstatechange = () => {
+                console.log('Connection state:', pc.connectionState);
+                if (pc.connectionState === 'connected') {
+                    updateStatus('WebRTC connection established');
+                } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+                    updateStatus('WebRTC connection lost', true);
+                    cleanupWebRTC();
+                }
+            };
+
+            return pc;
+        }
+
+        async function connectToServer() {
+            try {
+                updateStatus('Creating WebRTC connection...');
+                await createPeerConnection();
+
+                if (localVideoStream) {
+                    localVideoStream.getTracks().forEach(track => pc.addTrack(track, localVideoStream));
+                }
+                if (localAudioStream) {
+                    localAudioStream.getTracks().forEach(track => pc.addTrack(track, localAudioStream));
+                }
+
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                const response = await fetch(`${serverUrl.value}/offer`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({sdp: offer.sdp, type: offer.type}),
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const answer = await response.json();
+                await pc.setRemoteDescription(new RTCSessionDescription(answer));
+
+                updateStatus('WebRTC connection established');
+                return true;
+            } catch (error) {
+                console.error('Error connecting to server:', error);
+                updateStatus(`Connection error: ${error.message}`, true);
+                cleanupWebRTC();
+                return false;
+            }
+        }
+
+        function cleanupWebRTC() {
+            if (dataChannel) { dataChannel.close(); dataChannel = null; }
+            if (pc) { pc.close(); pc = null; }
+        }
+
+        async function fetchProcessors() {
+            try {
+                const apiUrl = `${serverUrl.value}/processors`;
+                updateStatus('Fetching processors...');
+                const response = await fetch(apiUrl);
+                if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); }
+                const data = await response.json();
+                const processors = data.processors || [];
+                processorSelect.innerHTML = '';
+                if (processors.length === 0) {
+                    processorSelect.innerHTML = '<option value="0" selected>Base Processor</option>';
+                    currentProcessor = 0;
+                    updateStatus('No processors found. Using default.', true);
+                    return;
+                }
+                processors.forEach(processor => {
+                    const option = document.createElement('option');
+                    option.value = processor.id;
+                    option.textContent = processor.name;
+                    if (processor.id === 0) { option.selected = true; currentProcessor = 0; }
+                    processorSelect.appendChild(option);
+                });
+                updateStatus('Processors loaded successfully');
+            } catch (error) {
+                console.error('Error fetching processors:', error);
+                processorSelect.innerHTML = '<option value="0" selected>Base Processor</option>';
+                currentProcessor = 0;
+                updateStatus('Failed to fetch processors. Using default.', true);
+            }
+        }
+        
+        // --- NEW UNIFIED PROCESSING PIPELINE ---
+        function processStreamWithCanvas(originalStream) {
+            const TARGET_WIDTH = 853;
+            const TARGET_HEIGHT = 480;
+
+            // Store the raw stream for cleanup
+            canvasProcessor.originalStream = originalStream;
+
+            // 1. Create a hidden video element to play the original stream
+            canvasProcessor.sourceVideo = document.createElement('video');
+            canvasProcessor.sourceVideo.srcObject = originalStream;
+            canvasProcessor.sourceVideo.muted = true;
+            canvasProcessor.sourceVideo.play();
+
+            // 2. Create a canvas for processing
+            canvasProcessor.processingCanvas = document.createElement('canvas');
+            canvasProcessor.processingCanvas.width = TARGET_WIDTH;
+            canvasProcessor.processingCanvas.height = TARGET_HEIGHT;
+            canvasProcessor.ctx = canvasProcessor.processingCanvas.getContext('2d');
+            
+            function drawFrame() {
+                if (!canvasProcessor.sourceVideo || canvasProcessor.sourceVideo.paused || canvasProcessor.sourceVideo.ended) {
+                    return;
+                }
+                
+                const videoWidth = canvasProcessor.sourceVideo.videoWidth;
+                const videoHeight = canvasProcessor.sourceVideo.videoHeight;
+
+                if (videoWidth > 0 && videoHeight > 0) {
+                    // 3. CROP CALCULATION (from percentages to pixels)
+                    const [left, right, top, bottom] = cropSettings;
+                    const sx = videoWidth * (left / 100);
+                    const sy = videoHeight * (top / 100);
+                    const sWidth = videoWidth * (1 - (left + right) / 100);
+                    const sHeight = videoHeight * (1 - (top + bottom) / 100);
+
+                    if (sWidth > 0 && sHeight > 0) {
+                        // 4. LETTERBOX/PILLARBOX CALCULATION (for the cropped area)
+                        const croppedAspectRatio = sWidth / sHeight;
+                        const canvasAspectRatio = TARGET_WIDTH / TARGET_HEIGHT;
+                        let renderWidth, renderHeight, dx, dy;
+
+                        if (croppedAspectRatio > canvasAspectRatio) {
+                            renderWidth = TARGET_WIDTH;
+                            renderHeight = TARGET_WIDTH / croppedAspectRatio;
+                            dx = 0;
+                            dy = (TARGET_HEIGHT - renderHeight) / 2;
+                        } else {
+                            renderHeight = TARGET_HEIGHT;
+                            renderWidth = TARGET_HEIGHT * croppedAspectRatio;
+                            dy = 0;
+                            dx = (TARGET_WIDTH - renderWidth) / 2;
+                        }
+                        
+                        // 5. DRAW THE FRAME
+                        canvasProcessor.ctx.fillStyle = "black";
+                        canvasProcessor.ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                        canvasProcessor.ctx.drawImage(
+                            canvasProcessor.sourceVideo,
+                            sx, sy, sWidth, sHeight,
+                            dx, dy, renderWidth, renderHeight
+                        );
+                    } else {
+                        // If crop is invalid, draw a black frame
+                        canvasProcessor.ctx.fillStyle = "black";
+                        canvasProcessor.ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                    }
+                }
+                
+                canvasProcessor.animationFrameId = requestAnimationFrame(drawFrame);
+            }
+            
+            drawFrame();
+            
+            // 6. Return the stream from the canvas
+            return canvasProcessor.processingCanvas.captureStream(30); // 30 FPS
+        }
+
+        // --- MODIFIED screen capture setup ---
+        async function setupScreenCapture() {
+            if (canvasProcessor.originalStream) {
+                return true;
+            }
+            try {
+                let originalStream;
+                if (isMobileBrowser()) {
+                    updateStatus("Requesting camera access...");
+                    originalStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                    currentStreamType = 'camera';
+                    updateStatus("Camera access granted.");
+                } else {
+                    updateStatus("Requesting screen sharing access...");
+                    originalStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", cursor: "always" } });
+                    currentStreamType = 'screen';
+                    updateStatus("Screen sharing access granted.");
+                }
+
+                // IMPORTANT: Listen for 'ended' on the ORIGINAL stream
+                originalStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    const endedStreamType = currentStreamType === 'camera' ? 'Camera' : 'Screen';
+                    console.log(`User stopped sharing ${endedStreamType}`);
+                    cleanupScreenCapture();
+                    if (isStreaming) { toggleStreaming(); }
+                    screenStatus.textContent = `${endedStreamType} sharing ended.`;
+                });
+
+                // Process the stream to get a letterboxed, croppable version
+                const processedStream = processStreamWithCanvas(originalStream);
+
+                // This is the stream we will use for WebRTC
+                localVideoStream = processedStream;
+
+                // Display the processed stream locally
+                videoFeedContainer.innerHTML = ''; // Clear previous content
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = processedStream;
+                videoElement.muted = true;
+                videoElement.playsInline = true;
+                videoElement.play();
+                videoFeedContainer.appendChild(videoElement);
+
+                screenStatus.textContent = currentStreamType === 'camera' ? "Camera selected" : "Screen selected";
+                selectScreenButton.disabled = true;
+                selectScreenButton.setAttribute('aria-disabled', 'true');
+                
+                return true;
+
+            } catch (error) {
+                const errorStreamType = isMobileBrowser() ? 'camera' : 'screen';
+                console.error(`Error setting up ${errorStreamType} capture:`, error);
+                const permErrorNames = ['NotAllowedError', 'PermissionDeniedError'];
+                if (permErrorNames.includes(error.name)) {
+                    updateStatus(`${errorStreamType === 'camera' ? 'Camera' : 'Screen capture'} permission denied.`, true);
+                    screenStatus.textContent = `${errorStreamType === 'camera' ? 'Camera' : 'Screen'} permission denied.`;
+                } else {
+                    updateStatus(`Error setting up ${errorStreamType}: ${error.message}`, true);
+                    screenStatus.textContent = `Error with ${errorStreamType}.`;
+                }
+                cleanupScreenCapture();
+                return false;
+            }
+        }
+        
+        // --- MODIFIED cleanup function ---
+        function cleanupScreenCapture() {
+            // Stop the drawing loop
+            if (canvasProcessor.animationFrameId) {
+                cancelAnimationFrame(canvasProcessor.animationFrameId);
+            }
+            // Stop the original raw stream
+            if (canvasProcessor.originalStream) {
+                canvasProcessor.originalStream.getTracks().forEach(track => track.stop());
+            }
+            // Stop the hidden video element
+            if (canvasProcessor.sourceVideo) {
+                canvasProcessor.sourceVideo.pause();
+                canvasProcessor.sourceVideo.srcObject = null;
+            }
+            // Clear the local preview
+            videoFeedContainer.innerHTML = '';
+            
+            // Reset state object
+            canvasProcessor = {
+                animationFrameId: null, sourceVideo: null, processingCanvas: null,
+                ctx: null, originalStream: null
+            };
+            
+            // This stream comes from the canvas, its tracks are stopped when originalStream is stopped
+            localVideoStream = null; 
+            
+            selectScreenButton.disabled = false;
+            selectScreenButton.removeAttribute('aria-disabled');
+            screenStatus.textContent = "No screen or camera selected";
+            updateScreenCaptureUI();
+            currentStreamType = 'video';
+        }
+
+        async function setupAudioStream() {
+            try {
+                const constraints = {
+                    audio: {
+                        sampleRate: 24000, channelCount: 1, echoCancellation: true,
+                        noiseSuppression: true, autoGainControl: true
+                    }
+                };
+                if (selectedAudioDeviceId) {
+                    constraints.audio.deviceId = { exact: selectedAudioDeviceId };
+                }
+                localAudioStream = await navigator.mediaDevices.getUserMedia(constraints);
+                updateStatus('Audio stream initialized');
+                return true;
+            } catch (error) {
+                console.error('Error setting up audio stream:', error);
+                updateStatus(`Audio setup error: ${error.message}`, true);
+                localAudioStream = null;
+                return false;
+            }
+        }
+
+        async function startAudioStreaming() {
+            if (isAudioStreaming) { return; }
+            try {
+                const streamReady = await setupAudioStream();
+                if (!streamReady || !localAudioStream) {
+                    updateStatus("Failed to setup audio stream. Cannot start.", true);
+                    return;
+                }
+
+                if (!pc || pc.connectionState !== 'connected') {
+                    const connected = await connectToServer();
+                    if (!connected) {
+                        updateStatus("Failed to connect to server", true);
+                        return;
+                    }
+                } else {
+                    localAudioStream.getTracks().forEach(track => pc.addTrack(track, localAudioStream));
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    const response = await fetch(`${serverUrl.value}/offer`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({sdp: offer.sdp, type: offer.type})
+                    });
+                    const answer = await response.json();
+                    await pc.setRemoteDescription(new RTCSessionDescription(answer));
+                }
+                isAudioStreaming = true;
+                toggleAudioButton.textContent = "Stop Audio (Alt+A)";
+                toggleAudioButton.classList.remove('start');
+                toggleAudioButton.classList.add('stop');
+                updateStatus("Audio streaming started");
+            } catch (error) {
+                console.error("Error starting audio streaming:", error);
+                updateStatus(`Error starting audio: ${error.message}`, true);
+                cleanupAudioResources();
+            }
+        }
+
+        function stopAudioStreaming() {
+            return new Promise((resolve) => {
+                if (!isAudioStreaming) { resolve(); return; }
+                cleanupAudioResources();
+                isAudioStreaming = false;
+                toggleAudioButton.textContent = "Start Audio (Alt+A)";
+                toggleAudioButton.classList.remove('stop');
+                toggleAudioButton.classList.add('start');
+                updateStatus("Audio streaming stopped.");
+                resolve();
+            });
+        }
+
+        function cleanupAudioResources() {
+            if (localAudioStream) {
+                localAudioStream.getTracks().forEach(track => track.stop());
+                localAudioStream = null;
+            }
+            isAudioStreaming = false;
+        }
+
+        async function toggleAudioStreaming() {
+            if (isAudioStreaming) {
+                updateStatus("Stopping audio streaming...");
+                await stopAudioStreaming();
+            } else {
+                updateStatus("Starting audio streaming...");
+                await startAudioStreaming();
+            }
+        }
+
+        async function toggleStreaming() {
+            if (isStreaming) {
+                stopStreaming();
+            } else {
+                await startStreaming();
+            }
+        }
+        
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                utteranceQueue = []; 
+                if (speechSynthesis.speaking) { speechSynthesis.cancel(); }
+                toggleMuteButton.textContent = "Unmute Speech (Alt+M)";
+            } else {
+                toggleMuteButton.textContent = "Mute Speech (Alt+M)";
+            }
+            updateStatus(isMuted ? "Speech muted" : "Speech unmuted");
+        }
+        
+        async function startStreaming() {
+            if (isStreaming) return;
+
+            if (!localVideoStream) { // Check for the processed stream
+                const message = isMobileBrowser() ? "Please select a camera to share first" : "Please select a screen to share first";
+                updateStatus(message, true);
+                return;
+            }
+
+            videoFeedContainer.innerHTML = ''; 
+            const serverCanvas = document.createElement('canvas');
+            serverCanvas.width = 853;  // Match your container's intended dimensions
+            serverCanvas.height = 480;
+            videoFeedContainer.appendChild(serverCanvas);
+
+            // 3. Store the context globally so handleServerResponse can use it.
+            serverDisplayCtx = serverCanvas.getContext('2d');
+            try {
+                if (!pc || pc.connectionState !== 'connected') {
+                    const connected = await connectToServer();
+                    if (!connected) {
+                        updateStatus("Failed to connect to server", true);
+                        stopStreaming();
+                        return;
+                    }
+                } else if (!pc.getSenders().some(s => s.track && s.track.kind === 'video')) {
+                    localVideoStream.getTracks().forEach(track => pc.addTrack(track, localVideoStream));
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    const response = await fetch(`${serverUrl.value}/offer`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({sdp: offer.sdp, type: offer.type})
+                    });
+                    const answer = await response.json();
+                    await pc.setRemoteDescription(new RTCSessionDescription(answer));
+                }
+
+                isStreaming = true;
+                toggleStreamingButton.textContent = "Stop Streaming (Alt+S)";
+                toggleStreamingButton.classList.remove('start');
+                toggleStreamingButton.classList.add('stop');
+                updateStatus("Video streaming started");
+                
+                // Send current processor setting on stream start
+                if (dataChannel && dataChannel.readyState === 'open') {
+                    dataChannel.send(JSON.stringify({ processor: currentProcessor }));
+                }
+
+            } catch (error) {
+                console.error("Error starting stream:", error);
+                updateStatus(`Error: ${error.message}`, true);
+                isStreaming = false;
+                toggleStreamingButton.textContent = "Start Streaming (Alt+S)";
+                toggleStreamingButton.classList.remove('stop');
+                toggleStreamingButton.classList.add('start');
+            }
+        }
+        
+        function stopStreaming() {
+            const wasStreaming = isStreaming;
+            isStreaming = false; // Set state first
+            if (!wasStreaming) return; // Exit if we weren't streaming
+            console.log("Stopping video streaming");
+
+            isStreaming = false;
+            toggleStreamingButton.textContent = "Start Streaming (Alt+S)";
+            toggleStreamingButton.classList.remove('stop');
+            toggleStreamingButton.classList.add('start');
+
+            videoFeedContainer.innerHTML = '';
+            serverDisplayCtx = null; // Clear the context reference
+
+            if (localVideoStream) {
+                const videoElement = document.createElement('video');
+                videoElement.srcObject = localVideoStream; // Use the existing processed stream
+                videoElement.muted = true;
+                videoElement.playsInline = true;
+                videoElement.play();
+                videoFeedContainer.appendChild(videoElement);
+            }
+
+            if (!isAudioStreaming) { cleanupWebRTC(); }
+            
+            if (speechSynthesis.speaking && !isMuted) { speechSynthesis.cancel(); }
+            updateStatus("Video streaming stopped");
+        }
+        
+        // DELETED: captureAndShowFrame() function is no longer needed.
+
+        async function handleServerResponse(responseData) {
+            try {
+                const data = JSON.parse(responseData);
+
+                if (data.type === 'audio_stream_playback') { 
+                    handleAudioPlayback(data); 
+                    return; 
+                }
+
+                if (data.text && data.text === 'set_processor') {
+                    const processorId = parseInt(data.processor_id);
+                    const optionExists = Array.from(processorSelect.options).some(option => parseInt(option.value) === processorId);
+
+                    if (optionExists) {
+                        const oldProcessor = currentProcessor;
+                        currentProcessor = processorId;
+                        processorSelect.value = processorId;
+                        updateStatus(`Processor set to ${processorSelect.options[processorSelect.selectedIndex].text} by server: ${data.reason || 'No reason provided'}`);
+
+                        if (!isStreaming) {
+                            console.log("Server set processor. Starting stream with new processor.");
+                            await startStreaming();
+                        } else {
+                            if (oldProcessor !== currentProcessor) {
+                                console.log("Server changed processor. Restarting stream.");
+                                stopStreaming();
+                                await startStreaming();
+                            } else {
+                                console.log("Server confirmed current processor. No change to streaming state needed.");
+                            }
+                        }
+                    } else {
+                        console.error(`Processor ID ${processorId} not found in available processors`);
+                        updateStatus(`Error: Processor ID ${processorId} not available`, true);
+                    }
+                    return;
+                }
+
+                if (data.image) {
+                    // Check if the server display context is ready
+                    if (serverDisplayCtx) { 
+                        const img = new Image();
+                        img.onload = () => { 
+                            // Clear previous frame and draw the new one
+                            serverDisplayCtx.clearRect(0, 0, serverDisplayCtx.canvas.width, serverDisplayCtx.canvas.height); 
+                            serverDisplayCtx.drawImage(img, 0, 0, serverDisplayCtx.canvas.width, serverDisplayCtx.canvas.height); 
+                        };
+                        img.src = data.image; // data.image is the base64 string
+                    } 
+                }
+                let wasHandledAsPointCloud = false;
+                if (data.text && typeof data.text === 'object' && data.text !== null && Array.isArray(data.text.points)) {
+                    if (window.pointCloudAppController) {
+                        if (!window.pointCloudAppController.isSessionActive()) { 
+                            window.pointCloudAppController.startSession(); 
+                        }
+                        if (typeof window.pointCloudAppController.handleReceivedPointCloudData === 'function') {
+                            window.pointCloudAppController.handleReceivedPointCloudData(data.text);
+                            wasHandledAsPointCloud = true;
+                        }
+                    }
+                }
+                
+                if (!wasHandledAsPointCloud) {
+                    const textForDisplay = (typeof data.text === 'string') ? data.text : "";
+                    if (responseText) { 
+                        responseText.textContent = textForDisplay; 
+                    }
+                    if (textForDisplay.trim() !== "" && !isMuted) { 
+                        speakWithPanning(textForDisplay, -1); 
+                    }
+                }
+                
+                if (data.status && data.status.includes('audio')) { 
+                    updateStatus(data.status); 
+                }
+            } catch (error) {
+                console.error("Error parsing or handling server response:", error);
+                updateStatus("Error processing server message.", true);
+            }
+        }
+        
+        async function handleAudioPlayback(data) {
+            try {
+                const binaryString = atob(data.audio_chunk);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) { 
+                    bytes[i] = binaryString.charCodeAt(i); 
+                }
+                audioPlaybackBuffer.push(bytes);
+                if (data.is_last_chunk) {
+                    const totalLength = audioPlaybackBuffer.reduce((acc, chunk) => acc + chunk.length, 0);
+                    const combined = new Uint8Array(totalLength);
+                    let offset = 0;
+                    for (const chunk of audioPlaybackBuffer) { 
+                        combined.set(chunk, offset); 
+                        offset += chunk.length; 
+                    }
+                    await playAudioWithPanning(combined.buffer, 1);
+                    audioPlaybackBuffer = [];
+                    updateStatus("Audio playback completed");
+                }
+            } catch (error) { 
+                console.error("Error handling audio playback:", error); 
+                updateStatus("Error during audio playback", true); 
+            }
+        }
+        
+        function updateStatus(message, isError = false) {
+            statusBar.textContent = `Status: ${message}`;
+            statusBar.style.backgroundColor = isError ? "#2c1a4d" : "#100d25";
+            statusBar.style.borderColor = isError ? "#dc3545" : "#aaa6c3";
+        }
+        
+        function showHelp() {
+            const helpText = `
+Keyboard Controls:
+- Tab: Navigate between controls
+- Alt+S: Toggle video streaming
+- Alt+A: Toggle audio streaming
+- Alt+M: Toggle mute/unmute speech
+- Alt+P: Focus processor dropdown
+- Alt+I: Focus audio input dropdown
+- Alt+F: Focus fetch processors button
+- Alt+H: Show this help dialog
+- Alt+Q: Focus quality slider
+- Alt+L: Focus left cropping control
+- Alt+R: Focus right cropping control
+- Alt+T: Focus top cropping control
+- Alt+B: Focus bottom cropping control
+- Arrow keys: Adjust values when a control is focused
+- Escape: Close this dialog
+
+Audio Features:
+- Independent audio and video streaming
+- Select specific microphone/audio input device
+- Real-time audio streaming to server (PCM format)
+- Audio device refresh for hot-plugged devices
+- Sound splitting: TTS plays on left channel, audio playback on right channel
+- Toggle sound splitting with checkbox
+
+Processor Modes:
+- Click "Fetch Processors" to load available processors from the server
+- Processor list is dynamically loaded based on server configuration
+- Default processor is "Base Processor" (ID 0) if fetch fails
+
+Troubleshooting Tips:
+- Video and audio streaming are now independent - you can use either or both
+- If connecting to a localtunnel URL, use wss:// protocol and add /ws at the end
+- If you're trying to connect locally, use ws://localhost:8000/ws
+- Make sure the server is running and accessible from your network
+- Ensure the server URL is correct before fetching processors
+- Grant microphone permissions for audio streaming
+- Use "Refresh Audio" if audio devices are not detected
+- For best sound splitting experience, use stereo headphones
+            `;
+            const dialog = document.createElement('dialog');
+            dialog.setAttribute('aria-labelledby', 'helpDialogTitle');
+            dialog.innerHTML = `<h2 id="helpDialogTitle">Help Information</h2><pre>${helpText}</pre><button style="color: white; background-color: black;" onclick="this.parentElement.close()" aria-label="Close help dialog">Close</button>`;
+            document.body.appendChild(dialog);
+            dialog.showModal();
+        }
+        
+        // --- MODIFIED Event listeners for Cropping ---
+        leftCrop.addEventListener('input', () => { 
+            cropSettings[0] = parseInt(leftCrop.value); 
+            leftValue.textContent = `${cropSettings[0]}%`; 
+            leftCrop.setAttribute('aria-valuetext', `Left crop: ${cropSettings[0]} percent`); 
+        });
+        rightCrop.addEventListener('input', () => { 
+            cropSettings[1] = parseInt(rightCrop.value); 
+            rightValue.textContent = `${cropSettings[1]}%`; 
+            rightCrop.setAttribute('aria-valuetext', `Right crop: ${cropSettings[1]} percent`); 
+        });
+        topCrop.addEventListener('input', () => { 
+            cropSettings[2] = parseInt(topCrop.value); 
+            topValue.textContent = `${cropSettings[2]}%`; 
+            topCrop.setAttribute('aria-valuetext', `Top crop: ${cropSettings[2]} percent`); 
+        });
+        bottomCrop.addEventListener('input', () => { 
+            cropSettings[3] = parseInt(bottomCrop.value); 
+            bottomValue.textContent = `${cropSettings[3]}%`; 
+            bottomCrop.setAttribute('aria-valuetext', `Bottom crop: ${cropSettings[3]} percent`); 
+        });
+        
+        // --- Other event listeners (mostly unchanged) ---
+        toggleStreamingButton.addEventListener('click', toggleStreaming);
+        toggleMuteButton.addEventListener('click', toggleMute);
+        toggleAudioButton.addEventListener('click', toggleAudioStreaming);
+        helpButton.addEventListener('click', showHelp);
+        fetchProcessorsButton.addEventListener('click', fetchProcessors);
+        refreshAudioButton.addEventListener('click', enumerateAudioDevices);
+        soundSplittingCheckbox.addEventListener('change', (e) => { 
+            soundSplittingEnabled = e.target.checked; 
+            updateStatus(`Sound splitting ${soundSplittingEnabled ? 'enabled' : 'disabled'}`); 
+        });
+        selectScreenButton.addEventListener('click', async () => {
+            const success = await setupScreenCapture();
+            if (!success) {
+                selectScreenButton.disabled = false;
+                selectScreenButton.removeAttribute('aria-disabled');
+                updateScreenCaptureUI();
+            }
+        });
+        qualitySlider.addEventListener('input', () => { 
+            quality = parseInt(qualitySlider.value); 
+            qualityValue.textContent = quality; 
+            qualitySlider.setAttribute('aria-valuetext', `${quality} percent quality`); 
+        });
+        processorSelect.addEventListener('change', () => { 
+            currentProcessor = parseInt(processorSelect.value); 
+            updateStatus(`Selected processor: ${processorSelect.options[processorSelect.selectedIndex].text}`); 
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.send(JSON.stringify({ processor: currentProcessor }));
+            }
+        });
+        audioInputSelect.addEventListener('change', () => { 
+            selectedAudioDeviceId = audioInputSelect.value || null; 
+            updateStatus(`Selected audio input: ${audioInputSelect.options[audioInputSelect.selectedIndex].text}`); 
+            if (isAudioStreaming) { 
+                toggleAudioStreaming().then(() => toggleAudioStreaming());
+            } 
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 's': toggleStreaming(); break; 
+                    case 'm': toggleMute(); break;
+                    case 'a': toggleAudioStreaming(); break; 
+                    case 'p': processorSelect.focus(); break;
+                    case 'i': audioInputSelect.focus(); break; 
+                    case 'h': showHelp(); break;
+                    case 'q': qualitySlider.focus(); break; 
+                    case 'l': leftCrop.focus(); break;
+                    case 'r': rightCrop.focus(); break; 
+                    case 't': topCrop.focus(); break;
+                    case 'b': bottomCrop.focus(); break; 
+                    case 'f': fetchProcessorsButton.focus(); break;
+                }
+            }
+        });
+        
+        // Initialize UI values
+        qualityValue.textContent = quality;
+        leftValue.textContent = `${cropSettings[0]}%`;
+        rightValue.textContent = `${cropSettings[1]}%`;
+        topValue.textContent = `${cropSettings[2]}%`;
+        bottomValue.textContent = `${cropSettings[3]}%`;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            enumerateAudioDevices();
+            updateScreenCaptureUI();
+        });
+
+        navigator.mediaDevices.addEventListener('devicechange', () => { 
+            console.log('Audio devices changed, refreshing list...'); 
+            enumerateAudioDevices(); 
+        });
+        
+        window.addEventListener('beforeunload', () => { 
+            if (isStreaming) { stopStreaming(); } 
+            cleanupScreenCapture();
+            cleanupAudioResources();
+            cleanupWebRTC();
+        });
+    </script>
+    <script type="module">
+        import { initPointCloudApp } from './js/pointCloudApp.js';
+
+        const pointCloudController = initPointCloudApp();
+        if (pointCloudController) {
+            window.pointCloudAppController = pointCloudController;
+            console.log("Point Cloud App Controller is now available on window.pointCloudAppController");
+        } else {
+            console.error("Point Cloud App Controller failed to initialize from module script.");
+            const pcErrorDiv = document.getElementById('pointCloudError');
+            if (pcErrorDiv) {
+                pcErrorDiv.textContent = "Error initializing 3D components module.";
+            }
+        }
+    </script>
+</body>
+</html>

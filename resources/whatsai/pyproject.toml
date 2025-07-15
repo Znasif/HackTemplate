@@ -1,0 +1,39 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Core metadata from the original setup.py
+name = "whatsai"
+version = "1.5"  # Set a static version or see the note below
+description = "Tools and baselines for visual localization and mapping"
+license = { text = "Apache-2.0" } # Based on classifiers in setup.py
+requires-python = ">=3.10" # Updated to a more modern minimum
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+# --- DEPENDENCIES ---
+# Combined from requirements.txt and your new imports
+dependencies = [
+    # Your New Dependencies
+    "transformers==4.51.3",
+    "Pillow",
+    "mediapipe",
+    "ultralytics",
+    "protobuf",
+    "httpx",
+    "fastapi",
+    "uvicorn[standard]",
+    "timm",
+    "einops",
+    "opencv-contrib-python"
+]
+
+[project.urls]
+Homepage = "https://github.com/cvg/Hierarchical-Localization/"
+"Bug Tracker" = "https://github.com/cvg/Hierarchical-Localization/issues"

@@ -1,0 +1,112 @@
+{
+  "0": {
+    "host": "127.0.0.1",
+    "port": 8001,
+    "name": "basic_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "A simple processor that returns the original image without changes.",
+    "enabled": true
+  },
+  "1": {
+    "host": "127.0.0.1",
+    "port": 8002,
+    "name": "depth_processor",
+    "conda_env": "depth-pro",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Utilizes MediaPipe for counting fingers.",
+    "enabled": false
+  },
+  "2": {
+    "host": "127.0.0.1",
+    "port": 8003,
+    "name": "scene_captioning_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "A processor for creating dense region captioning from an image.",
+    "enabled": false
+  },
+  "3": {
+    "host": "127.0.0.1",
+    "port": 8004,
+    "name": "region_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Provides fine camera input and output functionalities to learn about curated objects.",
+    "enabled": false
+  },
+  "4": {
+    "host": "127.0.0.1",
+    "port": 8005,
+    "name": "scene_object_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Performs object detection using YOLO.",
+    "enabled": false
+  },
+  "5": {
+    "host": "127.0.0.1",
+    "port": 8006,
+    "name": "fast_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Performs scene description using local VLM.",
+    "enabled": false
+  },
+  "6": {
+    "host": "127.0.0.1",
+    "port": 8007,
+    "name": "switch_panel_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps navigate a switch panel.",
+    "enabled": false
+  },
+  "7": {
+    "host": "127.0.0.1",
+    "port": 8008,
+    "name": "thermostat_panel_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps navigate a thermostat panel.",
+    "enabled": true
+  },
+  "8": {
+    "host": "127.0.0.1",
+    "port": 8009,
+    "name": "elevator_panel_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps navigate a switch elevator panel",
+    "enabled": false
+  },
+  "9": {
+    "host": "127.0.0.1",
+    "port": 8010,
+    "name": "keyboard_panel_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps navigate a keyboard panel.",
+    "enabled": false
+  },
+  "10": {
+    "host": "127.0.0.1",
+    "port": 8011,
+    "name": "printer_panel_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps navigate a printer panel.",
+    "enabled": false
+  }
+}

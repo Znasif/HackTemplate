@@ -1,5 +1,6 @@
-server/models/
-server/processors/__pycache__/
-server/__pycache__/
-client/__pycache__/
-server/.env
+models/
+processors/__pycache__/
+__pycache__/
+.env
+deploy.sh
+user_data.sh

@@ -2,194 +2,147 @@
 
 This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client web applications running for it to work. Make sure to start the server first. You can access the client at this website: https://znasif.netlify.app/screencapture.html
 
-## Remote Server Access
+## Quick Start with Remote Server
 
-If you want to use already up and running servers, just obtain the api URL and paste it into the text field of Server URL in the WhatsAI Web Client. Then click "Select Screen to Share" button and select the desired screen. 
-- Click **Start Streaming** → This will start sharing the PC screen with the server.  
-- Then, you will have the option to process the stream in any of the following ways by selecting from the dropdown menu:
+If you want to use an already running server:
 
-  ```python
-  processor_options = [
-      "Dense Region Caption",
-      "OCR",
-      "YOLO Detection",
-      "MediaPipe",
-      "Base Processor",
-      "Groq",
-      "OpenAI"
-  ]
-  ```
+1. Obtain the server WebSocket URL (format: `wss://[server-address]/ws`)
+2. Open the WhatsAI Web Client at https://znasif.netlify.app/screencapture.html
+3. Paste the server URL into the "Server URL" text field
+4. Click "Select Screen to Share" and choose your desired screen
+5. Click "Start Streaming" to begin sharing your screen with the server
+6. Select a processor from the dropdown menu to analyze your screen
 
-## Local Server Setup
+## Available Processors
 
-If you want to host your own server in your local computer, follow these steps. The server can be setup in a different system, it does not have to be WSL. For linux, you may follow these instructions. If the server is in a separate computer, you can use localtunnel (https://github.com/localtunnel/localtunnel) to expose a port for stream forwarding. Change the Server URL textfield value to "ws://{localtunnel result}/ws".
+The system includes several processors, ordered by complexity:
 
-#### a. Set up the server
-- Open WSL on your Windows machine and clone this repository.
-- Fill in the `.env` file in the project root directory:
+### Basic Processor (ID: 0)
+- **Description**: A simple pass-through processor that returns the original image without modifications
+- **Dependencies**: None
+- **Use Case**: Testing connectivity and stream quality
 
-  ```bash
-  PORT=8080
-  GROQ_API_KEY="get a Groq API key for llama-3.2-90b-vision-preview live query"
-  OPENAI_API_KEY="get OpenAI API key"
-  MONITOR=1
-  ```
+### Scene Object Processor (ID: 4)
+- **Description**: Performs real-time object detection and segmentation using YOLO11
+- **Dependencies**: None
+- **Use Case**: Identifying and locating objects in your screen
+- **Reference**: Based on Ultralytics YOLO - https://github.com/ultralytics/ultralytics
 
-#### b. Install CUDA Toolkit & Dependencies after installing Conda
+### Scene Captioning Processor (ID: 2)
+- **Description**: Generates detailed region-based captions and performs OCR using Florence-2
+- **Dependencies**: None
+- **Use Case**: Understanding text and visual content on screen
+- **Reference**: Microsoft Florence-2 - https://huggingface.co/microsoft/Florence-2-large
 
-```bash
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
-sudo dpkg -i cuda-keyring_1.0-1_all.deb
-sudo apt update
-sudo apt install cuda-toolkit-12-6
-sudo apt install -y libcudnn9-cuda-12
-sudo apt install libnvinfer10 libnvinfer-plugin10
-conda env create -f environment.yml
-conda activate whatsapp-vision
-```
+### CamIO Processor (ID: 3)
+- **Description**: Provides specialized object recognition for curated items
+- **Dependencies**: None
+- **Use Case**: Learning about specific pre-trained objects
+- **Reference**: Based on Simple CamIO - https://github.com/Coughlan-Lab/simple_camio
 
-#### c. Start the server
+### Finger Count Processor (ID: 1)
+- **Description**: Detects hands and counts raised fingers using MediaPipe
+- **Dependencies**: Basic Processor (ID: 0)
+- **Use Case**: Gesture recognition and finger counting
+- **Reference**: Adapted from Finger Counter using MediaPipe - https://github.com/HarshitDolu/Finger-Counter-using-mediapipe
 
-```bash
-cd path/to/server/
-uvicorn stream:app --reload
-```
+## Setting Up Your Own Server
 
-#### f. Processing Options
+### Local Server Setup
 
-The resulting feed is screen-shared, and the description is read aloud. The following types of processors are already implemented:
+#### Prerequisites
+1. WSL2 on Windows or Linux system
+2. Docker Desktop with WSL2 integration enabled
+3. Gemini API key
 
-1. **Live description** with Groq and `llama-3.2-90b-vision-preview`.
-2. **Live description** with OpenAI `GPT-4o`.
-3. **Segmentation and Detection** of objects in the scene (YOLO11).
-4. **Face, Hand, and Body Pose Estimation** (MediaPipe).
-5. **OCR and Region-based Captioning** (Florence 2).
+#### Installation Steps
 
-#### g. Remote Audio Sharing
+1. Clone the repository:
+   ```bash
+   git clone --single-branch --branch workshop https://github.com/Znasif/HackTemplate.git
+   cd HackTemplate
+   ```
 
-If you want to remotely share the audio response, you would need to use another video call service like Zoom and share the client app window with **Share Audio** turned on. However, there is a second way where you would need to install a virtual audio driver ([VB-Audio Virtual Cable](https://vb-audio.com/Cable/)) and set VB-Audio Virtual Cable Output as default audio output in system sound settings in Windows. When calling using whatsapp, set the audio input to VB-Audio Virtual Cable Input. This should divert every audio output of the computer (and our client app) to whatsapp.
+2. Create and configure the `.env` file:
+   ```bash
+   GEMINI_API_KEY="your-gemini-api-key"
+   ```
+
+3. Build the Docker container:
+   ```bash
+   docker-compose build
+   ```
+
+4. Start the server:
+   ```bash
+   docker-compose up
+   ```
+
+5. Access the server:
+   - Local access: `ws://localhost:8000/ws`
+   - Remote access: Use localtunnel (https://github.com/localtunnel/localtunnel) to expose the port
+
+### Deployment to RunPod
+
+#### Prerequisites
+1. Docker Hub account
+2. RunPod account with credits
+
+#### Deployment Steps
+
+1. Tag and push your local Docker image to Docker Hub:
+   ```bash
+   docker tag whatsai-server:latest yourusername/whatsai:latest
+   docker push yourusername/whatsai:latest
+   ```
+
+2. Create a new pod on RunPod:
+   - Container Image: `yourusername/whatsai:latest`
+   - Container Start Command: `bash -c "cd /app && /app/start_server.sh"`
+   - Container Disk: 50 GB
+   - Volume Disk: 20 GB (optional, for persistent storage)
+   - Volume Mount Path: `/workspace`
+   - Expose HTTP Ports: `8000`
+   - GPU Selection: RTX 4000 Ada or similar
+
+3. Add environment variables in RunPod:
+   - GEMINI_API_KEY: your-api-key
+   - PYTHONPATH: /app
+
+4. Deploy the pod and obtain your URL:
+   - Format: `wss://[pod-id]-8000.proxy.runpod.net/ws`
 
 
-### Brief Demo
+## Audio Streaming Features
+
+The system supports real-time audio streaming for voice-based interactions:
+
+1. **Direct Audio**: Screen reader and system audio output work automatically
+2. **Remote Audio via Start Audio Button**: Dictate processor by pressing the "Start Audio" button and saying which processor to start and then "Stop Audio" to initiate.
+3. **Virtual Audio Cable**: For WhatsApp audio streaming:
+   - Install VB-Audio Virtual Cable from https://vb-audio.com/Cable/
+   - Set VB-Audio Virtual Cable Output as default system audio output
+   - In WhatsApp calls, set audio input to VB-Audio Virtual Cable Input
+
+## API Endpoints
+
+- **WebSocket**: `ws://[server]/ws` - Main streaming endpoint
+- **HTTP GET**: `http://[server]:8000/processors` - List available processors
+
+## Troubleshooting
+
+### Connection Issues
+- Verify the server URL format includes `/ws` at the end
+- Check if the server is running: `curl http://[server]:8000/processors`
+- Ensure your firewall allows WebSocket connections
+
+### Performance Optimization
+- For best results, use a wired internet connection
+- Close unnecessary applications to reduce screen capture overhead
+- Select specific application windows instead of full screen when possible
+
+## Brief Demo
+
 Click on the following image which will take you to a playlist:
 
 [![Demo Link for Whatsapp Livestream AI processing](https://i.ytimg.com/vi/ExhlwkUW_gc/hqdefault.jpg?sqp=-oaymwExCNACELwBSFryq4qpAyMIARUAAIhCGAHwAQH4Af4JgALQBYoCDAgAEAEYZSBRKEAwDw==&rs=AOn4CLDxzMwlnE3AVdbFIucWFV93J9Jg3g)](https://www.youtube.com/playlist?list=PLk3VM_Y78PILin5BQJ0cYq_OdmuT7v1VY)
-
-
-
-
-
-<!--
----
----
-
-# Discord-A11y
-
-This is a project that was created to be used by Blind and Low Vision users to have a AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet once all the components have been installed, if the user wants to work solely on their workstation (pc/laptop). If the user wants to access it from anywhere, the discord connection would need to be set up.
-
-It has the following features:
-
-1. /querycode prompt : discord slash command allows the user to ask the local llama.cpp server to generate runnable python code. If the code generates an image, the code will be executed locally and sent as attachment to that thread. The generated image will then be sent to a VLM (vision language model) for consistency detection. (Qwen2-VL and Qwen2-Code)
-2. /qyeryimage image, prompt : this slash command allows user to ask any question of an image. (PaliGemma2)
-3. the voice channel's focused participant's video feed is captured and sent to a local server for processing and the resulting feed is screen shared and description is read out loud. Follow the WhatsApp instructions for this part.
-
-# 🚀 Setup Guide
-
-This guide walks you through the installation and setup of necessary dependencies, servers, and services for this discord-bot based accessibility project.
-
----
-
-## Prerequisites
-
-Have the following things ready:
-
-1. Install Llama.cpp following: https://github.com/ggml-org/llama.cpp and in llama.cpp/models folder download the following: models/Qwen2-VL-7B-Instruct-Q6_K.gguf, Qwen2-VL-2B-Instruct-Q6_K.gguf,qwen2-vl-2b-instruct-vision.gguf
-2. Add a .env file in server folder with the following filled in
-
-#### Fill in the .env file in the project root directory
-```bash
-    MODEL_PATH=path/to/Qwen2-VL-7B-Instruct-Q6_K.gguf
-    VLM_MODEL_PATH =path/to/Qwen2-VL-2B-Instruct-Q6_K.gguf
-    VISION_MODEL_PATH =path/to/qwen2-vl-2b-instruct-vision.gguf
-    COMMAND_PREFIX=!
-    PORT=8080
-    DISCORD_TOKEN="get this for the discord bot you create"
-    DISCORD_GUILD_ID="the server you want the bot to be active in"
-    DISCORD_CHANNEL_ID="the channel where the bot will reply"
-    PERMISSIONS="the permission integer"
-    GROQ_API_KEY="get a groq api key for llama-3.2-90b-vision-preview live query"
-    OPENAI_API_KEY="get openai api key"
-```
-
-2. In server/models download: AtkinsonHyperlegible-Regular.ttf and yolo11n-seg.pt
-
-## 📌 Installation Steps
-
-The following instruction are for WSL:
-
-### 1️⃣ Install CUDA Toolkit & Dependencies
-```bash
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
-sudo dpkg -i cuda-keyring_1.0-1_all.deb
-sudo apt update
-sudo apt install cuda-toolkit-12-6
-sudo apt install -y libcudnn9-cuda-12
-sudo apt install libnvinfer10 libnvinfer-plugin10
-```
-
-### 2️⃣ Install Python Dependencies
-```bash
-conda env create -f environment.yml
-conda activate discord-vision
-```
-
----
-
-## 🦙 Starting LLaMA Server
-This needs to be started before the discord bot can be activated
-```bash
-llama-server -m ./llama.cpp/models/Qwen2.5.1-Coder-7B-Instruct-Q6_K --host 127.0.0.1 --port 8080
-```
-
----
-
-## 🦙 Testing LLaVA agent
-```bash
-./llama-qwen2vl-cli -m ../../models/Qwen2-VL-2B-Instruct-Q6_K.gguf --mmproj ../../models/qwen2-vl-2b-instruct-vision.gguf --image ../../../vidServer/james.
-jpg -p "describe"
-```
-
-
-## 🤖 Starting Discord Bot
-```bash
-python bot.py
-```
-![Available commands](resources/img3.jpg)
-
-## 🤖 Query with /querycode
-```bash
-prompt "draw a picture of the sun setting over the horizon"
-```
-![Example query to the querybot](resources/img4.jpg)
-![Example response of the discord bot querybot](resources/img1.jpg)
-
-## 🤖 Query with /queryimage
-```bash
-image "path/to/image"
-prompt "describe the image"
-```
-![Example query to the bot queryimage](resources/img5.jpg)
-![Example response of the discord bot queryimage](resources/img2.jpg)
----
-
-# For Hackathon
-
-The main three classes that you would want to extend are the following:
-
-1. BaseProcessor in server/processors/base_processor.py for video stream processing. Example extensions can be found in the server/processors/ folder.
-2. MyClient in server/bot.py and add more slash commands.
-3. LlamaCppServerModifier in server/llama.py and add functions similar to modify_text.
-
-### 🎯 You're all set! Happy coding! 🚀
-
--->
