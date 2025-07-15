@@ -77,12 +77,6 @@ Click on the following image which will take you to a playlist:
 
 
 
-
-
-<!--
----
----
-
 # Discord-A11y
 
 This is a project that was created to be used by Blind and Low Vision users to have a AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet once all the components have been installed, if the user wants to work solely on their workstation (pc/laptop). If the user wants to access it from anywhere, the discord connection would need to be set up.
@@ -192,4 +186,3 @@ The main three classes that you would want to extend are the following:
 
 ### 🎯 You're all set! Happy coding! 🚀
 
--->
