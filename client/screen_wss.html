@@ -96,7 +96,19 @@
             border-radius: 8px;
             box-shadow: 0px 35px 120px -15px #211e35;
             display: block; /* Ensure it's a block element */
-            /* Centering is handled by parent's (main) align-items: center if main is a flex container */
+            overflow: hidden; /* Hide any minor overflow from the video element */
+        }
+
+        #videoFeed video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures the video fits perfectly */
+        }
+
+        #videoFeed canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensures the canvas fits perfectly */
         }
         
         button {
@@ -354,31 +366,32 @@
             </div>
             
             <div class="setting-row">
-                <div class="setting-label" id="croppingLabel">Cropping:</div>
+                <div class="setting-label" id="croppingLabel">Cropping (%):</div>
                 <div class="crop-controls" aria-labelledby="croppingLabel">
                     <div class="crop-group">
                         <label for="leftCrop">Left (Alt+L)</label>
-                        <input type="range" id="leftCrop" min="0" max="400" value="0" aria-valuetext="Left crop: 0 pixels" aria-describedby="leftCropDesc">
-                        <span id="leftValue" aria-hidden="true">0</span>
-                        <p id="leftCropDesc" class="hidden">Adjust the left crop of the video feed in pixels</p>
+                        <!-- MODIFIED: Sliders are now percentage-based -->
+                        <input type="range" id="leftCrop" min="0" max="50" value="0" aria-valuetext="Left crop: 0 percent" aria-describedby="leftCropDesc">
+                        <span id="leftValue" aria-hidden="true">0%</span>
+                        <p id="leftCropDesc" class="hidden">Adjust the left crop of the video feed in percent</p>
                     </div>
                     <div class="crop-group">
                         <label for="rightCrop">Right (Alt+R)</label>
-                        <input type="range" id="rightCrop" min="0" max="400" value="0" aria-valuetext="Right crop: 0 pixels" aria-describedby="rightCropDesc">
-                        <span id="rightValue" aria-hidden="true">0</span>
-                        <p id="rightCropDesc" class="hidden">Adjust the right crop of the video feed in pixels</p>
+                        <input type="range" id="rightCrop" min="0" max="50" value="0" aria-valuetext="Right crop: 0 percent" aria-describedby="rightCropDesc">
+                        <span id="rightValue" aria-hidden="true">0%</span>
+                        <p id="rightCropDesc" class="hidden">Adjust the right crop of the video feed in percent</p>
                     </div>
                     <div class="crop-group">
                         <label for="topCrop">Top (Alt+T)</label>
-                        <input type="range" id="topCrop" min="0" max="300" value="0" aria-valuetext="Top crop: 0 pixels" aria-describedby="topCropDesc">
-                        <span id="topValue" aria-hidden="true">0</span>
-                        <p id="topCropDesc" class="hidden">Adjust the top crop of the video feed in pixels</p>
+                        <input type="range" id="topCrop" min="0" max="50" value="0" aria-valuetext="Top crop: 0 percent" aria-describedby="topCropDesc">
+                        <span id="topValue" aria-hidden="true">0%</span>
+                        <p id="topCropDesc" class="hidden">Adjust the top crop of the video feed in percent</p>
                     </div>
                     <div class="crop-group">
                         <label for="bottomCrop">Bottom (Alt+B)</label>
-                        <input type="range" id="bottomCrop" min="0" max="300" value="0" aria-valuetext="Bottom crop: 0 pixels" aria-describedby="bottomCropDesc">
-                        <span id="bottomValue" aria-hidden="true">0</span>
-                        <p id="bottomCropDesc" class="hidden">Adjust the bottom crop of the video feed in pixels</p>
+                        <input type="range" id="bottomCrop" min="0" max="50" value="0" aria-valuetext="Bottom crop: 0 percent" aria-describedby="bottomCropDesc">
+                        <span id="bottomValue" aria-hidden="true">0%</span>
+                        <p id="bottomCropDesc" class="hidden">Adjust the bottom crop of the video feed in percent</p>
                     </div>
                 </div>
             </div>
@@ -455,7 +468,7 @@
         let websocket = null;
         let currentProcessor = 0;
         let quality = 30;
-        let cropSettings = [0, 0, 0, 0]; // left, right, top, bottom
+        let cropSettings = [0, 0, 0, 0]; // left, right, top, bottom IN PERCENT
         let currentStreamType = 'video';
         let isWaitingForResponse = false;
         let soundSplittingEnabled = true;
@@ -983,10 +996,42 @@
         qualitySlider.addEventListener('input', () => { quality = parseInt(qualitySlider.value); qualityValue.textContent = quality; qualitySlider.setAttribute('aria-valuetext', `${quality} percent quality`); });
         processorSelect.addEventListener('change', () => { currentProcessor = parseInt(processorSelect.value); updateStatus(`Selected processor: ${processorSelect.options[processorSelect.selectedIndex].text}`); });
         audioInputSelect.addEventListener('change', () => { selectedAudioDeviceId = audioInputSelect.value || null; updateStatus(`Selected audio input: ${audioInputSelect.options[audioInputSelect.selectedIndex].text}`); if (isAudioStreaming) { restartAudioStreaming(); } });
-        leftCrop.addEventListener('input', () => { cropSettings[0] = parseInt(leftCrop.value); leftValue.textContent = cropSettings[0]; leftCrop.setAttribute('aria-valuetext', `Left crop: ${cropSettings[0]} pixels`); });
-        rightCrop.addEventListener('input', () => { cropSettings[1] = parseInt(rightCrop.value); rightValue.textContent = cropSettings[1]; rightCrop.setAttribute('aria-valuetext', `Right crop: ${cropSettings[1]} pixels`); });
-        topCrop.addEventListener('input', () => { cropSettings[2] = parseInt(topCrop.value); topValue.textContent = cropSettings[2]; topCrop.setAttribute('aria-valuetext', `Top crop: ${cropSettings[2]} pixels`); });
-        bottomCrop.addEventListener('input', () => { cropSettings[3] = parseInt(bottomCrop.value); bottomValue.textContent = cropSettings[3]; bottomCrop.setAttribute('aria-valuetext', `Bottom crop: ${cropSettings[3]} pixels`); });
+        // MODIFIED: Update crop value display functions to show percentages AND trigger preview update
+        leftCrop.addEventListener('input', () => {
+            cropSettings[0] = parseInt(leftCrop.value);
+            leftValue.textContent = `${cropSettings[0]}%`;
+            // Update local preview if showing
+            if (isShowingLocalPreview) {
+                showLocalPreview(); // This will restart the animation with new crop settings
+            }
+        });
+
+        rightCrop.addEventListener('input', () => {
+            cropSettings[1] = parseInt(rightCrop.value);
+            rightValue.textContent = `${cropSettings[1]}%`;
+            // Update local preview if showing
+            if (isShowingLocalPreview) {
+                showLocalPreview(); // This will restart the animation with new crop settings
+            }
+        });
+
+        topCrop.addEventListener('input', () => {
+            cropSettings[2] = parseInt(topCrop.value);
+            topValue.textContent = `${cropSettings[2]}%`;
+            // Update local preview if showing
+            if (isShowingLocalPreview) {
+                showLocalPreview(); // This will restart the animation with new crop settings
+            }
+        });
+
+        bottomCrop.addEventListener('input', () => {
+            cropSettings[3] = parseInt(bottomCrop.value);
+            bottomValue.textContent = `${cropSettings[3]}%`;
+            // Update local preview if showing
+            if (isShowingLocalPreview) {
+                showLocalPreview(); // This will restart the animation with new crop settings
+            }
+        });
         
         document.addEventListener('keydown', (e) => {
             if (e.altKey) {
@@ -1001,6 +1046,104 @@
             }
         });
         
+        // NEW: Video preview management variables
+        let localPreviewAnimationId = null;
+        let serverDisplayCtx = null;
+        let isShowingLocalPreview = false;
+
+        // NEW: Function to show local preview by drawing video onto canvas
+        function showLocalPreview() {
+            if (!videoElement || !videoElement.srcObject) return;
+            
+            // Clear any existing animation
+            if (localPreviewAnimationId) {
+                cancelAnimationFrame(localPreviewAnimationId);
+            }
+            
+            function drawLocalPreview() {
+                if (!videoElement || videoElement.paused || videoElement.ended) {
+                    return;
+                }
+                
+                const videoWidth = videoElement.videoWidth;
+                const videoHeight = videoElement.videoHeight;
+                
+                if (videoWidth > 0 && videoHeight > 0) {
+                    // Clear canvas and fill with black background
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(0, 0, videoFeed.width, videoFeed.height);
+                    
+                    // 1. CROP CALCULATION (from percentages to pixels) - SAME AS RTC
+                    const [left, right, top, bottom] = cropSettings;
+                    const sx = videoWidth * (left / 100);
+                    const sy = videoHeight * (top / 100);
+                    const sWidth = videoWidth * (1 - (left + right) / 100);
+                    const sHeight = videoHeight * (1 - (top + bottom) / 100);
+                    
+                    if (sWidth > 0 && sHeight > 0) {
+                        // 2. LETTERBOX/PILLARBOX CALCULATION (for the cropped area) - SAME AS RTC
+                        const croppedAspectRatio = sWidth / sHeight;
+                        const canvasAspectRatio = videoFeed.width / videoFeed.height;
+                        let renderWidth, renderHeight, dx, dy;
+                        
+                        if (croppedAspectRatio > canvasAspectRatio) {
+                            // Cropped content is wider - fit to width
+                            renderWidth = videoFeed.width;
+                            renderHeight = videoFeed.width / croppedAspectRatio;
+                            dx = 0;
+                            dy = (videoFeed.height - renderHeight) / 2;
+                        } else {
+                            // Cropped content is taller - fit to height
+                            renderHeight = videoFeed.height;
+                            renderWidth = videoFeed.height * croppedAspectRatio;
+                            dy = 0;
+                            dx = (videoFeed.width - renderWidth) / 2;
+                        }
+                        
+                        // 3. DRAW THE FRAME with proper cropping and letterboxing - SAME AS RTC
+                        ctx.drawImage(
+                            videoElement,
+                            sx, sy, sWidth, sHeight,  // Source rectangle (cropped)
+                            dx, dy, renderWidth, renderHeight  // Destination rectangle (letterboxed)
+                        );
+                    } else {
+                        // If crop is invalid, keep black frame
+                        // (already filled with black above)
+                    }
+                }
+                
+                // Continue the animation loop
+                localPreviewAnimationId = requestAnimationFrame(drawLocalPreview);
+            }
+            
+            // Start the animation loop
+            drawLocalPreview();
+            isShowingLocalPreview = true;
+        }
+
+        // NEW: Function to show server view
+        function showServerView() {
+            // Stop local preview animation
+            if (localPreviewAnimationId) {
+                cancelAnimationFrame(localPreviewAnimationId);
+                localPreviewAnimationId = null;
+            }
+            
+            // Clear canvas and prepare for server display
+            ctx.clearRect(0, 0, videoFeed.width, videoFeed.height);
+            serverDisplayCtx = ctx;
+            isShowingLocalPreview = false;
+        }
+
+        // NEW: Function to revert to local preview
+        function revertToLocalPreview() {
+            // Clear server display context
+            serverDisplayCtx = null;
+            
+            // Show local preview again
+            showLocalPreview();
+        }
+
         async function setupScreenCapture() {
             if (mediaStream !== null) {
                 // Stream already exists. For simplicity, allow re-selection.
@@ -1011,58 +1154,45 @@
             try {
                 if (isMobileBrowser()) {
                     updateStatus("Requesting camera access...");
-                    mediaStream = await navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: "user" // common default, can be 'environment' for back camera
-                        },
-                        audio: false // Audio is handled by separate audio streaming functions
-                    });
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
                     currentStreamType = 'camera';
                     updateStatus("Camera access granted.");
                 } else {
                     updateStatus("Requesting screen sharing access...");
-                    mediaStream = await navigator.mediaDevices.getDisplayMedia({
-                        video: { displaySurface: "monitor", cursor: "always" }
-                    });
+                    mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "monitor", cursor: "always" } });
                     currentStreamType = 'screen';
                     updateStatus("Screen sharing access granted.");
                 }
 
+                // Create video element for the stream
+                if (videoElement) {
+                    videoElement.pause();
+                    videoElement.srcObject = null;
+                }
+                videoElement = document.createElement('video');
+                videoElement.srcObject = mediaStream;
+                videoElement.muted = true;
+                videoElement.playsInline = true;
+                videoElement.play();
+
+                // Listen for stream end
                 mediaStream.getVideoTracks()[0].addEventListener('ended', () => {
                     const endedStreamType = currentStreamType === 'camera' ? 'Camera' : 'Screen';
                     console.log(`User stopped sharing ${endedStreamType}`);
-                    cleanupScreenCapture(); // This will re-enable the button and update UI
-                    if (isStreaming) {
-                        toggleStreaming(); // Stop video streaming if it was active
-                    }
+                    cleanupScreenCapture();
+                    if (isStreaming) { toggleStreaming(); }
                     screenStatus.textContent = `${endedStreamType} sharing ended.`;
                 });
 
-                videoElement = document.createElement('video');
-                videoElement.srcObject = mediaStream;
-                videoElement.muted = true; // Important to mute local playback to prevent echo if audio was included
+                // Show local preview immediately
+                showLocalPreview();
 
-                return new Promise((resolve) => {
-                    videoElement.onloadedmetadata = () => {
-                        videoElement.play().then(() => {
-                            screenStatus.textContent = currentStreamType === 'camera' ? "Camera selected" : "Screen selected";
-                            selectScreenButton.disabled = true;
-                            selectScreenButton.setAttribute('aria-disabled', 'true');
-                            resolve(true);
-                        }).catch(err => {
-                            console.error(`Error playing ${currentStreamType} video:`, err);
-                            screenStatus.textContent = `${currentStreamType === 'camera' ? 'Camera' : 'Screen'} selection failed.`;
-                            cleanupScreenCapture(); // Clean up if play fails
-                            resolve(false);
-                        });
-                    };
-                    videoElement.onerror = (err) => { // Handle potential errors loading the video srcObject
-                        console.error(`Error loading ${currentStreamType} into video element:`, err);
-                        screenStatus.textContent = `${currentStreamType === 'camera' ? 'Camera' : 'Screen'} load failed.`;
-                        cleanupScreenCapture();
-                        resolve(false);
-                    };
-                });
+                screenStatus.textContent = currentStreamType === 'camera' ? "Camera selected" : "Screen selected";
+                selectScreenButton.disabled = true;
+                selectScreenButton.setAttribute('aria-disabled', 'true');
+                
+                return true;
+
             } catch (error) {
                 const errorStreamType = isMobileBrowser() ? 'camera' : 'screen';
                 console.error(`Error setting up ${errorStreamType} capture:`, error);
@@ -1074,20 +1204,40 @@
                     updateStatus(`Error setting up ${errorStreamType}: ${error.message}`, true);
                     screenStatus.textContent = `Error with ${errorStreamType}.`;
                 }
-                cleanupScreenCapture(); // Ensure cleanup on any error
+                cleanupScreenCapture();
                 return false;
             }
         }
         
         function cleanupScreenCapture() {
-            if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
-            videoElement = null;
-            // Reset UI related to screen/camera selection
+            // Stop local preview animation
+            if (localPreviewAnimationId) {
+                cancelAnimationFrame(localPreviewAnimationId);
+                localPreviewAnimationId = null;
+            }
+            
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                mediaStream = null;
+            }
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.srcObject = null;
+                videoElement = null;
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, videoFeed.width, videoFeed.height);
+            
+            // Reset state
+            isShowingLocalPreview = false;
+            serverDisplayCtx = null;
+            
             selectScreenButton.disabled = false;
             selectScreenButton.removeAttribute('aria-disabled');
             screenStatus.textContent = "No screen or camera selected";
-            updateScreenCaptureUI(); // Reset button text to default for current mode (mobile/desktop)
-            currentStreamType = 'video'; // Reset stream type, or to a more neutral 'unknown'
+            updateScreenCaptureUI();
+            currentStreamType = 'video';
         }
         
         async function toggleAudioStreaming() {
@@ -1137,74 +1287,119 @@
         async function startStreaming() {
             if (isStreaming) return;
 
-            ctx.clearRect(0, 0, videoFeed.width, videoFeed.height);
-            if (mediaStream === null || videoElement === null) {
+            if (!mediaStream) {
                 const message = isMobileBrowser() ? "Please select a camera to share first" : "Please select a screen to share first";
                 updateStatus(message, true);
-                // Ensure button reflects non-streaming state if we exit early
-                toggleStreamingButton.textContent = "Start Streaming (Alt+S)";
-                toggleStreamingButton.classList.remove('stop');
-                toggleStreamingButton.classList.add('start');
                 return;
             }
 
+            // Switch to server view
+            showServerView();
+
             try {
-                await ensureWebSocketConnection();
-                // If connection successful, update state and UI then start sending
+                const connected = await ensureWebSocketConnection();
+                if (!connected) {
+                    updateStatus("Failed to connect to server", true);
+                    revertToLocalPreview();
+                    return;
+                }
+
                 isStreaming = true;
                 toggleStreamingButton.textContent = "Stop Streaming (Alt+S)";
                 toggleStreamingButton.classList.remove('start');
                 toggleStreamingButton.classList.add('stop');
-
-                isWaitingForResponse = false;
-                captureAndSendFrame();
                 updateStatus("Video streaming started");
+                
+                // Start sending frames
+                captureAndSendFrame();
+
             } catch (error) {
                 console.error("Error starting stream:", error);
                 updateStatus(`Error: ${error.message}`, true);
-                isStreaming = false; // Reset state
-                toggleStreamingButton.textContent = "Start Streaming (Alt+S)"; // Reset button
+                isStreaming = false;
+                toggleStreamingButton.textContent = "Start Streaming (Alt+S)";
                 toggleStreamingButton.classList.remove('stop');
                 toggleStreamingButton.classList.add('start');
+                revertToLocalPreview();
             }
         }
-        
+
         function stopStreaming() {
             if (!isStreaming) return;
-            console.log("Stopping video streaming");
-
+            
             isStreaming = false;
             toggleStreamingButton.textContent = "Start Streaming (Alt+S)";
             toggleStreamingButton.classList.remove('stop');
             toggleStreamingButton.classList.add('start');
-
+            
+            // Revert to local preview
+            revertToLocalPreview();
+            
             if (!isAudioStreaming && websocket) { websocket.close(); websocket = null; }
             if (speechSynthesis.speaking && !isMuted) { speechSynthesis.cancel(); }
-            updateStatus("Video streaming stopped"); // Keep this after UI updates
+            updateStatus("Video streaming stopped");
         }
         
         function captureAndSendFrame() {
             if (!isStreaming) return;
             try {
                 if (!videoElement || videoElement.readyState < 2) { setTimeout(captureAndSendFrame, 100); return; }
+                
+                // Create a fixed-size canvas for consistent output
+                const TARGET_WIDTH = 853;
+                const TARGET_HEIGHT = 480;
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = videoFeed.width; tempCanvas.height = videoFeed.height;
+                tempCanvas.width = TARGET_WIDTH; tempCanvas.height = TARGET_HEIGHT;
                 const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(videoElement, 0, 0, tempCanvas.width, tempCanvas.height);
-                let finalCanvas = tempCanvas;
-                if (cropSettings.some(val => val > 0)) {
+                
+                // Get original video dimensions
+                const videoWidth = videoElement.videoWidth;
+                const videoHeight = videoElement.videoHeight;
+                
+                if (videoWidth > 0 && videoHeight > 0) {
+                    // 1. CROP CALCULATION (from percentages to pixels) - SAME AS RTC
                     const [left, right, top, bottom] = cropSettings;
-                    const croppedWidth = tempCanvas.width - left - right;
-                    const croppedHeight = tempCanvas.height - top - bottom;
-                    if (croppedWidth > 0 && croppedHeight > 0) {
-                        const croppedCanvas = document.createElement('canvas');
-                        croppedCanvas.width = croppedWidth; croppedCanvas.height = croppedHeight;
-                        const croppedCtx = croppedCanvas.getContext('2d');
-                        croppedCtx.drawImage(tempCanvas, left, top, croppedWidth, croppedHeight, 0, 0, croppedWidth, croppedHeight);
-                        finalCanvas = croppedCanvas;
+                    const sx = videoWidth * (left / 100);
+                    const sy = videoHeight * (top / 100);
+                    const sWidth = videoWidth * (1 - (left + right) / 100);
+                    const sHeight = videoHeight * (1 - (top + bottom) / 100);
+                    
+                    if (sWidth > 0 && sHeight > 0) {
+                        // 2. LETTERBOX/PILLARBOX CALCULATION (for the cropped area) - SAME AS RTC
+                        const croppedAspectRatio = sWidth / sHeight;
+                        const canvasAspectRatio = TARGET_WIDTH / TARGET_HEIGHT;
+                        let renderWidth, renderHeight, dx, dy;
+                        
+                        if (croppedAspectRatio > canvasAspectRatio) {
+                            // Cropped content is wider - fit to width
+                            renderWidth = TARGET_WIDTH;
+                            renderHeight = TARGET_WIDTH / croppedAspectRatio;
+                            dx = 0;
+                            dy = (TARGET_HEIGHT - renderHeight) / 2;
+                        } else {
+                            // Cropped content is taller - fit to height
+                            renderHeight = TARGET_HEIGHT;
+                            renderWidth = TARGET_HEIGHT * croppedAspectRatio;
+                            dy = 0;
+                            dx = (TARGET_WIDTH - renderWidth) / 2;
+                        }
+                        
+                        // 3. DRAW THE FRAME with proper letterboxing - SAME AS RTC
+                        tempCtx.fillStyle = "black";
+                        tempCtx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+                        tempCtx.drawImage(
+                            videoElement,
+                            sx, sy, sWidth, sHeight,  // Source rectangle (cropped)
+                            dx, dy, renderWidth, renderHeight  // Destination rectangle (letterboxed)
+                        );
+                    } else {
+                        // If crop is invalid, draw a black frame
+                        tempCtx.fillStyle = "black";
+                        tempCtx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
                     }
                 }
-                const dataUrl = finalCanvas.toDataURL('image/jpeg', quality / 100);
+                
+                const dataUrl = tempCanvas.toDataURL('image/jpeg', quality / 100);
                 if (websocket && websocket.readyState === WebSocket.OPEN) {
                     websocket.send(JSON.stringify({ image: dataUrl, processor: parseInt(currentProcessor) }));
                 }
@@ -1253,9 +1448,39 @@
                 }
 
                 if (data.image) {
-                    const img = new Image();
-                    img.onload = () => { if (ctx && videoFeed) { ctx.clearRect(0, 0, videoFeed.width, videoFeed.height); ctx.drawImage(img, 0, 0, videoFeed.width, videoFeed.height); } };
-                    img.src = data.image;
+                    // Only display server images if we're in server view mode
+                    if (serverDisplayCtx && !isShowingLocalPreview) {
+                        const img = new Image();
+                        img.onload = () => { 
+                            // Clear and fill with black background
+                            serverDisplayCtx.fillStyle = "black";
+                            serverDisplayCtx.fillRect(0, 0, videoFeed.width, videoFeed.height);
+                            
+                            // Calculate aspect ratios for proper fitting
+                            const imgAspect = img.width / img.height;
+                            const canvasAspect = videoFeed.width / videoFeed.height;
+                            
+                            let drawWidth, drawHeight, dx, dy;
+                            
+                            if (imgAspect > canvasAspect) {
+                                // Image is wider - fit to width
+                                drawWidth = videoFeed.width;
+                                drawHeight = videoFeed.width / imgAspect;
+                                dx = 0;
+                                dy = (videoFeed.height - drawHeight) / 2;
+                            } else {
+                                // Image is taller - fit to height
+                                drawHeight = videoFeed.height;
+                                drawWidth = videoFeed.height * imgAspect;
+                                dy = 0;
+                                dx = (videoFeed.width - drawWidth) / 2;
+                            }
+                            
+                            // Draw with proper aspect ratio preservation and black borders
+                            serverDisplayCtx.drawImage(img, dx, dy, drawWidth, drawHeight);
+                        };
+                        img.src = data.image;
+                    }
                 }
                 let wasHandledAsPointCloud = false;
                 if (data.text && typeof data.text === 'object' && data.text !== null && Array.isArray(data.text.points)) {
@@ -1353,9 +1578,12 @@ Troubleshooting Tips:
             dialog.showModal();
         }
         
+        // MODIFIED: Initialize crop value displays with percentages
         qualityValue.textContent = quality;
-        leftValue.textContent = cropSettings[0]; rightValue.textContent = cropSettings[1];
-        topValue.textContent = cropSettings[2]; bottomValue.textContent = cropSettings[3];
+        leftValue.textContent = `${cropSettings[0]}%`; 
+        rightValue.textContent = `${cropSettings[1]}%`;
+        topValue.textContent = `${cropSettings[2]}%`; 
+        bottomValue.textContent = `${cropSettings[3]}%`;
         
         document.addEventListener('DOMContentLoaded', () => {
             enumerateAudioDevices();

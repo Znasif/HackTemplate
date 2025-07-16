@@ -1,13 +1,13 @@
 # WhatsAI Web Client
 
-This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client web applications running for it to work. Make sure to start the server first. You can access the client at this website: https://znasif.netlify.app/screencapture.html
+This project was created to be used by Blind and Low Vision users to have an AAII (Accessible Artificial Intelligence Implementation) available to them wherever they may be. Most components of this project have minimal dependency on a stable internet connection once all the components have been installed if the user wants to work solely on their workstation (PC/laptop). If the user wants to access it from anywhere, a WhatsApp connection needs to be set up. You would need both the server and the client web applications running for it to work. Make sure to start the server first. You can access the client by opening client/screen_wss.html in your browser.
 
 ## Quick Start with Remote Server
 
 If you want to use an already running server:
 
 1. Obtain the server WebSocket URL (format: `wss://[server-address]/ws`)
-2. Open the WhatsAI Web Client at https://znasif.netlify.app/screencapture.html
+2. Open the WhatsAI Web Client by opening the client/screen_wss.html in your browser.
 3. Paste the server URL into the "Server URL" text field
 4. Click "Select Screen to Share" and choose your desired screen
 5. Click "Start Streaming" to begin sharing your screen with the server
