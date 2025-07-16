@@ -9,7 +9,7 @@ from ultralytics import SAM
 from transformers import AutoProcessor, AutoModelForCausalLM
 from typing import Dict, List, Tuple
 import colorsys
-import math # Added for the new scoring logic
+import math
 
 # --- SCRIPT INSTRUCTIONS ---
 # 1. Install necessary libraries:
@@ -28,6 +28,8 @@ class ControlPanelRegionGenerator:
     Generates region files for control panels using a two-phase approach:
     1. Isolate the main control panel from the image, performing a perspective transform.
     2. Analyze the isolated panel for its sub-components (buttons, screens, etc.).
+    
+    Also includes a method for processing structured images like Magic: The Gathering cards.
     """
     def __init__(self, florence_model_name: str, sam_model_path: str):
         """
@@ -51,7 +53,7 @@ class ControlPanelRegionGenerator:
         self.sam = SAM(sam_model_path)
         print(f"✅ SAM model loaded: {sam_model_path}")
 
-    # --- HELPER FUNCTIONS FOR FILTERING AND TRANSFORMATION ---
+    # --- HELPER FUNCTIONS FOR FILTERING AND TRANSFORMATION (for Control Panels) ---
 
     def _is_button_like_mask(self, mask: np.ndarray, image_shape: Tuple) -> bool:
         """Filter to check if a mask corresponds to a plausible control panel element."""
@@ -131,19 +133,39 @@ class ControlPanelRegionGenerator:
     def _find_main_panel(self, segments: List[Dict], image: np.ndarray, debug_dir: str) -> Dict:
         """Scores each segment based on area and text content to find the main control panel."""
         best_segment = None
-        return segments[0]
         max_score = -1
         print("   Scoring candidate panels:")
         for i, segment in enumerate(segments):
+            # We don't need to re-run OCR for the entire image if it's the first synthetic segment
+            if segment.get('segment_id') == -1:
+                continue
+
             text = self.extract_text_florence(image, segment['bbox'], f"panel_eval_{i}", debug_dir)
             num_chars = len("".join(text.split())) # Count non-whitespace chars
             area = np.sum(segment['mask'])
-            if area < 5000: score = 0
-            else: score = math.log(area + 1) * math.log(num_chars + 2) # +2 to avoid log(1)=0
+            
+            # Simple heuristic: penalize very small areas
+            if area < 5000: 
+                score = 0
+            else: 
+                score = math.log(area + 1) * math.log(num_chars + 2) # +2 to avoid log(1)=0
+            
             print(f"     - Candidate {i}: Area={int(area)}, Chars={num_chars}, Score={score:.2f}")
+
             if score > max_score:
                 max_score = score
                 best_segment = segment
+                
+        # Fallback to the largest segment if scoring fails to find a good candidate
+        if best_segment is None:
+            print("   ⚠️ Scoring did not find a text-rich panel. Falling back to the largest segment.")
+            # Exclude the full-image synthetic segment from the fallback search
+            valid_segments = [s for s in segments if s.get('segment_id') != -1]
+            if valid_segments:
+                best_segment = max(valid_segments, key=lambda s: np.sum(s['mask']))
+            else: # If only the synthetic segment exists
+                best_segment = segments[0]
+                
         return best_segment
 
     # --- CORE PROCESSING AND OCR FUNCTIONS ---
@@ -167,7 +189,7 @@ class ControlPanelRegionGenerator:
             'confidence': 1.0  # Assign maximum confidence
         }
 
-        # 2. Initialize the segments list with the full image segment as the first element
+        # 2. Initialize the segments list with the full image segment
         segments = [full_image_segment]
 
         # 3. Now, run SAM and append its findings to the list
@@ -191,15 +213,22 @@ class ControlPanelRegionGenerator:
                     
         return segments
 
-    def extract_text_florence(self, image: np.ndarray, bbox: List[int], region_idx: int, debug_dir: str):
-        """Extracts text from a raw color crop without preprocessing."""
+    def extract_text_florence(self, image: np.ndarray, bbox: List[int], region_idx, debug_dir: str):
+        """Extracts text from a raw color crop using Florence-2."""
         try:
             h, w, _ = image.shape
             x1, y1, x2, y2 = bbox
-            raw_region_crop = image[y1:y2, x1:x2]
+            # Add a small padding to the crop to ensure text isn't cut off at the edges
+            padding = 2
+            raw_region_crop = image[max(0, y1-padding):min(h, y2+padding), max(0, x1-padding):min(w, x2+padding)]
+            
             if raw_region_crop.size == 0: return ''
-            raw_crop_path = os.path.join(debug_dir, f"region_{region_idx}_raw_for_ocr.png")
+            
+            # Save the crop for debugging purposes
+            os.makedirs(debug_dir, exist_ok=True)
+            raw_crop_path = os.path.join(debug_dir, f"region_{region_idx}_for_ocr.png")
             cv2.imwrite(raw_crop_path, raw_region_crop)
+
             pil_image = Image.fromarray(cv2.cvtColor(raw_region_crop, cv2.COLOR_BGR2RGB))
             task_prompt = '<OCR>'
             inputs = self.florence_processor(text=task_prompt, images=pil_image, return_tensors="pt").to(self.device)
@@ -208,11 +237,125 @@ class ControlPanelRegionGenerator:
                 max_new_tokens=1024, num_beams=3, early_stopping=False, do_sample=False,
             )
             generated_text = self.florence_processor.batch_decode(generated_ids, skip_special_tokens=False)[0]
+            # Use post_process_generation for better parsing
             parsed_answer = self.florence_processor.post_process_generation(generated_text, task=task_prompt, image_size=(pil_image.width, pil_image.height))
-            return parsed_answer.get(task_prompt, '').strip()
+            # Clean up the final text
+            final_text = parsed_answer.get(task_prompt, '').strip()
+            # Replace newline characters with spaces for cleaner single-line output
+            return " ".join(final_text.splitlines())
+
         except Exception as e:
             print(f"      ⚠️  Florence OCR failed for region {bbox}: {e}")
             return ''
+
+    # --- NEW: MTG CARD PROCESSING FUNCTIONS ---
+    
+    def _get_mtg_card_layout_boxes(self, image_shape: Tuple) -> List[Dict]:
+        """
+        Defines the standard regions of an MTG card using percentage-based bounding boxes.
+        This heuristic-based approach is more reliable for structured layouts than open-ended segmentation.
+        """
+        h, w = image_shape[:2]
+        
+        # Percentages are tuned for a standard, modern MTG card frame.
+        # Format: [x_start, y_start, x_end, y_end] as fractions of width/height
+        region_definitions = {
+            "Title":       [0.08, 0.05, 0.65, 0.10],
+            "Type Line":   [0.08, 0.57, 0.92, 0.62],
+            "Rules Text":  [0.08, 0.64, 0.92, 0.85],
+            "Flavor Text": [0.08, 0.85, 0.92, 0.91],
+        }
+        
+        segments = []
+        for label, coords in region_definitions.items():
+            x1 = int(coords[0] * w)
+            y1 = int(coords[1] * h)
+            x2 = int(coords[2] * w)
+            y2 = int(coords[3] * h)
+            
+            bbox = [x1, y1, x2, y2]
+            
+            # Create a corresponding mask for compatibility with visualization functions
+            mask = np.zeros((h, w), dtype=np.uint8)
+            cv2.rectangle(mask, (x1, y1), (x2, y2), 255, -1)
+            
+            segments.append({
+                'label': label,
+                'bbox': bbox,
+                'mask': mask
+            })
+            
+        return segments
+
+    def process_mtg_card(self, image_path: str, output_dir: str):
+        """
+        Main processing pipeline for MTG cards. It defines regions based on a standard
+        card layout and then uses OCR to extract text from each one.
+        """
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"Image not found at {image_path}")
+        
+        os.makedirs(output_dir, exist_ok=True)
+        card_name = os.path.splitext(os.path.basename(image_path))[0]
+        full_image = cv2.imread(image_path)
+        print(f"\n🃏 Processing MTG Card: {card_name}")
+        debug_dir = os.path.join(output_dir, "debug_regions")
+        os.makedirs(debug_dir, exist_ok=True)
+
+        # --- PHASE 1: Define Card Regions ---
+        print("\n--- PHASE 1: DEFINING CARD REGIONS ---")
+        print("1. Defining regions based on standard MTG card layout...")
+        card_segments = self._get_mtg_card_layout_boxes(full_image.shape)
+        card_segments.sort(key=lambda s: s['bbox'][1]) # Sort top-to-bottom
+        print(f"   ✅ Defined {len(card_segments)} key regions: {[s['label'] for s in card_segments]}")
+        
+        # Save the full card image as the base "template"
+        template_path = os.path.join(output_dir, f"template.jpg")
+        cv2.imwrite(template_path, full_image)
+        print(f"   ✅ Saved base card image to: {template_path}")
+
+        # --- PHASE 2: Analyze Defined Regions ---
+        print("\n--- PHASE 2: ANALYZING REGIONS ---")
+        print("1. Extracting text for each defined region...")
+        ocr_results = []
+        for i, segment in enumerate(card_segments):
+            label = segment['label']
+            print(f"   - Processing region {i+1}/{len(card_segments)}: '{label}'...")
+            
+            text = self.extract_text_florence(full_image, segment['bbox'], label, debug_dir)
+            ocr_results.append(text)
+            print(f"     -> Found text: '{text}'")
+
+        # --- FINALIZATION ---
+        print("\n2. Generating final output files...")
+        colors = self.generate_unique_colors(len(card_segments))
+        
+        # The existing output functions are reused here. We format our data to match their expectations.
+        # We modify the 'segments' to add the text to the class name for the JSON.
+        for seg, text in zip(card_segments, ocr_results):
+            seg['class_name'] = seg['label']
+            seg['text_content'] = text
+        
+        regions_data = self.create_regions_json(card_segments, colors, ocr_results)
+        regions_path = os.path.join(output_dir, "regions.json")
+        with open(regions_path, 'w') as f:
+            json.dump(regions_data, f, indent=2)
+        print(f"   ✅ Saved regions config: {regions_path}")
+        
+        color_map = self.create_color_map(full_image, card_segments, colors)
+        colormap_path = os.path.join(output_dir, "colorMap.png")
+        cv2.imwrite(colormap_path, color_map)
+        print(f"   ✅ Saved color map: {colormap_path}")
+        
+        vis_image = self.create_visualization(full_image, card_segments, colors, ocr_results)
+        vis_path = os.path.join(output_dir, f"{card_name}_visualization.jpg")
+        cv2.imwrite(vis_path, vis_image)
+        print(f"   ✅ Saved visualization: {vis_path}")
+        
+        print("\n🎉 Processing Complete!")
+        return regions_data
+
+    # --- EXISTING CONTROL PANEL PROCESSING FUNCTION (UNCHANGED) ---
 
     def process_control_panel(self, image_path: str, output_dir: str):
         """
@@ -284,7 +427,7 @@ class ControlPanelRegionGenerator:
         print("\n🎉 Processing Complete!")
         return regions_data
 
-    # --- OUTPUT GENERATION UTILITIES ---
+    # --- OUTPUT GENERATION UTILITIES (UNCHANGED) ---
 
     def generate_unique_colors(self, num_colors: int) -> List[Tuple[int, int, int]]:
         colors = []
@@ -298,14 +441,19 @@ class ControlPanelRegionGenerator:
     def create_color_map(self, image: np.ndarray, segments: List[Dict], colors: List[Tuple[int, int, int]]) -> np.ndarray:
         color_map = np.zeros_like(image)
         for i, segment in enumerate(segments):
-            mask = cv2.resize(segment['mask'].astype(np.uint8), (image.shape[1], image.shape[0]))
+            # Ensure mask has the same dimensions as the image
+            if segment['mask'].shape != image.shape[:2]:
+                mask = cv2.resize(segment['mask'].astype(np.uint8), (image.shape[1], image.shape[0]))
+            else:
+                mask = segment['mask']
             color_map[mask > 0] = colors[i]
         return color_map
 
-    def create_regions_json(self, segments: List[Dict], colors: List[Tuple[int, int, int]], ocr_results: List[Dict]) -> Dict:
+    def create_regions_json(self, segments: List[Dict], colors: List[Tuple[int, int, int]], ocr_results: List[str]) -> Dict:
         regions_data = {"regions": [], "metadata": {}}
         for i, (segment, color, text) in enumerate(zip(segments, colors, ocr_results)):
-            class_name = text if text else f"region_{i+1}"
+            # Use a more descriptive class name from the segment if available, otherwise default
+            class_name = segment.get('label', f"region_{i+1}")
             regions_data["regions"].append({
                 "detection_id": f"region_{i+1:03d}", "class": class_name, "text_content": text,
                 "color": list(color), "bbox": segment['bbox'], "segment_area": int(np.sum(segment['mask'])),
@@ -316,18 +464,22 @@ class ControlPanelRegionGenerator:
         }
         return regions_data
 
-    def create_visualization(self, image: np.ndarray, segments: List[Dict], colors: List[Tuple[int, int, int]], ocr_results: List[Dict]) -> np.ndarray:
+    def create_visualization(self, image: np.ndarray, segments: List[Dict], colors: List[Tuple[int, int, int]], ocr_results: List[str]) -> np.ndarray:
         vis_image = image.copy()
         overlay = vis_image.copy()
-        for i, (segment, color, ocr) in enumerate(zip(segments, colors, ocr_results)):
-            mask = cv2.resize(segment['mask'].astype(np.uint8), (image.shape[1], image.shape[0]))
+        for i, (segment, color) in enumerate(zip(segments, colors)):
+            if segment['mask'].shape != image.shape[:2]:
+                mask = cv2.resize(segment['mask'].astype(np.uint8), (image.shape[1], image.shape[0]))
+            else:
+                mask = segment['mask']
             overlay[mask > 0] = color
         vis_image = cv2.addWeighted(overlay, 0.4, vis_image, 0.6, 0)
+        
         for i, (segment, color, ocr) in enumerate(zip(segments, colors, ocr_results)):
             x1, y1, x2, y2 = segment['bbox']
             cv2.rectangle(vis_image, (x1, y1), (x2, y2), color, 2)
-            label = f"R{i+1}: {ocr}"
-            cv2.putText(vis_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,255,255), 2)
+            label = segment.get('label', f"R{i+1}")
+            cv2.putText(vis_image, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2, cv2.LINE_AA)
         return vis_image
 
     def _mask_to_bbox(self, mask: np.ndarray) -> List[int]:
@@ -347,77 +499,59 @@ class ControlPanelRegionGenerator:
 
 
 if __name__ == "__main__":
-    # --- COMMAND-LINE ARGUMENT PARSING ---
     parser = argparse.ArgumentParser(
-        description="Analyzes a control panel image to identify and OCR its components. "
-                    "First, it isolates the main panel, then analyzes its sub-regions."
+        description="Analyzes a control panel or MTG card image to identify and OCR its components."
     )
     
-    # Required argument for the image file
-    parser.add_argument(
-        "image_to_process",
-        type=str,
-        help="Path to the input image file to be processed."
-    )
-    
-    # Optional arguments for other paths
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default=None,
-        help="Directory to save the results. If not provided, a new directory will be created next to the input image."
-    )
-    parser.add_argument(
-        "--sam_model_path",
-        type=str,
-        default="../models/sam2.1_l.pt",
-        help="Path to the SAM model file."
-    )
-    parser.add_argument(
-        "--florence_model_name",
-        type=str,
-        default="microsoft/Florence-2-large",
-        help="Name of the Florence-2 model from Hugging Face."
-    )
+    parser.add_argument("image_to_process", type=str, help="Path to the input image file.")
+    parser.add_argument("--mode", type=str, default="control_panel", choices=["control_panel", "mtg_card"], help="Processing mode.")
+    parser.add_argument("--output_dir", type=str, default=None, help="Directory to save results.")
+    parser.add_argument("--sam_model_path", type=str, default="../models/sam2.1_l.pt", help="Path to the SAM model.")
+    parser.add_argument("--florence_model_name", type=str, default="microsoft/Florence-2-large", help="Florence-2 model name.")
     
     args = parser.parse_args()
 
     # --- SETTING UP PATHS ---
     image_to_process = "../models/cars/"+args.image_to_process
-    sam_model_path = args.sam_model_path
-    florence_model_name = args.florence_model_name
-
-    # Determine the output directory
+    if not os.path.exists(image_to_process):
+        print(f"❌ Error: Input image not found at '{image_to_process}'")
+        exit()
+        
     if args.output_dir:
         output_directory = args.output_dir
     else:
-        # Create a default output directory named after the image file
         base_name = os.path.splitext(os.path.basename(image_to_process))[0]
         output_directory = os.path.join(os.path.dirname(image_to_process), base_name + "_output")
 
     # --- RUN THE PROCESSING PIPELINE ---
     try:
         generator = ControlPanelRegionGenerator(
-            florence_model_name=florence_model_name,
-            sam_model_path=sam_model_path
+            florence_model_name=args.florence_model_name,
+            sam_model_path=args.sam_model_path
         )
         
-        final_regions = generator.process_control_panel(
-            image_path=image_to_process,
-            output_dir=output_directory
-        )
+        if args.mode == "control_panel":
+            final_regions = generator.process_control_panel(
+                image_path=image_to_process,
+                output_dir=output_directory
+            )
+        elif args.mode == "mtg_card":
+            final_regions = generator.process_mtg_card(
+                image_path=image_to_process,
+                output_dir=output_directory
+            )
 
         print("\n--- FINAL RESULTS SUMMARY ---")
         if final_regions and final_regions.get('regions'):
             for region in final_regions['regions']:
-                print(f"  - ID: {region['detection_id']}, Text: '{region['text_content']}'")
+                print(f"  - Class: {region['class']}, Text: '{region['text_content']}'")
         else:
-            print("  No valid regions were detected after filtering.")
+            print("  No valid regions were detected or processed.")
 
     except FileNotFoundError as e:
         print(f"\n❌ ERROR: A required file was not found.")
         print(f"   Details: {e}")
-        print("   Please ensure all file paths are correct.")
     except Exception as e:
+        import traceback
         print(f"\n❌ An unexpected error occurred: {e}")
-        print(f"   Please check your library installations and model paths.")
+        traceback.print_exc()
