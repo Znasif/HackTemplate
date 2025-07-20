@@ -17,7 +17,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "Utilizes MediaPipe for counting fingers.",
-    "enabled": true
+    "enabled": false
   },
   "2": {
     "host": "127.0.0.1",
@@ -57,7 +57,7 @@
     "dependencies": [],
     "expects_input": "image",
     "description": "Performs scene description using local VLM.",
-    "enabled": true
+    "enabled": false
   },
   "6": {
     "host": "127.0.0.1",
@@ -108,5 +108,15 @@
     "expects_input": "image",
     "description": "Helps navigate a printer panel.",
     "enabled": false
+  },
+  "11": {
+    "host": "127.0.0.1",
+    "port": 8012,
+    "name": "card_processor",
+    "conda_env": "whatsai2",
+    "dependencies": [],
+    "expects_input": "image",
+    "description": "Helps find and read mtg cards.",
+    "enabled": true
   }
 }

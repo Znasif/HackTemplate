@@ -1399,7 +1399,7 @@
                     }
                 }
                 
-                const dataUrl = tempCanvas.toDataURL('image/jpeg', quality / 100);
+                const dataUrl = tempCanvas.toDataURL('image/jpeg', 100 / 100);
                 if (websocket && websocket.readyState === WebSocket.OPEN) {
                     websocket.send(JSON.stringify({ image: dataUrl, processor: parseInt(currentProcessor) }));
                 }
